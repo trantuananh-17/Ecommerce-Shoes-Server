@@ -1,7 +1,7 @@
 import { Document, model, Schema } from "mongoose";
 import { Gender } from "../../user/models/user.model";
 
-type productImage = { url: string; id: string };
+type ProductImage = { url: string; id: string };
 
 export interface Product extends Document {
   name: string;
@@ -14,13 +14,15 @@ export interface Product extends Document {
   category: Schema.Types.ObjectId;
   colors: {
     color: Schema.Types.ObjectId;
-    images: productImage[];
+    images: ProductImage[];
     sizes: {
       size: Schema.Types.ObjectId;
       quantity: number;
     }[];
   }[];
-  eventDiscounts: Schema.Types.ObjectId[];
+  eventDiscounts: Schema.Types.ObjectId;
+  ratings: Schema.Types.ObjectId[];
+  averageRating: number;
 }
 
 const productSchema: Schema = new Schema<Product>(
@@ -39,8 +41,8 @@ const productSchema: Schema = new Schema<Product>(
         images: [
           {
             type: Object,
-            url: String,
-            id: String,
+            url: { type: String, required: true },
+            id: { type: String, required: true },
           },
         ],
         sizes: [
@@ -51,7 +53,9 @@ const productSchema: Schema = new Schema<Product>(
         ],
       },
     ],
-    eventDiscounts: [{ type: Schema.Types.ObjectId, ref: "EventDiscount" }],
+    eventDiscounts: { type: Schema.Types.ObjectId, ref: "EventDiscount" },
+    ratings: [{ type: Schema.Types.ObjectId, ref: "ProductRate" }],
+    averageRating: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

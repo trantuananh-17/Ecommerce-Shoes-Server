@@ -1,5 +1,6 @@
 import { Document, model, Schema } from "mongoose";
-import { Address } from "../../address/models/address.model";
+
+type Avatar = { url: string; id: string };
 
 export enum Gender {
   MALE = "Nam",
@@ -15,19 +16,20 @@ export interface User extends Document {
   email: string;
   password: string;
   fullname: string;
-  phoneNumber: string;
-  gender: Gender;
-  birth: Date;
-  province: string;
-  district: string;
-  ward: string;
-  address: string;
-  addresses: Schema.Types.ObjectId[];
+  phoneNumber?: string;
+  gender?: Gender;
+  birth?: Date;
+  province?: string;
+  district?: string;
+  ward?: string;
+  address?: string;
+  addresses?: Schema.Types.ObjectId[];
   verified: boolean;
   isActive: boolean;
   tokens: string[];
-  avatar: { url: string; id: string };
+  avatar?: Avatar;
   role: Role;
+  cart: Schema.Types.ObjectId;
 }
 
 const userSchema: Schema = new Schema<User>(
@@ -53,13 +55,18 @@ const userSchema: Schema = new Schema<User>(
     tokens: [String],
     avatar: {
       type: Object,
-      url: String,
-      id: String,
+      url: { type: String, required: true },
+      id: { type: String, required: true },
     },
     role: {
       type: String,
       enum: Object.values(Role),
       default: Role.USER,
+    },
+    cart: {
+      type: Schema.Types.ObjectId,
+      ref: "Cart",
+      required: true,
     },
   },
   { timestamps: true }

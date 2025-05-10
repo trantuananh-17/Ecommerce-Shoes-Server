@@ -18,7 +18,7 @@ const addressSchema: Schema<Address> = new Schema({
   toDistrict: { type: String, required: true },
   toWard: { type: String, required: true },
   toAddress: { type: String, required: true },
-  isActive: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: false },
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
 
