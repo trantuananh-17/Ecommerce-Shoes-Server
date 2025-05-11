@@ -1,5 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-import { Gender } from "../../user/models/user.model";
+import { Gender } from "../../user/user.model";
 
 type ProductImage = { url: string; id: string };
 
@@ -21,7 +21,6 @@ export interface Product extends Document {
   category: Schema.Types.ObjectId;
   material: Schema.Types.ObjectId;
   closure: Schema.Types.ObjectId;
-  colors: Schema.Types.ObjectId;
   eventDiscounts: Schema.Types.ObjectId;
   ratings: Schema.Types.ObjectId[];
   averageRating: number;
@@ -48,7 +47,6 @@ const productSchema: Schema = new Schema<Product>(
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     material: { type: Schema.Types.ObjectId, ref: "Material", required: true },
     closure: { type: Schema.Types.ObjectId, ref: "Closure", required: true },
-    colors: { type: Schema.Types.ObjectId, ref: "ColorSize", required: true },
     eventDiscounts: { type: Schema.Types.ObjectId, ref: "EventDiscount" },
     ratings: [{ type: Schema.Types.ObjectId, ref: "ProductRate" }],
     averageRating: { type: Number, default: 0 },

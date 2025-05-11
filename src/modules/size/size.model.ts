@@ -1,12 +1,12 @@
 import { Document, model, Schema } from "mongoose";
 
-export interface Size extends Document {
+export interface ISize extends Document {
   name: string;
 }
 
-const sizeSchema: Schema = new Schema<Size>(
+const sizeSchema: Schema = new Schema<ISize>(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 );

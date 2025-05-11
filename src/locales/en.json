@@ -1,0 +1,8 @@
+{
+  "SIZE_ALREADY_EXISTS": "This size already exists.",
+  "SIZE_CREATED_SUCCESSFULLY": "New size created successfully.",
+  "SIZE_NAME_STRING": "Please enter a valid size name.",
+  "SIZE_NAME_EMPTY": "Please enter a size name.",
+  "SIZE_NAME_REQUIRED": "Size name is required.",
+  "INTERNAL_SERVER_ERROR": "Internal server error. Please try again later."
+}
