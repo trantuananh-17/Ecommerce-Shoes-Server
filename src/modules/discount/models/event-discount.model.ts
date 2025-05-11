@@ -7,7 +7,6 @@ export interface EventDiscount extends Document {
   endDate: Date;
   products: Schema.Types.ObjectId[];
   isActive: boolean;
-  createdAt: Date;
 }
 
 const eventDiscountSchema: Schema = new Schema<EventDiscount>(

@@ -3,6 +3,12 @@ import { Gender } from "../../user/models/user.model";
 
 type ProductImage = { url: string; id: string };
 
+enum ShoeCollarType {
+  LowCut = "Giày cổ thấp",
+  MidCut = "Giày cổ vừa",
+  HighCut = "Giày cổ cao",
+}
+
 export interface Product extends Document {
   name: string;
   brand: Schema.Types.ObjectId;
@@ -11,15 +17,11 @@ export interface Product extends Document {
   warranty: string;
   isActive: boolean;
   gender: Gender;
+  shoeCollarType: ShoeCollarType;
   category: Schema.Types.ObjectId;
-  colors: {
-    color: Schema.Types.ObjectId;
-    images: ProductImage[];
-    sizes: {
-      size: Schema.Types.ObjectId;
-      quantity: number;
-    }[];
-  }[];
+  material: Schema.Types.ObjectId;
+  closure: Schema.Types.ObjectId;
+  colors: Schema.Types.ObjectId;
   eventDiscounts: Schema.Types.ObjectId;
   ratings: Schema.Types.ObjectId[];
   averageRating: number;
@@ -33,26 +35,20 @@ const productSchema: Schema = new Schema<Product>(
     description: { type: String, required: true },
     warranty: { type: String, required: true },
     isActive: { type: Boolean, default: true },
-    gender: { type: String, enum: Object.values(Gender), required: true },
+    gender: {
+      type: String,
+      enum: Object.values(ShoeCollarType),
+      required: true,
+    },
+    shoeCollarType: {
+      type: String,
+      enum: Object.values(Gender),
+      required: false,
+    },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-    colors: [
-      {
-        color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
-        images: [
-          {
-            type: Object,
-            url: { type: String, required: true },
-            id: { type: String, required: true },
-          },
-        ],
-        sizes: [
-          {
-            size: { type: Schema.Types.ObjectId, ref: "Size" },
-            quantity: { type: Number, required: true, default: 0 },
-          },
-        ],
-      },
-    ],
+    material: { type: Schema.Types.ObjectId, ref: "Material", required: true },
+    closure: { type: Schema.Types.ObjectId, ref: "Closure", required: true },
+    colors: { type: Schema.Types.ObjectId, ref: "ColorSize", required: true },
     eventDiscounts: { type: Schema.Types.ObjectId, ref: "EventDiscount" },
     ratings: [{ type: Schema.Types.ObjectId, ref: "ProductRate" }],
     averageRating: { type: Number, default: 0 },

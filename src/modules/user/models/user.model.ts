@@ -26,7 +26,7 @@ export interface User extends Document {
   addresses?: Schema.Types.ObjectId[];
   verified: boolean;
   isActive: boolean;
-  tokens: string[];
+  refreshTokens: string[];
   avatar?: Avatar;
   role: Role;
   cart: Schema.Types.ObjectId;
@@ -52,7 +52,7 @@ const userSchema: Schema = new Schema<User>(
     ],
     verified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
-    tokens: [String],
+    refreshTokens: { type: [String], default: [] },
     avatar: {
       type: Object,
       url: { type: String, required: true },
