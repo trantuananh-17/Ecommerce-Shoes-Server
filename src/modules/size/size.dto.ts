@@ -1,5 +1,9 @@
-export interface SizeResponseDto {
+export interface ISizeResponseDto {
   id: string;
   name: string;
-  createdAt: string;
+  createdAt: String;
+}
+
+export interface ICreateSizeDto {
+  name: string;
 }

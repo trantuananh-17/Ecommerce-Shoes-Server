@@ -1,23 +1,29 @@
-import { TranslateFunction } from "../../types";
-import { apiError, apiResponse } from "../../utils/api-response.helper";
+import { TranslateFunction } from "../../types/express";
+import { apiError, apiResponse } from "../../utils/helpers/api-response.helper";
 import HttpStatus from "../../utils/http-status.utils";
-import { SizeResponseDto } from "./size.dto";
+import { ICreateSizeDto, ISizeResponseDto } from "./size.dto";
 import { sizeResponseMapper } from "./size.mapper";
 import SizeModel, { ISize } from "./size.model";
 
 export class SizeService {
-  async createSizeService(value: ISize, __: TranslateFunction) {
+  async createSizeService(DTOSize: ICreateSizeDto, __: TranslateFunction) {
     try {
-      const { name } = value;
+      const { name } = DTOSize;
       const existingSize = await SizeModel.findOne({ name });
 
       if (existingSize) {
-        return apiError(HttpStatus.NOT_FOUND, __("SIZE_ALREADY_EXISTS"));
+        return apiError(HttpStatus.CONFLICT, __("SIZE_ALREADY_EXISTS"));
       }
 
-      const created = await SizeModel.create({ name });
-      const response: SizeResponseDto = sizeResponseMapper(created);
-      return apiResponse(HttpStatus.CREATED, __("SIZE_CREATED"), response);
+      const newSize = new SizeModel({ name });
+      const created = await newSize.save();
+
+      const response: ISizeResponseDto = sizeResponseMapper(created);
+      return apiResponse(
+        HttpStatus.CREATED,
+        __("SIZE_CREATED_SUCCESSFULLY"),
+        response
+      );
     } catch (error: any) {
       return apiError(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -45,10 +51,10 @@ export class SizeService {
     }
   }
 
-  async getAllSizeService(__: TranslateFunction) {
+  async getAllSizesService(__: TranslateFunction) {
     try {
-      const listSize: any[] = await SizeModel.find().sort({ name: 1 });
-      const response: SizeResponseDto[] = listSize.map(sizeResponseMapper);
+      const listSize: ISize[] = await SizeModel.find().sort({ name: 1 });
+      const response: ISizeResponseDto[] = listSize.map(sizeResponseMapper);
 
       return apiResponse(
         HttpStatus.OK,

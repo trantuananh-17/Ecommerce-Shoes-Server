@@ -2,7 +2,7 @@ import { Document, model, Schema } from "mongoose";
 
 type ProductImage = { url: string; id: string };
 
-interface ColorSize extends Document {
+interface IColorSize extends Document {
   product: Schema.Types.ObjectId;
   color: Schema.Types.ObjectId;
   images: ProductImage[];
@@ -12,7 +12,7 @@ interface ColorSize extends Document {
   }[];
 }
 
-const colorSizeSchema: Schema = new Schema<ColorSize>({
+const colorSizeSchema: Schema = new Schema<IColorSize>({
   product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
   color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
   images: [

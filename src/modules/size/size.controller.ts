@@ -2,22 +2,24 @@ import { Request, Response } from "express";
 import { SizeService } from "./size.service";
 import { sizeValidate } from "./size.validator";
 import HttpStatus from "../../utils/http-status.utils";
-import { apiError } from "../../utils/api-response.helper";
+import { apiError } from "../../utils/helpers/api-response.helper";
 import { isValidObjectId } from "mongoose";
-import { errorRes } from "../../utils/error-response.helper";
+import { errorRes } from "../../utils/helpers/error-response.helper";
+import { ICreateSizeDto } from "./size.dto";
+import { handleValidationError } from "../../utils/helpers/validation.helper";
 
 export class SizeController {
   private readonly sizeService = new SizeService();
 
   getAllSizeController = async (req: Request, res: Response): Promise<any> => {
     try {
-      const response = await this.sizeService.getAllSizeService(
+      const response = await this.sizeService.getAllSizesService(
         req.__.bind(req)
       );
 
       res.status(response.status_code).json(response);
     } catch (error: any) {
-      console.error("Error in SizeController.tgetAllSizeController:", error);
+      console.error("Error in SizeController.getAllSizeController:", error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json(
@@ -30,16 +32,15 @@ export class SizeController {
     }
   };
 
-  createSizeController = async (req: Request, res: Response): Promise<any> => {
+  createSizeController = async (
+    req: Request<ICreateSizeDto>,
+    res: Response
+  ): Promise<any> => {
     try {
       const { error, value } = sizeValidate.validate(req.body ?? {});
 
       if (error) {
-        const messageKey = error.details[0].message;
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          status_code: HttpStatus.BAD_REQUEST,
-          message: req.__(messageKey),
-        });
+        return handleValidationError(res, error, req.__.bind(req));
       }
 
       const response = await this.sizeService.createSizeService(

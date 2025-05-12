@@ -1,0 +1,141 @@
+import {
+  IColorResponseDto,
+  IColorWithLangResponseDto,
+  ICreateColorDto,
+} from "../dtos/color.dto";
+import { translate } from "@vitalets/google-translate-api";
+import ColorModel, { IColor } from "../models/color.model";
+import {
+  colorResponseMapper,
+  colorWithLangMapper,
+} from "../mappers/color.mapper";
+import HttpStatus from "../../../utils/http-status.utils";
+import {
+  apiError,
+  apiResponse,
+} from "../../../utils/helpers/api-response.helper";
+import { TranslateFunction } from "../../../types/express";
+import { tryCatchService } from "../../../utils/helpers/trycatch.helper";
+
+export class ColorService {
+  async createColorService(
+    DTOColor: ICreateColorDto,
+    lang: string,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const { name } = DTOColor;
+
+        const field = lang.startsWith("vi") ? "name.vi" : "name.en";
+
+        const existingColor = await ColorModel.findOne({ [field]: name });
+
+        if (existingColor) {
+          return apiError(HttpStatus.CONFLICT, __("COLOR_ALREADY_EXISTS"));
+        }
+
+        let nameVi = "";
+        let nameEn = "";
+
+        if (lang.startsWith("vi")) {
+          nameVi = name;
+          const { text } = await translate(name, { from: "vi", to: "en" });
+          nameEn = text;
+        } else {
+          nameEn = name;
+          const { text } = await translate(name, { from: "en", to: "vi" });
+          nameVi = text;
+        }
+
+        const newColor = new ColorModel({
+          name: {
+            vi: nameVi,
+            en: nameEn,
+          },
+        });
+
+        const created = await newColor.save();
+        const response: IColorResponseDto = colorResponseMapper(created);
+        return apiResponse(
+          HttpStatus.CREATED,
+          __("COLOR_CREATED_SUCCESSFULLY"),
+          response
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "createColorService",
+      lang,
+      __
+    );
+  }
+
+  async getAllColorsService(lang: string, __: TranslateFunction) {
+    return tryCatchService(
+      async () => {
+        // const listColor: IColor[] = await ColorModel.find({
+        //   [`name.${lang}`]: { $exists: true, $ne: "" },
+        // });
+        const listColor: IColor[] = await ColorModel.find();
+
+        const response: IColorWithLangResponseDto[] = listColor.map((color) =>
+          colorWithLangMapper(color, lang)
+        );
+
+        return apiResponse(
+          HttpStatus.OK,
+          __("GET_ALL_COLOR_SUCCESSFULLY"),
+          response
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllColorService",
+      lang,
+      __
+    );
+  }
+
+  async getColorService(id: string, lang: string, __: TranslateFunction) {
+    return tryCatchService(
+      async () => {
+        const color: IColor | null = await ColorModel.findById(id);
+
+        if (!color) {
+          return apiError(HttpStatus.NOT_FOUND, __("COLOR_NOT_FOUND"));
+        }
+        const response: IColorWithLangResponseDto = colorWithLangMapper(
+          color,
+          lang
+        );
+
+        return apiResponse(
+          HttpStatus.CREATED,
+          __("GET_COLOR_SUCCESSFULLY"),
+          response
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getColorServce",
+      lang,
+      __
+    );
+  }
+
+  async deleteColorService(id: string, lang: string, __: TranslateFunction) {
+    return tryCatchService(
+      async () => {
+        const deleted = await ColorModel.findByIdAndDelete(id);
+
+        if (!deleted) {
+          return apiError(HttpStatus.NOT_FOUND, __("COLOR_NOT_FOUND"));
+        }
+
+        return apiResponse(HttpStatus.OK, __("COLOR_DELETED_SUCCESSFULLY"));
+      },
+      "INTERNAL_SERVER_ERROR",
+      "deleteColorServce",
+      lang,
+      __
+    );
+  }
+}

@@ -1,5 +1,13 @@
 {
-  "GET_ALL_SIZE_SUCCESSFULLY": "Get list size successfully.",
+  "COLOR_ALREADY_EXISTS": "This color already exists.",
+  "COLOR_CREATED_SUCCESSFULLY": "New color created successfully.",
+  "COLOR_NOT_FOUND": "This color not found.",
+  "COLOR_DELETED_SUCCESSFULLY": "This color has been successfully deleted.",
+  "INVALID_COLOR_ID": "Color ID is not valid.",
+  "GET_COLOR_SUCCESSFULLY": "Get color successfully",
+  "GET_ALL_COLOR_SUCCESSFULLY": "Get list colors successfully",
+
+  "GET_ALL_SIZE_SUCCESSFULLY": "Get list sizes successfully.",
   "SIZE_CREATED_SUCCESSFULLY": "New size created successfully.",
   "SIZE_DELETED_SUCCESSFULLY": "This size has been successfully deleted.",
   "SIZE_ALREADY_EXISTS": "This size already exists.",

@@ -1,7 +1,9 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 
 export interface ISize extends Document {
+  _id: Types.ObjectId;
   name: string;
+  createdAt: Date;
 }
 
 const sizeSchema: Schema = new Schema<ISize>(
@@ -11,5 +13,5 @@ const sizeSchema: Schema = new Schema<ISize>(
   { timestamps: true }
 );
 
-const SizeModel = model("Size", sizeSchema);
+const SizeModel = model<ISize>("Size", sizeSchema);
 export default SizeModel;

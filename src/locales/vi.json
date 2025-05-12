@@ -1,13 +1,20 @@
 {
-	"GET_ALL_SIZE_SUCCESSFULLY": "Lấy danh sách kích cỡ thành công.",
-	"SIZE_CREATED_SUCCESSFULLY": "Thêm mới kích cỡ thành công.",
-	"SIZE_DELETED_SUCCESSFULLY": "Xóa kích cỡ thành công.",
-	"SIZE_ALREADY_EXISTS": "Kích cỡ này đã tồn tại.",
-	"SIZE_NAME_STRING": "Vui lòng nhập chuỗi là số hoặc ký tự.",
-	"SIZE_NAME_EMPTY": "Vui lòng không bỏ trống kích cỡ.",
-	"SIZE_NAME_REQUIRED": "Kích cỡ là bặt buộc.",
-	"SIZE_NOT_FOUND": "Kích cỡ không tồn tại.",
-	"INVALID_SIZE_ID": "Mã kích cỡ không hợp lệ.",
-	"INTERNAL_SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau.",
-	"SIZE_CREATED": "SIZE_CREATED"
+  "COLOR_ALREADY_EXISTS": "Màu sắc này đã tồn tại.",
+  "COLOR_CREATED_SUCCESSFULLY": "Thêm mới màu sắc thành công",
+  "COLOR_NOT_FOUND": "Màu sắc không tồn tại.",
+  "COLOR_DELETED_SUCCESSFULLY": "Xóa màu sắc thành công.",
+  "GET_COLOR_SUCCESSFULLY": "Lấy màu thành công",
+  "GET_ALL_COLOR_SUCCESSFULLY": "GET_danh sách màu sắc thành công",
+
+  "INVALID_COLOR_ID": "Mã màu sắc không hợp lệ.",
+  "GET_ALL_SIZE_SUCCESSFULLY": "Lấy danh sách kích cỡ thành công.",
+  "SIZE_CREATED_SUCCESSFULLY": "Thêm mới kích cỡ thành công.",
+  "SIZE_DELETED_SUCCESSFULLY": "Xóa kích cỡ thành công.",
+  "SIZE_ALREADY_EXISTS": "Kích cỡ này đã tồn tại.",
+  "SIZE_NAME_STRING": "Vui lòng nhập chuỗi là số hoặc ký tự.",
+  "SIZE_NAME_EMPTY": "Vui lòng không bỏ trống kích cỡ.",
+  "SIZE_NAME_REQUIRED": "Kích cỡ là bặt buộc.",
+  "SIZE_NOT_FOUND": "Kích cỡ không tồn tại.",
+  "INVALID_SIZE_ID": "Mã kích cỡ không hợp lệ.",
+  "INTERNAL_SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau."
 }

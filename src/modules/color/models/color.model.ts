@@ -1,13 +1,16 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 
-export interface Color extends Document {
+export interface IColor extends Document {
+  _id: Types.ObjectId;
   name: {
     vi: string;
     en: string;
   };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const colorSchema: Schema = new Schema<Color>(
+const colorSchema: Schema = new Schema<IColor>(
   {
     name: {
       vi: { type: String, required: true },
@@ -17,5 +20,5 @@ const colorSchema: Schema = new Schema<Color>(
   { timestamps: true }
 );
 
-const ColorModel = model("Color", colorSchema);
+const ColorModel = model<IColor>("Color", colorSchema);
 export default ColorModel;
