@@ -1,8 +1,12 @@
 {
-  "SIZE_ALREADY_EXISTS": "This size already exists.",
+  "GET_ALL_SIZE_SUCCESSFULLY": "Get list size successfully.",
   "SIZE_CREATED_SUCCESSFULLY": "New size created successfully.",
+  "SIZE_DELETED_SUCCESSFULLY": "This size has been successfully deleted.",
+  "SIZE_ALREADY_EXISTS": "This size already exists.",
   "SIZE_NAME_STRING": "Please enter a valid size name.",
   "SIZE_NAME_EMPTY": "Please enter a size name.",
   "SIZE_NAME_REQUIRED": "Size name is required.",
+  "SIZE_NOT_FOUND": "This size not found.",
+  "INVALID_SIZE_ID": "Size ID is not valid.",
   "INTERNAL_SERVER_ERROR": "Internal server error. Please try again later."
 }

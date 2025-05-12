@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +24,7 @@
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/i18n": "^0.13.12",
+    "@types/mongoose": "^5.11.96",
     "@types/node": "^22.15.17",
     "nodemon": "^3.1.10"
   }

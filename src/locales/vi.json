@@ -1,8 +1,13 @@
 {
-  "SIZE_ALREADY_EXISTS": "Kích cỡ này đã tồn tại.",
-  "SIZE_CREATED_SUCCESSFULLY": "Thêm mới kích cỡ thành công.",
-  "SIZE_NAME_STRING": "Vui lòng nhập chuỗi là số hoặc ký tự.",
-  "SIZE_NAME_EMPTY": "Vui lòng không bỏ trống kích cỡ.",
-  "SIZE_NAME_REQUIRED": "Kích cỡ là bặt buộc",
-  "INTERNAL_SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau."
+	"GET_ALL_SIZE_SUCCESSFULLY": "Lấy danh sách kích cỡ thành công.",
+	"SIZE_CREATED_SUCCESSFULLY": "Thêm mới kích cỡ thành công.",
+	"SIZE_DELETED_SUCCESSFULLY": "Xóa kích cỡ thành công.",
+	"SIZE_ALREADY_EXISTS": "Kích cỡ này đã tồn tại.",
+	"SIZE_NAME_STRING": "Vui lòng nhập chuỗi là số hoặc ký tự.",
+	"SIZE_NAME_EMPTY": "Vui lòng không bỏ trống kích cỡ.",
+	"SIZE_NAME_REQUIRED": "Kích cỡ là bặt buộc.",
+	"SIZE_NOT_FOUND": "Kích cỡ không tồn tại.",
+	"INVALID_SIZE_ID": "Mã kích cỡ không hợp lệ.",
+	"INTERNAL_SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau.",
+	"SIZE_CREATED": "SIZE_CREATED"
 }

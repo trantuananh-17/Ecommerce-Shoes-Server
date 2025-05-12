@@ -1,12 +1,18 @@
 import { Document, model, Schema } from "mongoose";
 
 export interface Color extends Document {
-  name: string;
+  name: {
+    vi: string;
+    en: string;
+  };
 }
 
 const colorSchema: Schema = new Schema<Color>(
   {
-    name: { type: String, required: true },
+    name: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
   },
   { timestamps: true }
 );

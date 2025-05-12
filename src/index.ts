@@ -1,10 +1,10 @@
+import routes from "./routes";
 import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/mongodb.config";
 import i18n from "./middleware/i18n.middleware";
-import routes from "./routes";
-dotenv.config();
 
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 

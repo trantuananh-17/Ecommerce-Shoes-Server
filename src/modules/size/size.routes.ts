@@ -4,6 +4,8 @@ import { SizeController } from "./size.controller";
 const sizeRouter = Router();
 const controller = new SizeController();
 
-sizeRouter.post("/", controller.create);
+sizeRouter.get("/", controller.getAllSizeController);
+sizeRouter.post("/", controller.createSizeController);
+sizeRouter.delete("/:id", controller.deleteSizeController);
 
 export default sizeRouter;
