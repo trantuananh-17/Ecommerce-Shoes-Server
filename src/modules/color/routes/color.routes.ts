@@ -9,6 +9,7 @@ colorRouter.post("/", colorController.createColorController);
 colorRouter.get("/all", colorController.getAllColorsWithPaginationController);
 colorRouter.get("/", colorController.getAllColorsController);
 colorRouter.get("/:id", colorController.getColorController);
+colorRouter.delete("/", colorController.deleteManyColorController);
 colorRouter.delete("/:id", colorController.deleteColorController);
 colorRouter.patch("/:id", colorController.updateColorController);
 

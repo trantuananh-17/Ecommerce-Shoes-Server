@@ -8,5 +8,6 @@ sizeRouter.get("/", controller.getAllSizeController);
 sizeRouter.get("/all", controller.getAllSizesWithPaginationController);
 sizeRouter.post("/", controller.createSizeController);
 sizeRouter.delete("/:id", controller.deleteSizeController);
+sizeRouter.delete("/", controller.deleteManySizeController);
 
 export default sizeRouter;

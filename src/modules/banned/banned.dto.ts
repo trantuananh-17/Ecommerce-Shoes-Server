@@ -16,3 +16,7 @@ export interface IBannedWithLangResponseDto {
   word: string;
   createdAt: string;
 }
+
+export interface IBannedWordDeleteManyDto {
+  ids: string[];
+}

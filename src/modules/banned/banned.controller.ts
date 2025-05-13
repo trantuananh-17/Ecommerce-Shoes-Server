@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 import { handleValidationError } from "../../utils/helpers/validation.helper";
-import { bannedValidate } from "./banned.validate";
+import { bannedValidate, bannedWordIdsValidate } from "./banned.validate";
 import { BannedService } from "./banned.service";
 import { isValidObjectId } from "mongoose";
 import { errorRes } from "../../utils/helpers/error-response.helper";
@@ -48,8 +48,6 @@ export class BannerController {
         const colorId = req.params.id;
         const lang = req.lang || "vi";
 
-        console.log(lang);
-
         if (!isValidObjectId(colorId)) {
           return errorRes(
             res,
@@ -67,6 +65,43 @@ export class BannerController {
         if (!response) {
           return errorRes(res, req.__("COLOR_NOT_FOUND"), HttpStatus.NOT_FOUND);
         }
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "deleteBannedWordController"
+    );
+  };
+
+  deleteManyBannedWordController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "Vi";
+        const { error, value } = bannedWordIdsValidate.validate(req.body ?? {});
+
+        if (error) {
+          return handleValidationError(res, error, req.__.bind(req));
+        }
+
+        for (let colodId of value.ids) {
+          if (!isValidObjectId(colodId)) {
+            return errorRes(
+              res,
+              req.__("INVALID_SIZE_ID"),
+              HttpStatus.BAD_REQUEST
+            );
+          }
+        }
+
+        const response = await this.bannedService.deleteManyBannedWordService(
+          value,
+          lang,
+          req.__.bind(req)
+        );
 
         res.status(response.status_code).json(response);
       },

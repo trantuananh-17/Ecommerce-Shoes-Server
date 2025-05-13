@@ -8,6 +8,7 @@ import {
   IBannedDto,
   IBannedResponseDto,
   IBannedWithLangResponseDto,
+  IBannedWordDeleteManyDto,
 } from "./banned.dto";
 import BannedModel, { IBanned } from "./banned.model";
 
@@ -83,6 +84,29 @@ export class BannedService {
         return apiResponse(
           HttpStatus.OK,
           __("WORD_BANNED_DELETED_SUCCESSFULLY")
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "deleteBannedServce",
+      lang,
+      __
+    );
+  }
+
+  async deleteManyBannedWordService(
+    value: IBannedWordDeleteManyDto,
+    lang: string,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const response = await BannedModel.deleteMany({
+          _id: { $in: value.ids },
+        });
+        return apiResponse(
+          HttpStatus.OK,
+          __("DELETE_MANY_SIZE_SUCCESSFULLY"),
+          response
         );
       },
       "INTERNAL_SERVER_ERROR",

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ColorService } from "../services/color.service";
 import {
+  colodIdsValidate,
   colorUpdateValidate,
   colorValidate,
 } from "../validators/color.validate";
@@ -153,6 +154,45 @@ export class ColorController {
       "deleteColorController"
     );
   };
+
+  deleteManyColorController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "Vi";
+        const { error, value } = colodIdsValidate.validate(req.body ?? {});
+
+        if (error) {
+          return handleValidationError(res, error, req.__.bind(req));
+        }
+
+        for (let colodId of value.ids) {
+          if (!isValidObjectId(colodId)) {
+            return errorRes(
+              res,
+              req.__("INVALID_SIZE_ID"),
+              HttpStatus.BAD_REQUEST
+            );
+          }
+        }
+
+        // Gọi service để xóa nhiều kích thước
+        const response = await this.colorService.deleteManyColorService(
+          value,
+          lang,
+          req.__.bind(req)
+        );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "deleteManyColorController"
+    );
+  };
+
   updateColorController = async (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {

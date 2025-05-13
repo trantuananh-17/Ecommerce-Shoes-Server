@@ -18,8 +18,12 @@ export interface Order extends Document {
   paymentType: boolean;
   paymentStatus: PaymentStatus;
   discounts: Schema.Types.ObjectId; // Có thể dùng nhiều mã
+  orderNote: string;
   orderStatus: OrderStatus;
+  orderItemsPrices: number;
+  orderTotalPrices: number;
   orderShipCost: number; // Có thể có bảng phí cost riêng cho tỉnh thành
+  orderNoteCancelled: string;
   toName: string;
   toPhone: string;
   toEmail: string;
@@ -27,8 +31,6 @@ export interface Order extends Document {
   toDistrict: string;
   toWard: string;
   toAddress: string;
-  orderNote: string;
-  orderNoteCancelled: string;
   datePayment?: Date;
   dateReceive?: Date; // Thời gian nhận
   dateExpected?: Date; // Thời gian dự kiến
@@ -53,16 +55,18 @@ const orderSchema: Schema = new Schema<Order>(
       enum: Object.values(OrderStatus),
       default: OrderStatus.Pending,
     },
+    orderNote: { type: String, required: true },
     orderShipCost: { type: Number, default: 0 },
+    orderItemsPrices: { type: Number, required: true },
+    orderTotalPrices: { type: Number, required: true },
+    orderNoteCancelled: { type: String, required: true },
     toName: { type: String, required: true },
     toPhone: { type: String, required: true },
     toEmail: { type: String, required: true },
-    toProvince: { type: String, required: true },
-    toDistrict: { type: String, required: true },
     toWard: { type: String, required: true },
     toAddress: { type: String, required: true },
-    orderNote: { type: String, required: true },
-    orderNoteCancelled: { type: String, required: true },
+    toDistrict: { type: String, required: true },
+    toProvince: { type: String, required: true },
     datePayment: { type: Date, required: false },
     dateReceive: { type: Date, required: false },
     dateExpected: { type: Date, required: false },

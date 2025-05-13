@@ -1,4 +1,5 @@
 import {
+  IColorDeleteManyDto,
   IColorResponseDto,
   IColorUpdateDTO,
   IColorWithLangResponseDto,
@@ -166,6 +167,29 @@ export class ColorService {
         }
 
         return apiResponse(HttpStatus.OK, __("COLOR_DELETED_SUCCESSFULLY"));
+      },
+      "INTERNAL_SERVER_ERROR",
+      "deleteColorServce",
+      lang,
+      __
+    );
+  }
+
+  async deleteManyColorService(
+    value: IColorDeleteManyDto,
+    lang: string,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const response = await ColorModel.deleteMany({
+          _id: { $in: value.ids },
+        });
+        return apiResponse(
+          HttpStatus.OK,
+          __("DELETE_MANY_SIZE_SUCCESSFULLY"),
+          response
+        );
       },
       "INTERNAL_SERVER_ERROR",
       "deleteColorServce",

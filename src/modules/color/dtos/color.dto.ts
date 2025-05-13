@@ -24,3 +24,7 @@ export interface IColorWithLangResponseDto {
 export interface IColorUpdateDTO {
   isActive: boolean;
 }
+
+export interface IColorDeleteManyDto {
+  ids: string[];
+}

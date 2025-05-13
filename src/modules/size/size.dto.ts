@@ -7,3 +7,7 @@ export interface ISizeResponseDto {
 export interface ICreateSizeDto {
   name: string;
 }
+
+export interface ISizeDeleteManyDto {
+  ids: string[];
+}

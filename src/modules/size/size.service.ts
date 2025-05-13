@@ -2,7 +2,11 @@ import { TranslateFunction } from "../../types/express";
 import { apiError, apiResponse } from "../../utils/helpers/api-response.helper";
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
-import { ICreateSizeDto, ISizeResponseDto } from "./size.dto";
+import {
+  ICreateSizeDto,
+  ISizeDeleteManyDto,
+  ISizeResponseDto,
+} from "./size.dto";
 import { sizeResponseMapper } from "./size.mapper";
 import SizeModel, { ISize } from "./size.model";
 
@@ -50,6 +54,29 @@ export class SizeService {
         error
       );
     }
+  }
+
+  async deleteManySizeService(
+    value: ISizeDeleteManyDto,
+    lang: string,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const response = await SizeModel.deleteMany({
+          _id: { $in: value.ids },
+        });
+        return apiResponse(
+          HttpStatus.OK,
+          __("DELETE_MANY_SIZE_SUCCESSFULLY"),
+          response
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "deleteManySizeService",
+      lang,
+      __
+    );
   }
 
   async getAllSizesService(__: TranslateFunction) {

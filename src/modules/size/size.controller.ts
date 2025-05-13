@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { SizeService } from "./size.service";
-import { sizeValidate } from "./size.validator";
+import { sizeIdsValidate, sizeValidate } from "./size.validator";
 import HttpStatus from "../../utils/http-status.utils";
 import { apiError } from "../../utils/helpers/api-response.helper";
 import { isValidObjectId } from "mongoose";
 import { errorRes } from "../../utils/helpers/error-response.helper";
 import { ICreateSizeDto } from "./size.dto";
 import { handleValidationError } from "../../utils/helpers/validation.helper";
+import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 
 export class SizeController {
   private readonly sizeService = new SizeService();
@@ -124,5 +125,44 @@ export class SizeController {
           )
         );
     }
+  };
+
+  deleteManySizeController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "Vi";
+        const { error, value } = sizeIdsValidate.validate(req.body ?? {});
+
+        if (error) {
+          return handleValidationError(res, error, req.__.bind(req)); // Nếu có lỗi validate
+        }
+
+        for (let sizeId of value.ids) {
+          if (!isValidObjectId(sizeId)) {
+            return errorRes(
+              res,
+              req.__("INVALID_SIZE_ID"),
+              HttpStatus.BAD_REQUEST
+            );
+          }
+        }
+
+        // Gọi service để xóa nhiều kích thước
+        const response = await this.sizeService.deleteManySizeService(
+          value,
+          lang,
+          req.__.bind(req)
+        );
+
+        // Trả về kết quả xóa
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "deleteManySizeController"
+    );
   };
 }
