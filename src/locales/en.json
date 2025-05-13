@@ -1,4 +1,5 @@
 {
+  "-------------------------Color": "Color Comment------------------------------------",
   "COLOR_ALREADY_EXISTS": "This color already exists.",
   "COLOR_CREATED_SUCCESSFULLY": "New color created successfully.",
   "COLOR_NOT_FOUND": "This color not found.",
@@ -6,7 +7,15 @@
   "INVALID_COLOR_ID": "Color ID is not valid.",
   "GET_COLOR_SUCCESSFULLY": "Get color successfully",
   "GET_ALL_COLOR_SUCCESSFULLY": "Get list colors successfully",
+  "COLOR_UPDATED_SUCCESSFULLY": "This color active has been successfully updated.",
+  "COLOR_NAME_STRING": "Please enter a valid color name.",
+  "COLOR_ACTIVE_BOOLEAN": "Please enter a valid color active.",
+  "COLOR_NAME_EMPTY": "Please enter a color name.",
+  "COLOR_ACTIVE_EMPTY": "Please enter a color active.",
+  "COLOR_NAME_REQUIRED": "Color name is required.",
+  "COLOR_ACTIVE_REQUIRED": "Color active is required.",
 
+  "-------------------------Size": "Size Comment------------------------------------",
   "GET_ALL_SIZE_SUCCESSFULLY": "Get list sizes successfully.",
   "SIZE_CREATED_SUCCESSFULLY": "New size created successfully.",
   "SIZE_DELETED_SUCCESSFULLY": "This size has been successfully deleted.",
@@ -16,5 +25,7 @@
   "SIZE_NAME_REQUIRED": "Size name is required.",
   "SIZE_NOT_FOUND": "This size not found.",
   "INVALID_SIZE_ID": "Size ID is not valid.",
+
+  "-----------------------HTTP_MESSAGE": "Http message Comment---------------------------------",
   "INTERNAL_SERVER_ERROR": "Internal server error. Please try again later."
 }

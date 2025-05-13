@@ -6,6 +6,7 @@ export interface IColor extends Document {
     vi: string;
     en: string;
   };
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,6 +17,7 @@ const colorSchema: Schema = new Schema<IColor>(
       vi: { type: String, required: true },
       en: { type: String, required: true },
     },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

@@ -1,5 +1,6 @@
 import {
   IColorResponseDto,
+  IColorUpdateDTO,
   IColorWithLangResponseDto,
   ICreateColorDto,
 } from "../dtos/color.dto";
@@ -134,6 +135,37 @@ export class ColorService {
       },
       "INTERNAL_SERVER_ERROR",
       "deleteColorServce",
+      lang,
+      __
+    );
+  }
+
+  async updateColorService(
+    id: string,
+    DTOColor: IColorUpdateDTO,
+    lang: string,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const { isActive } = DTOColor;
+
+        const updated = await ColorModel.findByIdAndUpdate(
+          id,
+          { isActive: isActive },
+          { new: true }
+        );
+
+        console.log(updated);
+
+        if (!updated) {
+          return apiError(HttpStatus.NOT_FOUND, __("COLOR_NOT_FOUND"));
+        }
+
+        return apiResponse(HttpStatus.OK, __("COLOR_UPDATED_SUCCESSFULLY"));
+      },
+      "INTERNAL_SERVER_ERROR",
+      "updateColorServce",
       lang,
       __
     );

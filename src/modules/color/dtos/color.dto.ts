@@ -8,6 +8,7 @@ export interface IColorResponseDto {
     vi: string;
     en: string;
   };
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -15,6 +16,11 @@ export interface IColorResponseDto {
 export interface IColorWithLangResponseDto {
   id: string;
   name: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface IColorUpdateDTO {
+  isActive: boolean;
 }

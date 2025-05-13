@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { ColorService } from "../services/color.service";
-import { colorValidate } from "../validators/color.validate";
+import {
+  colorUpdateValidate,
+  colorValidate,
+} from "../validators/color.validate";
 import { handleValidationError } from "../../../utils/helpers/validation.helper";
 import HttpStatus from "../../../utils/http-status.utils";
 import { apiError } from "../../../utils/helpers/api-response.helper";
@@ -121,6 +124,46 @@ export class ColorController {
       res,
       req,
       "deleteColorController"
+    );
+  };
+  updateColorController = async (req: Request, res: Response): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const colorId = req.params.id;
+        const lang = req.lang || "vi";
+
+        const { error, value } = colorUpdateValidate.validate(req.body ?? {});
+
+        console.log(lang);
+
+        if (!isValidObjectId(colorId)) {
+          return errorRes(
+            res,
+            req.__("INVALID_COLOR_ID"),
+            HttpStatus.BAD_REQUEST
+          );
+        }
+
+        if (error) {
+          return handleValidationError(res, error, req.__.bind(req));
+        }
+
+        const response = await this.colorService.updateColorService(
+          colorId,
+          value,
+          lang,
+          req.__.bind(req)
+        );
+
+        if (!response) {
+          return errorRes(res, req.__("COLOR_NOT_FOUND"), HttpStatus.NOT_FOUND);
+        }
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "updateColorController"
     );
   };
 }

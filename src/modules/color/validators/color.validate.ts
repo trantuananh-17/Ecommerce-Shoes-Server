@@ -6,3 +6,10 @@ export const colorValidate = Joi.object({
     "any.required": "Tên màu là bắt buộc",
   }),
 });
+
+export const colorUpdateValidate = Joi.object({
+  isActive: Joi.boolean().required().empty().messages({
+    "string.empty": "Giá trị trạng thái không được để trống",
+    "any.required": "Giá trị trạng thái là bắt buộc",
+  }),
+});

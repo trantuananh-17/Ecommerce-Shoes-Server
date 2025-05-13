@@ -22,6 +22,7 @@ export interface Product extends Document {
   material: Schema.Types.ObjectId;
   closure: Schema.Types.ObjectId;
   eventDiscounts: Schema.Types.ObjectId;
+  colorSize: Schema.Types.ObjectId[];
   ratings: Schema.Types.ObjectId[];
   averageRating: number;
 }
@@ -48,6 +49,7 @@ const productSchema: Schema = new Schema<Product>(
     material: { type: Schema.Types.ObjectId, ref: "Material", required: true },
     closure: { type: Schema.Types.ObjectId, ref: "Closure", required: true },
     eventDiscounts: { type: Schema.Types.ObjectId, ref: "EventDiscount" },
+    colorSize: [{ type: Schema.Types.ObjectId, ref: "ColorSize" }],
     ratings: [{ type: Schema.Types.ObjectId, ref: "ProductRate" }],
     averageRating: { type: Number, default: 0 },
   },

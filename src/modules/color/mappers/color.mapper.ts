@@ -11,6 +11,7 @@ export const colorResponseMapper = (color: IColor): IColorResponseDto => {
       vi: color.name.vi,
       en: color.name.en,
     },
+    isActive: color.isActive,
     createdAt: color.createdAt.toISOString(),
     updatedAt: color.updatedAt.toISOString(),
   };
@@ -23,6 +24,7 @@ export const colorWithLangMapper = (
   return {
     id: color._id.toString(),
     name: color.name[lang as keyof typeof color.name],
+    isActive: color.isActive,
     createdAt: color.createdAt.toISOString(),
     updatedAt: color.updatedAt.toISOString(),
   };
