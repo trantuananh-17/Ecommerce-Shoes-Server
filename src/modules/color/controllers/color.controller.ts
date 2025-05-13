@@ -65,6 +65,33 @@ export class ColorController {
     );
   };
 
+  getAllColorsWithPaginationController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "vi";
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 12;
+
+        const response =
+          await this.colorService.getAllColorsWithPaginationService(
+            limit,
+            page,
+            lang,
+            req.__.bind(req)
+          );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getAllColorsWithPaginationController"
+    );
+  };
+
   getColorController = async (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {

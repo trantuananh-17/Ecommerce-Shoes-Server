@@ -1,5 +1,6 @@
 import { TranslateFunction } from "../../types/express";
 import { apiError, apiResponse } from "../../utils/helpers/api-response.helper";
+import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import { ICreateSizeDto, ISizeResponseDto } from "./size.dto";
 import { sizeResponseMapper } from "./size.mapper";
@@ -68,5 +69,34 @@ export class SizeService {
         error
       );
     }
+  }
+
+  async getAllSizesWithPaginationService(
+    limit: number,
+    page: number,
+    lang: string,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const skip = (page - 1) * limit;
+
+        const listSize: ISize[] = await SizeModel.find()
+          .sort({ name: 1 })
+          .skip(skip)
+          .limit(limit);
+        const response: ISizeResponseDto[] = listSize.map(sizeResponseMapper);
+
+        return apiResponse(
+          HttpStatus.OK,
+          __("GET_ALL_SIZE_SUCCESSFULLY"),
+          response
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllBannedWithPaginationService",
+      lang,
+      __
+    );
   }
 }

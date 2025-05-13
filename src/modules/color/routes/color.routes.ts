@@ -6,8 +6,9 @@ const colorRouter = Router();
 const colorController = new ColorController();
 
 colorRouter.post("/", colorController.createColorController);
-colorRouter.get("/:id", colorController.getColorController);
+colorRouter.get("/all", colorController.getAllColorsWithPaginationController);
 colorRouter.get("/", colorController.getAllColorsController);
+colorRouter.get("/:id", colorController.getColorController);
 colorRouter.delete("/:id", colorController.deleteColorController);
 colorRouter.patch("/:id", colorController.updateColorController);
 

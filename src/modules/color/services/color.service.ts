@@ -96,6 +96,40 @@ export class ColorService {
     );
   }
 
+  async getAllColorsWithPaginationService(
+    limit: number,
+    page: number,
+    lang: string,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const skip = (page - 1) * limit;
+
+        // const listColor: IColor[] = await ColorModel.find({
+        //   [`name.${lang}`]: { $exists: true, $ne: "" },
+        // });
+        const listColor: IColor[] = await ColorModel.find()
+          .skip(skip)
+          .limit(limit);
+
+        const response: IColorWithLangResponseDto[] = listColor.map((color) =>
+          colorWithLangMapper(color, lang)
+        );
+
+        return apiResponse(
+          HttpStatus.OK,
+          __("GET_ALL_COLOR_SUCCESSFULLY"),
+          response
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllColorsWithPaginationService",
+      lang,
+      __
+    );
+  }
+
   async getColorService(id: string, lang: string, __: TranslateFunction) {
     return tryCatchService(
       async () => {

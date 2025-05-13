@@ -113,4 +113,34 @@ export class BannedService {
       __
     );
   }
+  async getAllBannedWordWithPaginationService(
+    lang: string,
+    page: number,
+    limit: number,
+    __: TranslateFunction
+  ) {
+    return tryCatchService(
+      async () => {
+        const skip = (page - 1) * limit;
+
+        const listBanned: IBanned[] = await BannedModel.find()
+          .skip(skip)
+          .limit(limit);
+
+        const response: IBannedWithLangResponseDto[] = listBanned.map((word) =>
+          bannedWithLangMapper(word, lang)
+        );
+
+        return apiResponse(
+          HttpStatus.OK,
+          __("GET_ALL_BANNED_WORD_SUCCESSFULLY"),
+          response
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllBannedWithPaginationService",
+      lang,
+      __
+    );
+  }
 }

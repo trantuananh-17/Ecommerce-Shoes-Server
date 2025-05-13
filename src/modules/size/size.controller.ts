@@ -32,6 +32,37 @@ export class SizeController {
     }
   };
 
+  getAllSizesWithPaginationController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    try {
+      const lang = req.lang || "vi";
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 12;
+      const response = await this.sizeService.getAllSizesWithPaginationService(
+        limit,
+        page,
+        lang,
+        req.__.bind(req)
+      );
+
+      res.status(response.status_code).json(response);
+    } catch (error: any) {
+      console.error("Error in SizeController.getAllSizeController:", error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(
+          apiError(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            req.__("INTERNAL_SERVER_ERROR"),
+            error
+          )
+        );
+    }
+  };
+
   createSizeController = async (
     req: Request<ICreateSizeDto>,
     res: Response

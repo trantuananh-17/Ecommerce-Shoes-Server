@@ -6,6 +6,8 @@ import { BannedService } from "./banned.service";
 import { isValidObjectId } from "mongoose";
 import { errorRes } from "../../utils/helpers/error-response.helper";
 import HttpStatus from "../../utils/http-status.utils";
+import dotenv from "dotenv";
+dotenv.config();
 
 export class BannerController {
   private readonly bannedService = new BannedService();
@@ -86,6 +88,34 @@ export class BannerController {
           lang,
           req.__.bind(req)
         );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getAllBannedWordController"
+    );
+  };
+  getAllBannedWordWithPaginationController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "vi";
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 12;
+
+        console.log(page, limit);
+
+        const response =
+          await this.bannedService.getAllBannedWordWithPaginationService(
+            lang,
+            page,
+            limit,
+            req.__.bind(req)
+          );
 
         res.status(response.status_code).json(response);
       },
