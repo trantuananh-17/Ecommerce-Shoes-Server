@@ -29,14 +29,9 @@ export interface ColorService {
 
   getAllColorsService(
     lang: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<IColorWithLangResponseDto[]>>;
-
-  getAllColorsWithPaginationService(
-    limit: number,
-    page: number,
-    lang: string,
-    __: TranslateFunction
+    __: TranslateFunction,
+    limit?: number,
+    page?: number
   ): Promise<APIResponse<IColorWithLangResponseDto[]>>;
 
   getColorService(
@@ -118,47 +113,23 @@ export class ColorServiceImpl implements ColorService {
     );
   }
 
-  async getAllColorsService(lang: string, __: TranslateFunction) {
-    return tryCatchService(
-      async () => {
-        // const listColor: IColor[] = await ColorModel.find({
-        //   [`name.${lang}`]: { $exists: true, $ne: "" },
-        // });
-        const listColor: IColor[] = await ColorModel.find();
-
-        const response: IColorWithLangResponseDto[] = listColor.map((color) =>
-          colorWithLangMapper(color, lang)
-        );
-
-        return apiResponse(
-          HttpStatus.OK,
-          __("GET_ALL_COLOR_SUCCESSFULLY"),
-          response
-        );
-      },
-      "INTERNAL_SERVER_ERROR",
-      "getAllColorService",
-      lang,
-      __
-    );
-  }
-
-  async getAllColorsWithPaginationService(
-    limit: number,
-    page: number,
+  async getAllColorsService(
     lang: string,
-    __: TranslateFunction
+    __: TranslateFunction,
+    limit?: number,
+    page?: number
   ) {
     return tryCatchService(
       async () => {
-        const skip = (page - 1) * limit;
+        let query = ColorModel.find();
 
-        // const listColor: IColor[] = await ColorModel.find({
-        //   [`name.${lang}`]: { $exists: true, $ne: "" },
-        // });
-        const listColor: IColor[] = await ColorModel.find()
-          .skip(skip)
-          .limit(limit);
+        // Nếu có truyền phân trang
+        if (limit !== undefined && page !== undefined) {
+          const skip = (page - 1) * limit;
+          query = query.skip(skip).limit(limit);
+        }
+
+        const listColor: IColor[] = await query;
 
         const response: IColorWithLangResponseDto[] = listColor.map((color) =>
           colorWithLangMapper(color, lang)
@@ -171,7 +142,7 @@ export class ColorServiceImpl implements ColorService {
         );
       },
       "INTERNAL_SERVER_ERROR",
-      "getAllColorsWithPaginationService",
+      "getAllColorsService",
       lang,
       __
     );

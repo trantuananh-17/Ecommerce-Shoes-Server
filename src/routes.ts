@@ -6,7 +6,7 @@ import categoryRouter from "./modules/category/category.routes";
 
 const router = Router();
 
-router.use("/banners", bannerRouter);
+router.use("/banneds", bannerRouter);
 router.use("/categories", categoryRouter);
 router.use("/colors", colorRouter);
 router.use("/sizes", sizeRouter);

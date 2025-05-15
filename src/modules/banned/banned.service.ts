@@ -37,14 +37,9 @@ export interface BannedService {
 
   getAllBannedWordService(
     lang: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<IBannedWithLangResponseDto[]>>;
-
-  getAllBannedWordWithPaginationService(
-    lang: string,
-    page: number,
-    limit: number,
-    __: TranslateFunction
+    __: TranslateFunction,
+    limit?: number,
+    page?: number
   ): Promise<APIResponse<IBannedWithLangResponseDto[]>>;
 }
 
@@ -152,40 +147,22 @@ export class BannedServiceImpl implements BannedService {
     );
   }
 
-  async getAllBannedWordService(lang: string, __: TranslateFunction) {
-    return tryCatchService(
-      async () => {
-        const listBanned: IBanned[] = await BannedModel.find();
-
-        const response: IBannedWithLangResponseDto[] = listBanned.map((word) =>
-          bannedWithLangMapper(word, lang)
-        );
-
-        return apiResponse(
-          HttpStatus.OK,
-          __("GET_ALL_BANNED_WORD_SUCCESSFULLY"),
-          response
-        );
-      },
-      "INTERNAL_SERVER_ERROR",
-      "getAllBannedService",
-      lang,
-      __
-    );
-  }
-  async getAllBannedWordWithPaginationService(
+  async getAllBannedWordService(
     lang: string,
-    page: number,
-    limit: number,
-    __: TranslateFunction
+    __: TranslateFunction,
+    page?: number,
+    limit?: number
   ) {
     return tryCatchService(
       async () => {
-        const skip = (page - 1) * limit;
+        let query = BannedModel.find();
 
-        const listBanned: IBanned[] = await BannedModel.find()
-          .skip(skip)
-          .limit(limit);
+        if (page !== undefined && limit !== undefined) {
+          const skip = (page - 1) * limit;
+          query = query.skip(skip).limit(limit);
+        }
+
+        const listBanned: IBanned[] = await query.exec();
 
         const response: IBannedWithLangResponseDto[] = listBanned.map((word) =>
           bannedWithLangMapper(word, lang)
@@ -198,7 +175,7 @@ export class BannedServiceImpl implements BannedService {
         );
       },
       "INTERNAL_SERVER_ERROR",
-      "getAllBannedWithPaginationService",
+      "getAllBannedWordService",
       lang,
       __
     );

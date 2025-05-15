@@ -7,7 +7,12 @@ export interface ICategory extends Document {
     en: string;
   };
   isActive: boolean;
+  slug: {
+    vi: string;
+    en: string;
+  };
   createdAt: Date;
+  updateedAt: Date;
 }
 
 const categorySchema: Schema = new Schema<ICategory>(
@@ -17,6 +22,10 @@ const categorySchema: Schema = new Schema<ICategory>(
       en: { type: String, required: true },
     },
     isActive: { type: Boolean, default: true },
+    slug: {
+      vi: { type: String, required: true, unique: true },
+      en: { type: String, required: true, unique: true },
+    },
   },
   { timestamps: true }
 );

@@ -4,8 +4,7 @@ import { BannerController } from "./banned.controller";
 const bannerRouter = Router();
 const controller = new BannerController();
 
-bannerRouter.get("/", controller.getAllBannedWordController);
-bannerRouter.get("/all", controller.getAllBannedWordWithPaginationController);
+bannerRouter.get("/", controller.getAllBannedWordsController);
 bannerRouter.post("/", controller.createBannedController);
 bannerRouter.delete("/", controller.deleteManyBannedWordController);
 bannerRouter.delete("/:id", controller.deleteBannedWordController);

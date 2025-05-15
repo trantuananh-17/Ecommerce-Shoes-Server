@@ -32,14 +32,10 @@ export interface SizeService {
   ): Promise<APIResponse<any>>;
 
   getAllSizesService(
-    __: TranslateFunction
-  ): Promise<APIResponse<ISizeResponseDto[]>>;
-
-  getAllSizesWithPaginationService(
-    limit: number,
-    page: number,
+    __: TranslateFunction,
     lang: string,
-    __: TranslateFunction
+    limit?: number,
+    page?: number
   ): Promise<APIResponse<ISizeResponseDto[]>>;
 }
 
@@ -112,39 +108,22 @@ export class SizeServiceImpl implements SizeService {
     );
   }
 
-  async getAllSizesService(__: TranslateFunction) {
-    try {
-      const listSize: ISize[] = await SizeModel.find().sort({ name: 1 });
-      const response: ISizeResponseDto[] = listSize.map(sizeResponseMapper);
-
-      return apiResponse(
-        HttpStatus.OK,
-        __("GET_ALL_SIZE_SUCCESSFULLY"),
-        response
-      );
-    } catch (error: any) {
-      return apiError(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        __("INTERNAL_SERVER_ERROR"),
-        error
-      );
-    }
-  }
-
-  async getAllSizesWithPaginationService(
-    limit: number,
-    page: number,
+  async getAllSizesService(
+    __: TranslateFunction,
     lang: string,
-    __: TranslateFunction
+    limit?: number,
+    page?: number
   ) {
     return tryCatchService(
       async () => {
-        const skip = (page - 1) * limit;
+        let query = SizeModel.find().sort({ name: 1 });
 
-        const listSize: ISize[] = await SizeModel.find()
-          .sort({ name: 1 })
-          .skip(skip)
-          .limit(limit);
+        if (limit !== undefined && page !== undefined) {
+          const skip = (page - 1) * limit;
+          query = query.skip(skip).limit(limit);
+        }
+
+        const listSize: ISize[] = await query.exec();
         const response: ISizeResponseDto[] = listSize.map(sizeResponseMapper);
 
         return apiResponse(
@@ -154,7 +133,7 @@ export class SizeServiceImpl implements SizeService {
         );
       },
       "INTERNAL_SERVER_ERROR",
-      "getAllBannedWithPaginationService",
+      "getAllSizesService",
       lang,
       __
     );

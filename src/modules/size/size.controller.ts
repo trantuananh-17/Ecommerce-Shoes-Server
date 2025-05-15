@@ -16,46 +16,26 @@ export class SizeController {
     this.sizeService = new SizeServiceImpl();
   }
 
-  getAllSizeController = async (req: Request, res: Response): Promise<any> => {
-    try {
-      const response = await this.sizeService.getAllSizesService(
-        req.__.bind(req)
-      );
-
-      res.status(response.status_code).json(response);
-    } catch (error: any) {
-      console.error("Error in SizeController.getAllSizeController:", error);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(
-          apiError(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            req.__("INTERNAL_SERVER_ERROR"),
-            error
-          )
-        );
-    }
-  };
-
-  getAllSizesWithPaginationController = async (
-    req: Request,
-    res: Response
-  ): Promise<any> => {
+  getAllSizesController = async (req: Request, res: Response): Promise<any> => {
     try {
       const lang = req.lang || "vi";
+      const page = req.query.page
+        ? parseInt(req.query.page as string)
+        : undefined;
+      const limit = req.query.limit
+        ? parseInt(req.query.limit as string)
+        : undefined;
 
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 12;
-      const response = await this.sizeService.getAllSizesWithPaginationService(
-        limit,
-        page,
+      const response = await this.sizeService.getAllSizesService(
+        req.__.bind(req),
         lang,
-        req.__.bind(req)
+        limit,
+        page
       );
 
       res.status(response.status_code).json(response);
     } catch (error: any) {
-      console.error("Error in SizeController.getAllSizeController:", error);
+      console.error("Error in SizeController.getAllSizesController:", error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json(

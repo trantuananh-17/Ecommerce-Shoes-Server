@@ -115,52 +115,32 @@ export class BannerController {
     );
   };
 
-  getAllBannedWordController = async (
+  getAllBannedWordsController = async (
     req: Request,
     res: Response
   ): Promise<any> => {
     return tryCatchController(
       async () => {
         const lang = req.lang || "vi";
+        const page = req.query.page
+          ? parseInt(req.query.page as string)
+          : undefined;
+        const limit = req.query.limit
+          ? parseInt(req.query.limit as string)
+          : undefined;
 
         const response = await this.bannedService.getAllBannedWordService(
           lang,
-          req.__.bind(req)
+          req.__.bind(req),
+          page,
+          limit
         );
 
         res.status(response.status_code).json(response);
       },
       res,
       req,
-      "getAllBannedWordController"
-    );
-  };
-  getAllBannedWordWithPaginationController = async (
-    req: Request,
-    res: Response
-  ): Promise<any> => {
-    return tryCatchController(
-      async () => {
-        const lang = req.lang || "vi";
-
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 12;
-
-        console.log(page, limit);
-
-        const response =
-          await this.bannedService.getAllBannedWordWithPaginationService(
-            lang,
-            page,
-            limit,
-            req.__.bind(req)
-          );
-
-        res.status(response.status_code).json(response);
-      },
-      res,
-      req,
-      "getAllBannedWordController"
+      "getAllBannedWordsController"
     );
   };
 }
