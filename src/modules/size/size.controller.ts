@@ -1,5 +1,5 @@
+import { SizeService, SizeServiceImpl } from "./size.service";
 import { Request, Response } from "express";
-import { SizeService } from "./size.service";
 import { sizeIdsValidate, sizeValidate } from "./size.validator";
 import HttpStatus from "../../utils/http-status.utils";
 import { apiError } from "../../utils/helpers/api-response.helper";
@@ -10,7 +10,11 @@ import { handleValidationError } from "../../utils/helpers/validation.helper";
 import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 
 export class SizeController {
-  private readonly sizeService = new SizeService();
+  private readonly sizeService: SizeService;
+
+  constructor() {
+    this.sizeService = new SizeServiceImpl();
+  }
 
   getAllSizeController = async (req: Request, res: Response): Promise<any> => {
     try {

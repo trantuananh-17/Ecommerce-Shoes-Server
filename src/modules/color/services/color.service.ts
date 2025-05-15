@@ -14,12 +14,58 @@ import {
 import HttpStatus from "../../../utils/http-status.utils";
 import {
   apiError,
+  APIResponse,
   apiResponse,
 } from "../../../utils/helpers/api-response.helper";
 import { TranslateFunction } from "../../../types/express";
 import { tryCatchService } from "../../../utils/helpers/trycatch.helper";
 
-export class ColorService {
+export interface ColorService {
+  createColorService(
+    DTOColor: ICreateColorDto,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IColorResponseDto | null>>;
+
+  getAllColorsService(
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IColorWithLangResponseDto[]>>;
+
+  getAllColorsWithPaginationService(
+    limit: number,
+    page: number,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IColorWithLangResponseDto[]>>;
+
+  getColorService(
+    id: string,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IColorWithLangResponseDto | null>>;
+
+  deleteColorService(
+    id: string,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>>;
+
+  deleteManyColorService(
+    value: IColorDeleteManyDto,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<any>>;
+
+  updateColorService(
+    id: string,
+    DTOColor: IColorUpdateDTO,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>>;
+}
+
+export class ColorServiceImpl implements ColorService {
   async createColorService(
     DTOColor: ICreateColorDto,
     lang: string,
@@ -187,7 +233,7 @@ export class ColorService {
         });
         return apiResponse(
           HttpStatus.OK,
-          __("DELETE_MANY_SIZE_SUCCESSFULLY"),
+          __("DELETE_MANY_COLOR_SUCCESSFULLY"),
           response
         );
       },

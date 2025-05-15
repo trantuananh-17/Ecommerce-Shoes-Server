@@ -1,5 +1,5 @@
+import { ColorService, ColorServiceImpl } from "./../services/color.service";
 import { Request, Response } from "express";
-import { ColorService } from "../services/color.service";
 import {
   colodIdsValidate,
   colorUpdateValidate,
@@ -13,7 +13,11 @@ import { errorRes } from "../../../utils/helpers/error-response.helper";
 import { tryCatchController } from "../../../utils/helpers/trycatch.helper";
 
 export class ColorController {
-  private readonly colorService = new ColorService();
+  private readonly colorService: ColorService;
+
+  constructor() {
+    this.colorService = new ColorServiceImpl();
+  }
 
   createColorController = async (req: Request, res: Response): Promise<any> => {
     try {

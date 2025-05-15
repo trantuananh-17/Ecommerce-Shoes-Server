@@ -1,6 +1,10 @@
 import { translate } from "@vitalets/google-translate-api";
 import { TranslateFunction } from "../../types/express";
-import { apiError, apiResponse } from "../../utils/helpers/api-response.helper";
+import {
+  apiError,
+  APIResponse,
+  apiResponse,
+} from "../../utils/helpers/api-response.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import { bannedWithLangMapper, bannedResponseMapper } from "./banned.mapper";
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
@@ -12,7 +16,39 @@ import {
 } from "./banned.dto";
 import BannedModel, { IBanned } from "./banned.model";
 
-export class BannedService {
+export interface BannedService {
+  createBannedWordService(
+    DTOBanned: IBannedDto,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IBannedResponseDto | null>>;
+
+  deleteBannedWordService(
+    id: string,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>>;
+
+  deleteManyBannedWordService(
+    value: IBannedWordDeleteManyDto,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<any>>;
+
+  getAllBannedWordService(
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IBannedWithLangResponseDto[]>>;
+
+  getAllBannedWordWithPaginationService(
+    lang: string,
+    page: number,
+    limit: number,
+    __: TranslateFunction
+  ): Promise<APIResponse<IBannedWithLangResponseDto[]>>;
+}
+
+export class BannedServiceImpl implements BannedService {
   async createBannedWordService(
     DTOBanned: IBannedDto,
     lang: string,
@@ -105,7 +141,7 @@ export class BannedService {
         });
         return apiResponse(
           HttpStatus.OK,
-          __("DELETE_MANY_SIZE_SUCCESSFULLY"),
+          __("DELETE_MANY_BANNED_SUCCESSFULLY"),
           response
         );
       },

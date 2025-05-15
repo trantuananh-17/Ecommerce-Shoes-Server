@@ -2,17 +2,18 @@ import Joi from "joi";
 
 export const bannedValidate = Joi.object({
   word: Joi.string().trim().required().messages({
-    "string.empty": "Từ khóa không được để trống",
-    "any.required": "Từ khóa là bắt buộc",
+    "string.empty": "BANNED_EMPTY",
+    "any.required": "BANNED_REQUIRED",
   }),
 });
 
 export const bannedWordIdsValidate = Joi.object({
   ids: Joi.array().items(Joi.string().required()).min(1).required().messages({
-    "array.base": "COLOR_IDS_ARRAY", // Nếu không phải mảng
-    "array.required": "COLOR_IDS_REQUIRED", // Nếu trường mảng không có trong dữ liệu
-    "string.base": "COLOR_NAME_STRING", // Nếu các phần tử trong mảng không phải là chuỗi
-    "string.empty": "COLOR_NAME_EMPTY", // Nếu phần tử trong mảng là chuỗi rỗng
-    "any.required": "COLOR_NAME_REQUIRED", // Nếu không có giá trị nào trong mảng
+    "array.base": "BANNED_IDS_ARRAY",
+    "array.min": "BANNED_MIN",
+    "array.required": "BANNED_IDS_REQUIRED",
+    "string.base": "BANNED_NAME_STRING",
+    "string.empty": "BANNED_NAME_EMPTY",
+    "any.required": "BANNED_NAME_REQUIRED",
   }),
 });

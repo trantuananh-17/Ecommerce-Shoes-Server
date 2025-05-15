@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 import { handleValidationError } from "../../utils/helpers/validation.helper";
 import { bannedValidate, bannedWordIdsValidate } from "./banned.validate";
-import { BannedService } from "./banned.service";
+import { BannedService, BannedServiceImpl } from "./banned.service";
 import { isValidObjectId } from "mongoose";
 import { errorRes } from "../../utils/helpers/error-response.helper";
 import HttpStatus from "../../utils/http-status.utils";
@@ -10,7 +10,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export class BannerController {
-  private readonly bannedService = new BannedService();
+  private readonly bannedService: BannedService;
+
+  constructor() {
+    this.bannedService = new BannedServiceImpl();
+  }
 
   createBannedController = async (
     req: Request,
@@ -91,7 +95,7 @@ export class BannerController {
           if (!isValidObjectId(colodId)) {
             return errorRes(
               res,
-              req.__("INVALID_SIZE_ID"),
+              req.__("INVALID_BANNED_ID"),
               HttpStatus.BAD_REQUEST
             );
           }

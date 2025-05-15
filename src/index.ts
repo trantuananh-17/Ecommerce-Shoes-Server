@@ -2,9 +2,9 @@ import routes from "./routes";
 import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/mongodb.config";
-import i18n from "./middleware/i18n.middleware";
 import { getLangFromHeader } from "./middleware/language.middleware";
 import logRequestTime from "./middleware/winston.middleware";
+import i18n from "./config/i18n.config";
 
 dotenv.config();
 const app = express();

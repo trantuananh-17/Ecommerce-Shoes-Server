@@ -1,5 +1,9 @@
 import { TranslateFunction } from "../../types/express";
-import { apiError, apiResponse } from "../../utils/helpers/api-response.helper";
+import {
+  apiError,
+  APIResponse,
+  apiResponse,
+} from "../../utils/helpers/api-response.helper";
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import {
@@ -10,7 +14,36 @@ import {
 import { sizeResponseMapper } from "./size.mapper";
 import SizeModel, { ISize } from "./size.model";
 
-export class SizeService {
+export interface SizeService {
+  createSizeService(
+    DTOSize: ICreateSizeDto,
+    __: TranslateFunction
+  ): Promise<APIResponse<ISizeResponseDto | null>>;
+
+  deleteSizeService(
+    id: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>>;
+
+  deleteManySizeService(
+    value: ISizeDeleteManyDto,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<any>>;
+
+  getAllSizesService(
+    __: TranslateFunction
+  ): Promise<APIResponse<ISizeResponseDto[]>>;
+
+  getAllSizesWithPaginationService(
+    limit: number,
+    page: number,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<ISizeResponseDto[]>>;
+}
+
+export class SizeServiceImpl implements SizeService {
   async createSizeService(DTOSize: ICreateSizeDto, __: TranslateFunction) {
     try {
       const { name } = DTOSize;
