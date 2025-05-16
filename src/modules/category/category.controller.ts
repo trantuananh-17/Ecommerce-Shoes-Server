@@ -1,8 +1,15 @@
 import { Request, Response } from "express";
 import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 import { CategoryService, CategoryServiceImpl } from "./category.service";
-import { createCategoryValidate } from "./category.validate";
+import {
+  createCategoryValidate,
+  updateCategoryActiveValidate,
+  updateCategoryValidate,
+} from "./category.validate";
 import { handleValidationError } from "../../utils/helpers/validation.helper";
+import { isValidObjectId } from "mongoose";
+import { errorRes } from "../../utils/helpers/error-response.helper";
+import HttpStatus from "../../utils/http-status.utils";
 
 export class CategoryController {
   private readonly categoryService: CategoryService;
@@ -46,7 +53,75 @@ export class CategoryController {
     res: Response
   ): Promise<any> => {
     return tryCatchController(
-      async () => {},
+      async () => {
+        const lang = req.lang || "vi";
+        const categoryId = req.params.id;
+        const { error, value } = updateCategoryActiveValidate.validate(
+          req.body ?? {}
+        );
+
+        if (!isValidObjectId(categoryId)) {
+          return errorRes(
+            res,
+            req.__("INVALID_COLOR_ID"),
+            HttpStatus.BAD_REQUEST
+          );
+        }
+
+        if (error) {
+          handleValidationError(res, error, req.__.bind(req));
+          return;
+        }
+
+        const response = await this.categoryService.updateCategoryActiveService(
+          categoryId,
+          value,
+          lang,
+          req.__.bind(req)
+        );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "updateCategoryController"
+    );
+  };
+
+  updateCategoryController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "vi";
+        const categoryId = req.params.id;
+        const { error, value } = updateCategoryValidate.validate(
+          req.body ?? {}
+        );
+
+        if (!isValidObjectId(categoryId)) {
+          return errorRes(
+            res,
+            req.__("INVALID_COLOR_ID"),
+            HttpStatus.BAD_REQUEST
+          );
+        }
+
+        if (error) {
+          handleValidationError(res, error, req.__.bind(req));
+          return;
+        }
+
+        const response = await this.categoryService.updateCategoryService(
+          categoryId,
+          value,
+          lang,
+          req.__.bind(req)
+        );
+
+        res.status(response.status_code).json(response);
+      },
       res,
       req,
       "updateCategoryController"
@@ -83,13 +158,39 @@ export class CategoryController {
     req: Request,
     res: Response
   ): Promise<any> => {
-    return tryCatchController(async () => {}, res, req, "deleteCategory");
-  };
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "vi";
 
-  deleteManyCategoryController = async (
-    req: Request,
-    res: Response
-  ): Promise<any> => {
-    return tryCatchController(async () => {}, res, req, "deleteManyCategory");
+        const categoryId = req.params.id;
+
+        if (!isValidObjectId(categoryId)) {
+          return errorRes(
+            res,
+            req.__("INVALID_CATEGORY_ID"),
+            HttpStatus.BAD_REQUEST
+          );
+        }
+
+        const response = await this.categoryService.deleteCategoryService(
+          categoryId,
+          lang,
+          req.__.bind(req)
+        );
+
+        if (!response) {
+          return errorRes(
+            res,
+            req.__("CATEGORY_NOT_FOUND"),
+            HttpStatus.NOT_FOUND
+          );
+        }
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "deleteCategoryController"
+    );
   };
 }

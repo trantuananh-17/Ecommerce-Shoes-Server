@@ -16,8 +16,18 @@ export interface ICreateCategoryResponseDto {
   createdAt: string;
 }
 
-export interface ICatogoryResponseDto {
+export interface ICategoryResponseDto {
   id: string;
   name: string;
   slug: string;
+  isActive: boolean;
+}
+
+export interface IUpdateActiveCategoryDto {
+  isActive: boolean;
+}
+
+export interface IUpdateCategoryDto {
+  name: string;
+  isActive: boolean;
 }

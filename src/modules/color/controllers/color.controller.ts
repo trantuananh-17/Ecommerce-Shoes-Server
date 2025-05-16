@@ -113,8 +113,6 @@ export class ColorController {
         const colorId = req.params.id;
         const lang = req.lang || "vi";
 
-        console.log(lang);
-
         if (!isValidObjectId(colorId)) {
           return errorRes(
             res,

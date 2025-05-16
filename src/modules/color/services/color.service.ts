@@ -231,8 +231,6 @@ export class ColorServiceImpl implements ColorService {
           { new: true }
         );
 
-        console.log(updated);
-
         if (!updated) {
           return apiError(HttpStatus.NOT_FOUND, __("COLOR_NOT_FOUND"));
         }

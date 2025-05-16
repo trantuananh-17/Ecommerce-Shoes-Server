@@ -10,9 +10,11 @@ import {
   APIResponse,
 } from "../../utils/helpers/api-response.helper";
 import {
-  ICatogoryResponseDto,
+  ICategoryResponseDto,
   ICreateCategoryDto,
   ICreateCategoryResponseDto,
+  IUpdateActiveCategoryDto,
+  IUpdateCategoryDto,
 } from "./category.dto";
 import {
   categoryResponseMapper,
@@ -30,23 +32,24 @@ export interface CategoryService {
     lang: string,
     __: TranslateFunction,
     active?: boolean
-  ): Promise<APIResponse<ICatogoryResponseDto | null>>;
+  ): Promise<APIResponse<ICategoryResponseDto | null>>;
 
   updateCategoryActiveService(
     id: string,
-    DTOCategory: any,
+    DTOCategory: IUpdateActiveCategoryDto,
     lang: string,
     __: TranslateFunction
-  ): Promise<APIResponse<any>>;
+  ): Promise<APIResponse<null>>;
+
+  updateCategoryService(
+    id: string,
+    DTOCategory: IUpdateCategoryDto,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>>;
 
   deleteCategoryService(
     id: string,
-    lang: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<any>>;
-
-  deleteManyCategoryService(
-    slug: string,
     lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<any>>;
@@ -63,19 +66,18 @@ export class CategoryServiceImpl implements CategoryService {
         const { name } = DTOCategory;
         const field = lang.startsWith("vi") ? "name.vi" : "name.en";
 
-        const existingCategory = await CategoryModel.findOne({ [field]: name });
-
-        if (existingCategory) {
-          return apiError(
-            HttpStatus.CONFLICT,
-            __("WORD_BANNED_ALREADY_EXISTS")
-          );
-        }
-
         const { textVi, textEn } = await translateViEn(name, lang);
 
         const slugVi = slugify(textVi);
         const slugEn = slugify(textEn);
+
+        const existingCategory = await CategoryModel.findOne({
+          $or: [{ "slug.vi": slugVi }, { "slug.en": slugEn }],
+        });
+
+        if (existingCategory) {
+          return apiError(HttpStatus.CONFLICT, __("CATEGORY_ALREADY_EXISTS"));
+        }
 
         const newCategory = new CategoryModel({
           name: {
@@ -123,8 +125,9 @@ export class CategoryServiceImpl implements CategoryService {
           [nameField]: 1,
           [slugField]: 1,
           _id: 1,
+          isActive: 1,
         });
-        const response: ICatogoryResponseDto[] = listCategory.map((category) =>
+        const response: ICategoryResponseDto[] = listCategory.map((category) =>
           categoryResponseMapper(category, lang)
         );
 
@@ -143,12 +146,86 @@ export class CategoryServiceImpl implements CategoryService {
 
   async updateCategoryActiveService(
     id: string,
-    DTOCategory: any,
+    DTOCategory: IUpdateActiveCategoryDto,
     lang: string,
     __: TranslateFunction
   ) {
     return tryCatchService(
-      async () => {},
+      async () => {
+        const { isActive } = DTOCategory;
+
+        const updated = await CategoryModel.findByIdAndUpdate(
+          id,
+          { isActive: isActive },
+          { new: true }
+        );
+
+        if (!updated) {
+          return apiError(HttpStatus.NOT_FOUND, __("CATEGORY_NOT_FOUND"));
+        }
+
+        return apiResponse(
+          HttpStatus.OK,
+          __("CATEGORY_ISACTIVE_UPDATED_SUCCESSFULLY")
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "updateCategoryActiveService",
+      lang,
+      __
+    );
+  }
+
+  async updateCategoryService(
+    id: string,
+    DTOCategory: IUpdateCategoryDto,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>> {
+    return tryCatchService(
+      async () => {
+        const { name, isActive } = DTOCategory;
+
+        const field = lang.startsWith("vi") ? "name.vi" : "name.en";
+
+        const { textVi, textEn } = await translateViEn(name, lang);
+
+        const slugVi = slugify(textVi);
+        const slugEn = slugify(textEn);
+
+        const existingCategory = await CategoryModel.findOne({
+          $or: [{ "slug.vi": slugVi }, { "slug.en": slugEn }],
+          _id: { $ne: id }, //  loại trừ chính nó
+        });
+
+        if (existingCategory) {
+          return apiError(HttpStatus.CONFLICT, __("CATEGORY_ALREADY_EXISTS"));
+        }
+
+        const categoryUpdate = {
+          name: {
+            vi: textVi,
+            en: textEn,
+          },
+          slug: {
+            vi: slugVi,
+            en: slugEn,
+          },
+          isActive: isActive,
+        };
+
+        const updated = await CategoryModel.findByIdAndUpdate(
+          id,
+          categoryUpdate,
+          { new: true }
+        );
+
+        if (!updated) {
+          return apiError(HttpStatus.NOT_FOUND, __("CATEGORY_NOT_FOUND"));
+        }
+
+        return apiResponse(HttpStatus.OK, __("CATEGORY_UPDATED_SUCCESSFULLY"));
+      },
       "INTERNAL_SERVER_ERROR",
       "updateCategoryActiveService",
       lang,
@@ -158,21 +235,15 @@ export class CategoryServiceImpl implements CategoryService {
 
   async deleteCategoryService(id: string, lang: string, __: TranslateFunction) {
     return tryCatchService(
-      async () => {},
-      "INTERNAL_SERVER_ERROR",
-      "updateCategoryActiveService",
-      lang,
-      __
-    );
-  }
+      async () => {
+        const deleted = await CategoryModel.findByIdAndDelete(id);
 
-  async deleteManyCategoryService(
-    id: string,
-    lang: string,
-    __: TranslateFunction
-  ) {
-    return tryCatchService(
-      async () => {},
+        if (!deleted) {
+          return apiError(HttpStatus.NOT_FOUND, __("CATEGORY_NOT_FOUND"));
+        }
+
+        return apiResponse(HttpStatus.OK, __("CATEGORY_DELETED_SUCCESSFULLY"));
+      },
       "INTERNAL_SERVER_ERROR",
       "updateCategoryActiveService",
       lang,
