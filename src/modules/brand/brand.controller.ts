@@ -89,7 +89,7 @@ export class BrandController {
         if (!isValidObjectId(brandId)) {
           return errorRes(
             res,
-            req.__("INVALID_COLOR_ID"),
+            req.__("INVALID_BRAND_ID"),
             HttpStatus.BAD_REQUEST
           );
         }
@@ -187,7 +187,7 @@ export class BrandController {
         if (!isValidObjectId(brandId)) {
           return errorRes(
             res,
-            req.__("INVALID_CATEGORY_ID"),
+            req.__("INVALID_BRAND_ID"),
             HttpStatus.BAD_REQUEST
           );
         }
