@@ -2,21 +2,25 @@ import { Document, model, Schema } from "mongoose";
 
 export enum Status {}
 
-export interface Brand extends Document {
+export interface IBrand extends Document {
+  _id: Schema.Types.ObjectId;
   name: string;
   country: string;
-  phoneNumber: string;
   websiteUrl: string;
   isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const brandSchema: Schema = new Schema<Brand>({
-  name: { type: String, required: true },
-  country: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
-  websiteUrl: { type: String, required: true },
-  isActive: { type: Boolean, default: true },
-});
+const brandSchema: Schema = new Schema<IBrand>(
+  {
+    name: { type: String, required: true, unique: true },
+    country: { type: String, required: true },
+    websiteUrl: { type: String, required: true },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
 
-const BrandModel = model("Brand", brandSchema);
+const BrandModel = model<IBrand>("Brand", brandSchema);
 export default BrandModel;

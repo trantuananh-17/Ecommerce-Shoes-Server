@@ -12,7 +12,7 @@ export interface ICategory extends Document {
     en: string;
   };
   createdAt: Date;
-  updateedAt: Date;
+  updatedAt: Date;
 }
 
 const categorySchema: Schema = new Schema<ICategory>(

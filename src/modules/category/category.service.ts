@@ -60,7 +60,7 @@ export class CategoryServiceImpl implements CategoryService {
     DTOCategory: ICreateCategoryDto,
     lang: string,
     __: TranslateFunction
-  ) {
+  ): Promise<APIResponse<ICreateCategoryResponseDto | null>> {
     return tryCatchService(
       async () => {
         const { name } = DTOCategory;
@@ -110,7 +110,7 @@ export class CategoryServiceImpl implements CategoryService {
     lang: string,
     __: TranslateFunction,
     isActive?: boolean
-  ) {
+  ): Promise<APIResponse<ICategoryResponseDto | null>> {
     return tryCatchService(
       async () => {
         let query = CategoryModel.find();
@@ -138,7 +138,7 @@ export class CategoryServiceImpl implements CategoryService {
         );
       },
       "INTERNAL_SERVER_ERROR",
-      "updateCategoryActiveService",
+      "getAllCategoryService",
       lang,
       __
     );
@@ -149,7 +149,7 @@ export class CategoryServiceImpl implements CategoryService {
     DTOCategory: IUpdateActiveCategoryDto,
     lang: string,
     __: TranslateFunction
-  ) {
+  ): Promise<APIResponse<null>> {
     return tryCatchService(
       async () => {
         const { isActive } = DTOCategory;
@@ -193,13 +193,16 @@ export class CategoryServiceImpl implements CategoryService {
         const slugVi = slugify(textVi);
         const slugEn = slugify(textEn);
 
-        const existingCategory = await CategoryModel.findOne({
+        const existingCategorySlug = await CategoryModel.findOne({
           $or: [{ "slug.vi": slugVi }, { "slug.en": slugEn }],
           _id: { $ne: id }, //  loại trừ chính nó
         });
 
-        if (existingCategory) {
-          return apiError(HttpStatus.CONFLICT, __("CATEGORY_ALREADY_EXISTS"));
+        if (existingCategorySlug) {
+          return apiError(
+            HttpStatus.CONFLICT,
+            __("CATEGORY_SLUG_ALREADY_EXISTS")
+          );
         }
 
         const categoryUpdate = {
@@ -227,13 +230,17 @@ export class CategoryServiceImpl implements CategoryService {
         return apiResponse(HttpStatus.OK, __("CATEGORY_UPDATED_SUCCESSFULLY"));
       },
       "INTERNAL_SERVER_ERROR",
-      "updateCategoryActiveService",
+      "updateCategoryService",
       lang,
       __
     );
   }
 
-  async deleteCategoryService(id: string, lang: string, __: TranslateFunction) {
+  async deleteCategoryService(
+    id: string,
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<any>> {
     return tryCatchService(
       async () => {
         const deleted = await CategoryModel.findByIdAndDelete(id);
@@ -245,7 +252,7 @@ export class CategoryServiceImpl implements CategoryService {
         return apiResponse(HttpStatus.OK, __("CATEGORY_DELETED_SUCCESSFULLY"));
       },
       "INTERNAL_SERVER_ERROR",
-      "updateCategoryActiveService",
+      "deleteCategoryService",
       lang,
       __
     );

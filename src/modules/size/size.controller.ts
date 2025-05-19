@@ -92,10 +92,6 @@ export class SizeController {
         req.__.bind(req)
       );
 
-      if (!response) {
-        return errorRes(res, req.__("SIZE_NOT_FOUND"), HttpStatus.NOT_FOUND);
-      }
-
       res.status(response.status_code).json(response);
     } catch (error: any) {
       console.error("Error in SizeController.deleteSizeController:", error);

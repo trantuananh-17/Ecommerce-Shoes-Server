@@ -1,14 +1,15 @@
 import { IBannedResponseDto, IBannedWithLangResponseDto } from "./banned.dto";
 import { IBanned } from "./banned.model";
 
-export const bannedResponseMapper = (banner: IBanned): IBannedResponseDto => {
+export const bannedResponseMapper = (banned: IBanned): IBannedResponseDto => {
   return {
-    id: banner._id.toString(),
+    id: banned._id.toString(),
     word: {
-      vi: banner.word.vi,
-      en: banner.word.en,
+      vi: banned.word.vi,
+      en: banned.word.en,
     },
-    createdAt: banner.createdAt.toISOString(),
+    createdAt: banned.createdAt.toISOString(),
+    updatedAt: banned.updatedAt.toISOString(),
   };
 };
 
@@ -20,5 +21,6 @@ export const bannedWithLangMapper = (
     id: banned._id.toString(),
     word: banned.word[lang as keyof typeof banned.word],
     createdAt: banned.createdAt.toISOString(),
+    updatedAt: banned.updatedAt.toISOString(),
   };
 };

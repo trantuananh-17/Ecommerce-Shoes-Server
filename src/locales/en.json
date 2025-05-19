@@ -60,5 +60,6 @@
   "CATEGORY_NAME_REQUIRED": "Tên danh mục phải tồn tại",
   "CATEGORY_NAME_EMPTY": "Please enter a category name.",
   "CATEGORY_NAME_STRING": "Category is string.",
-  "INVALID_CATEGORY_ID": "Category ID is not valid."
+  "INVALID_CATEGORY_ID": "Category ID is not valid.",
+  "CATEGORY_ALREADY_EXISTS": "Category name is exists."
 }

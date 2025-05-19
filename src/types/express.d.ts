@@ -7,5 +7,11 @@ declare global {
     interface Request {
       lang?: string;
     }
+    interface Request {
+      pagination?: {
+        page: number;
+        limit: number;
+      };
+    }
   }
 }

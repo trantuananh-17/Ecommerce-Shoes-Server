@@ -7,6 +7,7 @@ export interface IBanned extends Document {
     en: string;
   };
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const bannedSchema: Schema = new Schema<IBanned>(

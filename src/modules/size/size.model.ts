@@ -4,6 +4,7 @@ export interface ISize extends Document {
   _id: Types.ObjectId;
   name: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const sizeSchema: Schema = new Schema<ISize>(

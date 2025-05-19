@@ -9,12 +9,14 @@ export interface IBannedResponseDto {
     en: string;
   };
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface IBannedWithLangResponseDto {
   id: string;
   word: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface IBannedWordDeleteManyDto {

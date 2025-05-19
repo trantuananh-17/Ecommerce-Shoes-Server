@@ -1,7 +1,8 @@
 export interface ISizeResponseDto {
   id: string;
   name: string;
-  createdAt: String;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ICreateSizeDto {

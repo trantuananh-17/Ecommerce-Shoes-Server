@@ -66,10 +66,6 @@ export class BannerController {
           req.__.bind(req)
         );
 
-        if (!response) {
-          return errorRes(res, req.__("COLOR_NOT_FOUND"), HttpStatus.NOT_FOUND);
-        }
-
         res.status(response.status_code).json(response);
       },
       res,

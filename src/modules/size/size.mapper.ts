@@ -6,5 +6,6 @@ export const sizeResponseMapper = (size: ISize): ISizeResponseDto => {
     id: size._id.toString(),
     name: size.name,
     createdAt: size.createdAt.toLocaleString(),
+    updatedAt: size.updatedAt.toLocaleString(),
   };
 };
