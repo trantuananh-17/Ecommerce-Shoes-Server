@@ -6,7 +6,6 @@ export const tryCatchService = async (
   fn: Function,
   errorMessage: string,
   service: string,
-  lang: string,
   translate: Function
 ) => {
   try {

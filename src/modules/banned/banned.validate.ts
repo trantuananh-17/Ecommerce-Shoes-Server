@@ -1,10 +1,20 @@
 import Joi from "joi";
 
 export const bannedValidate = Joi.object({
-  word: Joi.string().trim().required().messages({
-    "string.empty": "BANNED_EMPTY",
-    "any.required": "BANNED_REQUIRED",
-  }),
+  word: Joi.object({
+    vi: Joi.string().trim().required().messages({
+      "string.empty": "BANNED_VI_EMPTY",
+      "any.required": "BANNED_VI_REQUIRED",
+    }),
+    en: Joi.string().trim().required().messages({
+      "string.empty": "BANNED_EN_EMPTY",
+      "any.required": "BANNED_EN_REQUIRED",
+    }),
+  })
+    .required()
+    .messages({
+      "any.required": "BANNED_WORD_REQUIRED",
+    }),
 });
 
 export const bannedWordIdsValidate = Joi.object({

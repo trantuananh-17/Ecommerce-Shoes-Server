@@ -1,10 +1,20 @@
 import Joi from "joi";
 
 export const colorValidate = Joi.object({
-  name: Joi.string().trim().required().messages({
-    "string.empty": "COLOR_NAME_EMPTY",
-    "any.required": "COLOR_NAME_REQUIRED",
-  }),
+  name: Joi.object({
+    vi: Joi.string().trim().required().messages({
+      "string.empty": "COLOR_NAME_VI_EMPTY",
+      "any.required": "COLOR_NAME_VI_REQUIRED",
+    }),
+    en: Joi.string().trim().required().messages({
+      "string.empty": "COLOR_NAME_EN_EMPTY",
+      "any.required": "COLOR_NAME_EN_REQUIRED",
+    }),
+  })
+    .required()
+    .messages({
+      "any.required": "COLOR_NAME_REQUIRED",
+    }),
 });
 
 export const colorUpdateValidate = Joi.object({

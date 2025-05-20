@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ColorController } from "../controllers/color.controller";
+import { ColorController } from "./color.controller";
 
 const colorRouter = Router();
 

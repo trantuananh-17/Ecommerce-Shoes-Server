@@ -1,6 +1,6 @@
 export interface IClosureDTO {
-  name: string;
-  description: string;
+  name: { vi: string; en: string };
+  description: { vi: string; en: string };
 }
 
 export interface IClosureResponseDTO {

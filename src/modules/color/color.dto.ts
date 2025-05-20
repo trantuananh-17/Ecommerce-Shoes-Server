@@ -1,5 +1,8 @@
 export interface ICreateColorDto {
-  name: string;
+  name: {
+    vi: string;
+    en: string;
+  };
 }
 
 export interface IColorResponseDto {

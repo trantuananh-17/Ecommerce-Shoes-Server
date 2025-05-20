@@ -31,7 +31,6 @@ export class BannerController {
 
         const response = await this.bannedService.createBannedWordService(
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -62,7 +61,6 @@ export class BannerController {
 
         const response = await this.bannedService.deleteBannedWordService(
           colorId,
-          lang,
           req.__.bind(req)
         );
 
@@ -99,7 +97,6 @@ export class BannerController {
 
         const response = await this.bannedService.deleteManyBannedWordService(
           value,
-          lang,
           req.__.bind(req)
         );
 

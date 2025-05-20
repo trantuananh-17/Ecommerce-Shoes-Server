@@ -1,5 +1,5 @@
 export interface IBannedDto {
-  word: string;
+  word: { vi: string; en: string };
 }
 
 export interface IBannedResponseDto {

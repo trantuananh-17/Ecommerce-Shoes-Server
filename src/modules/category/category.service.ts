@@ -3,7 +3,6 @@ import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import CategoryModel, { ICategory } from "./category.model";
 import { slugify } from "../../utils/helpers/slugify.helper";
-import { translateViEn } from "../../utils/helpers/translate.helper";
 import {
   apiError,
   apiResponse,
@@ -24,7 +23,6 @@ import {
 export interface CategoryService {
   createCategoryService(
     DTOCategory: ICreateCategoryDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<ICreateCategoryResponseDto | null>>;
 
@@ -37,20 +35,17 @@ export interface CategoryService {
   updateCategoryActiveService(
     id: string,
     DTOCategory: IUpdateActiveCategoryDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 
   updateCategoryService(
     id: string,
     DTOCategory: IUpdateCategoryDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 
   deleteCategoryService(
     id: string,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<any>>;
 }
@@ -58,15 +53,14 @@ export interface CategoryService {
 export class CategoryServiceImpl implements CategoryService {
   async createCategoryService(
     DTOCategory: ICreateCategoryDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<ICreateCategoryResponseDto | null>> {
     return tryCatchService(
       async () => {
         const { name } = DTOCategory;
-        const field = lang.startsWith("vi") ? "name.vi" : "name.en";
 
-        const { textVi, textEn } = await translateViEn(name, lang);
+        const textVi = name.vi;
+        const textEn = name.en;
 
         const slugVi = slugify(textVi);
         const slugEn = slugify(textEn);
@@ -101,7 +95,6 @@ export class CategoryServiceImpl implements CategoryService {
       },
       "INTERNAL_SERVER_ERROR",
       "createCategoryService",
-      lang,
       __
     );
   }
@@ -126,7 +119,12 @@ export class CategoryServiceImpl implements CategoryService {
           [slugField]: 1,
           _id: 1,
           isActive: 1,
+          createdAt: 1,
+          updatedAt: 1,
         });
+
+        console.log(listCategory);
+
         const response: ICategoryResponseDto[] = listCategory.map((category) =>
           categoryResponseMapper(category, lang)
         );
@@ -139,7 +137,6 @@ export class CategoryServiceImpl implements CategoryService {
       },
       "INTERNAL_SERVER_ERROR",
       "getAllCategoryService",
-      lang,
       __
     );
   }
@@ -147,7 +144,6 @@ export class CategoryServiceImpl implements CategoryService {
   async updateCategoryActiveService(
     id: string,
     DTOCategory: IUpdateActiveCategoryDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>> {
     return tryCatchService(
@@ -171,7 +167,6 @@ export class CategoryServiceImpl implements CategoryService {
       },
       "INTERNAL_SERVER_ERROR",
       "updateCategoryActiveService",
-      lang,
       __
     );
   }
@@ -179,23 +174,21 @@ export class CategoryServiceImpl implements CategoryService {
   async updateCategoryService(
     id: string,
     DTOCategory: IUpdateCategoryDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>> {
     return tryCatchService(
       async () => {
         const { name, isActive } = DTOCategory;
 
-        const field = lang.startsWith("vi") ? "name.vi" : "name.en";
-
-        const { textVi, textEn } = await translateViEn(name, lang);
+        const textVi = name.vi;
+        const textEn = name.en;
 
         const slugVi = slugify(textVi);
         const slugEn = slugify(textEn);
 
         const existingCategorySlug = await CategoryModel.findOne({
           $or: [{ "slug.vi": slugVi }, { "slug.en": slugEn }],
-          _id: { $ne: id }, //  loại trừ chính nó
+          _id: { $ne: id },
         });
 
         if (existingCategorySlug) {
@@ -231,14 +224,12 @@ export class CategoryServiceImpl implements CategoryService {
       },
       "INTERNAL_SERVER_ERROR",
       "updateCategoryService",
-      lang,
       __
     );
   }
 
   async deleteCategoryService(
     id: string,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<any>> {
     return tryCatchService(
@@ -253,7 +244,6 @@ export class CategoryServiceImpl implements CategoryService {
       },
       "INTERNAL_SERVER_ERROR",
       "deleteCategoryService",
-      lang,
       __
     );
   }
