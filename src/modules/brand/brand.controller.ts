@@ -27,7 +27,6 @@ export class BrandController {
 
         const response = await this.brandService.createBrandService(
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -67,7 +66,6 @@ export class BrandController {
         const response = await this.brandService.updateBrandActiveService(
           brandId,
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -102,7 +100,6 @@ export class BrandController {
         const response = await this.brandService.updateBrandService(
           brandId,
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -194,7 +191,6 @@ export class BrandController {
 
         const response = await this.brandService.deleteBrandService(
           brandId,
-          lang,
           req.__.bind(req)
         );
 

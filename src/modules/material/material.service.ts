@@ -1,4 +1,3 @@
-import { translate } from "@vitalets/google-translate-api";
 import { TranslateFunction } from "../../types/express";
 import {
   apiError,
@@ -8,33 +7,36 @@ import {
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import {
-  IClosureDTO,
-  IClosureResponseDTO,
-  IClosureWithLangDTO,
-} from "./closure.dto";
-import ClosureModel, { IClosure } from "./closure.model";
-import { closureResponseMapper, closureWithLangMapper } from "./closure.mapper";
+  IMaterialDTO,
+  IMaterialResponseDTO,
+  IMaterialWithLangDTO,
+} from "./material.dto";
+import {
+  materialResponseMapper,
+  materialWithLangMapper,
+} from "./material.mapper";
+import MaterialModel, { IMaterial } from "./material.model";
 
-export interface ClosureService {
-  createClosureService(
-    DTOClosure: IClosureDTO,
+export interface MaterialService {
+  createMaterialService(
+    DTOMaterial: IMaterialDTO,
     __: TranslateFunction
-  ): Promise<APIResponse<IClosureResponseDTO | null>>;
+  ): Promise<APIResponse<IMaterialResponseDTO | null>>;
 
-  updateClosureService(
+  updateMaterialService(
     id: string,
-    DTOClosure: IClosureDTO,
+    DTOMaterial: IMaterialDTO,
     __: TranslateFunction
-  ): Promise<APIResponse<IClosureResponseDTO | null>>;
+  ): Promise<APIResponse<IMaterialResponseDTO | null>>;
 
-  getAllClosureService(
+  getAllMaterialService(
     lang: string,
     __: TranslateFunction,
     page: number,
     limit: number
   ): Promise<
     APIResponse<{
-      data: IClosureWithLangDTO[];
+      data: IMaterialWithLangDTO[];
       totalDocs: number;
       totalPages: number;
       currentPage: number;
@@ -43,30 +45,30 @@ export interface ClosureService {
   >;
 }
 
-export class ClosureServiceImpl implements ClosureService {
-  async createClosureService(
-    DTOClosure: IClosureDTO,
+export class MaterialServiceImpl implements MaterialService {
+  async createMaterialService(
+    DTOMaterial: IMaterialDTO,
     __: TranslateFunction
-  ): Promise<APIResponse<IClosureResponseDTO | null>> {
+  ): Promise<APIResponse<IMaterialResponseDTO | null>> {
     return tryCatchService(
       async () => {
-        const { name, description } = DTOClosure;
+        const { name, description } = DTOMaterial;
 
-        const existingClosure = await ClosureModel.findOne({
+        const existingClosure = await MaterialModel.findOne({
           $or: [{ "name.vi": name.vi }, { "name.en": name.en }],
         });
 
         if (existingClosure) {
-          return apiError(HttpStatus.CONFLICT, __("CLOSURE_ALREADY_EXISTS"));
+          return apiError(HttpStatus.CONFLICT, __("MATERIAL_ALREADY_EXISTS"));
         }
 
-        const newClosure = new ClosureModel({
+        const newClosure = new MaterialModel({
           name,
           description,
         });
 
         const created = await newClosure.save();
-        const response: IClosureResponseDTO = closureResponseMapper(created);
+        const response: IMaterialResponseDTO = materialResponseMapper(created);
         return apiResponse(
           HttpStatus.CREATED,
           __("CLOSURE_CREATED_SUCCESSFULLY"),
@@ -74,40 +76,40 @@ export class ClosureServiceImpl implements ClosureService {
         );
       },
       "INTERNAL_SERVER_ERROR",
-      "createClosureService",
+      "createMaterialService",
       __
     );
   }
 
-  async updateClosureService(
+  async updateMaterialService(
     id: string,
-    DTOClosure: IClosureDTO,
+    DTOMaterial: IMaterialDTO,
     __: TranslateFunction
-  ): Promise<APIResponse<IClosureResponseDTO | null>> {
+  ): Promise<APIResponse<IMaterialResponseDTO | null>> {
     return tryCatchService(
       async () => {
-        const { name, description } = DTOClosure;
+        const { name, description } = DTOMaterial;
 
-        const existingClosure = await ClosureModel.findOne({
+        const existingClosure = await MaterialModel.findOne({
           $or: [{ "name.vi": name.vi }, { "name.en": name.en }],
           _id: { $ne: id },
         });
 
         if (existingClosure) {
-          return apiError(HttpStatus.CONFLICT, __("CLOSURE_ALREADY_EXISTS"));
+          return apiError(HttpStatus.CONFLICT, __("MATERIAL_ALREADY_EXISTS"));
         }
 
-        const updated = await ClosureModel.findByIdAndUpdate(
+        const updated = await MaterialModel.findByIdAndUpdate(
           id,
           { name, description },
           { new: true }
         );
 
         if (!updated) {
-          return apiError(HttpStatus.NOT_FOUND, __("CLOSURE_NOT_FOUND"));
+          return apiError(HttpStatus.NOT_FOUND, __("MATERIAL_NOT_FOUND"));
         }
 
-        return apiResponse(HttpStatus.OK, __("CLOSURE_UPDATED_SUCCESSFULLY"));
+        return apiResponse(HttpStatus.OK, __("MATERIAL_UPDATED_SUCCESSFULLY"));
       },
       "INTERNAL_SERVER_ERROR",
       "updateClosureService",
@@ -115,14 +117,14 @@ export class ClosureServiceImpl implements ClosureService {
     );
   }
 
-  async getAllClosureService(
+  async getAllMaterialService(
     lang: string,
     __: TranslateFunction,
     page: number,
     limit: number
   ): Promise<
     APIResponse<{
-      data: IClosureWithLangDTO[];
+      data: IMaterialWithLangDTO[];
       totalDocs: number;
       totalPages: number;
       currentPage: number;
@@ -132,7 +134,7 @@ export class ClosureServiceImpl implements ClosureService {
     return tryCatchService(
       async () => {
         const skip = (page - 1) * limit;
-        const result = await ClosureModel.aggregate([
+        const result = await MaterialModel.aggregate([
           {
             $facet: {
               data: [
@@ -155,18 +157,18 @@ export class ClosureServiceImpl implements ClosureService {
         ]);
 
         const aggregationResult = result[0] as {
-          data: IClosure[];
+          data: IMaterial[];
           totalCount: { count: number }[];
         };
 
-        const response: IClosureWithLangDTO[] = aggregationResult.data.map(
-          (closure: IClosure) => closureWithLangMapper(closure, lang)
+        const response: IMaterialWithLangDTO[] = aggregationResult.data.map(
+          (material: IMaterial) => materialWithLangMapper(material, lang)
         );
 
         const totalDocs = aggregationResult.totalCount[0]?.count || 0;
         const totalPages = Math.ceil(totalDocs / limit);
 
-        return apiResponse(HttpStatus.OK, __("GET_ALL_CLOSURES_SUCCESSFULLY"), {
+        return apiResponse(HttpStatus.OK, __("GET_ALL_MATERIAL_SUCCESSFULLY"), {
           data: response,
           totalDocs,
           totalPages,
@@ -175,7 +177,7 @@ export class ClosureServiceImpl implements ClosureService {
         });
       },
       "INTERNAL_SERVER_ERROR",
-      "getAllClosureService",
+      "getAllMaterialService",
       __
     );
   }

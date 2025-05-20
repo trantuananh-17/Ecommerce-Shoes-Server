@@ -114,5 +114,20 @@
   "CLOSURE_DESC_VI_EMPTY": "Closure description in Vietnamese must not be empty.",
   "CLOSURE_DESC_EN_REQUIRED": "Closure description in English is required.",
   "CLOSURE_DESC_EN_EMPTY": "Closure description in English must not be empty.",
-  "INVALID_CLOSURE_ID": "Invalid closure ID."
+  "INVALID_CLOSURE_ID": "Invalid closure ID.",
+  "-----------------------Material": "Material Comment---------------------------------",
+  "MATERIAL_CREATED_SUCCESSFULLY": "Material created successfully.",
+  "MATERIAL_UPDATED_SUCCESSFULLY": "Material updated successfully.",
+  "GET_ALL_MATERIALS_SUCCESSFULLY": "Get all materials successfully.",
+  "MATERIAL_NOT_FOUND": "Material not found.",
+  "MATERIAL_ALREADY_EXISTS": "Material already exists.",
+  "MATERIAL_NAME_VI_REQUIRED": "Material name in Vietnamese is required.",
+  "MATERIAL_NAME_VI_EMPTY": "Material name in Vietnamese must not be empty.",
+  "MATERIAL_NAME_EN_REQUIRED": "Material name in English is required.",
+  "MATERIAL_NAME_EN_EMPTY": "Material name in English must not be empty.",
+  "MATERIAL_DESC_VI_REQUIRED": "Material description in Vietnamese is required.",
+  "MATERIAL_DESC_VI_EMPTY": "Material description in Vietnamese must not be empty.",
+  "MATERIAL_DESC_EN_REQUIRED": "Material description in English is required.",
+  "MATERIAL_DESC_EN_EMPTY": "Material description in English must not be empty.",
+  "INVALID_MATERIAL_ID": "Invalid material ID."
 }

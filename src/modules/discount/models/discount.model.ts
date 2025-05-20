@@ -10,7 +10,7 @@ export interface Discount extends Document {
   discountDescription: string;
   isActive: boolean;
   minItems: number;
-  minItemsPerBrand: {
+  minItemsPerBrand?: {
     brand: Schema.Types.ObjectId;
     minQuantity: number;
   }[];

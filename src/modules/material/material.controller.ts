@@ -1,33 +1,33 @@
 import { Request, Response } from "express";
-import { ClosureService, ClosureServiceImpl } from "./closure.service";
 import { tryCatchController } from "../../utils/helpers/trycatch.helper";
-import { closureValidate } from "./closure.validate";
 import { handleValidationError } from "../../utils/helpers/validation.helper";
+import { MaterialService, MaterialServiceImpl } from "./material.service";
+import { materialValidate } from "./material.validate";
 import { isValidObjectId } from "mongoose";
 import { errorRes } from "../../utils/helpers/error-response.helper";
 import HttpStatus from "../../utils/http-status.utils";
 
-export class ClosureController {
-  private readonly closureService: ClosureService;
+export class MaterialController {
+  private readonly materialService: MaterialService;
 
   constructor() {
-    this.closureService = new ClosureServiceImpl();
+    this.materialService = new MaterialServiceImpl();
   }
 
-  createClosureController = async (
+  createMaterialController = async (
     req: Request,
     res: Response
   ): Promise<any> => {
     return tryCatchController(
       async () => {
-        const { error, value } = closureValidate.validate(req.body ?? {});
+        const { error, value } = materialValidate.validate(req.body ?? {});
 
         if (error) {
           handleValidationError(res, error, req.__.bind(req));
           return;
         }
 
-        const response = await this.closureService.createClosureService(
+        const response = await this.materialService.createMaterialService(
           value,
           req.__.bind(req)
         );
@@ -36,11 +36,11 @@ export class ClosureController {
       },
       res,
       req,
-      "createClosureController"
+      "createMaterialController"
     );
   };
 
-  getAllClosureController = async (
+  getAllMaterialController = async (
     req: Request,
     res: Response
   ): Promise<any> => {
@@ -51,7 +51,7 @@ export class ClosureController {
         const page = req.pagination?.page || 1;
         const limit = req.pagination?.limit || 12;
 
-        const result = await this.closureService.getAllClosureService(
+        const result = await this.materialService.getAllMaterialService(
           lang,
           req.__.bind(req),
           page,
@@ -61,23 +61,23 @@ export class ClosureController {
       },
       res,
       req,
-      "getAllClosureController"
+      "getAllMaterialController"
     );
   };
 
-  updateClosureController = async (
+  updateMaterialController = async (
     req: Request,
     res: Response
   ): Promise<any> => {
     return tryCatchController(
       async () => {
-        const closureId = req.params.id;
-        const { error, value } = closureValidate.validate(req.body ?? {});
+        const materialId = req.params.id;
+        const { error, value } = materialValidate.validate(req.body ?? {});
 
-        if (!isValidObjectId(closureId)) {
+        if (!isValidObjectId(materialId)) {
           return errorRes(
             res,
-            req.__("INVALID_COLSURE_ID"),
+            req.__("INVALID_MATERIAL_ID"),
             HttpStatus.BAD_REQUEST
           );
         }
@@ -87,8 +87,8 @@ export class ClosureController {
           return;
         }
 
-        const response = await this.closureService.updateClosureService(
-          closureId,
+        const response = await this.materialService.updateMaterialService(
+          materialId,
           value,
           req.__.bind(req)
         );
@@ -97,7 +97,7 @@ export class ClosureController {
       },
       res,
       req,
-      "updateClosureController"
+      "updateMaterialController"
     );
   };
 }

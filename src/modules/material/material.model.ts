@@ -1,6 +1,7 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 
-export interface Material extends Document {
+export interface IMaterial extends Document {
+  _id: Types.ObjectId;
   name: {
     vi: string;
     en: string;
@@ -13,7 +14,7 @@ export interface Material extends Document {
   updatedAt: Date;
 }
 
-const materialSchema: Schema = new Schema<Material>(
+const materialSchema: Schema = new Schema<IMaterial>(
   {
     name: {
       vi: { type: String, required: true },
@@ -27,5 +28,5 @@ const materialSchema: Schema = new Schema<Material>(
   { timestamps: true }
 );
 
-const MaterialModel = model("Material", materialSchema);
+const MaterialModel = model<IMaterial>("Material", materialSchema);
 export default MaterialModel;
