@@ -27,13 +27,11 @@ export interface SizeService {
 
   deleteManySizeService(
     value: ISizeDeleteManyDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<any>>;
 
   getAllSizesService(
     __: TranslateFunction,
-    lang: string,
     limit?: number,
     page?: number
   ): Promise<APIResponse<ISizeResponseDto[]>>;
@@ -87,7 +85,6 @@ export class SizeServiceImpl implements SizeService {
 
   async deleteManySizeService(
     value: ISizeDeleteManyDto,
-    lang: string,
     __: TranslateFunction
   ) {
     return tryCatchService(
@@ -103,14 +100,12 @@ export class SizeServiceImpl implements SizeService {
       },
       "INTERNAL_SERVER_ERROR",
       "deleteManySizeService",
-      lang,
       __
     );
   }
 
   async getAllSizesService(
     __: TranslateFunction,
-    lang: string,
     limit?: number,
     page?: number
   ) {
@@ -134,7 +129,6 @@ export class SizeServiceImpl implements SizeService {
       },
       "INTERNAL_SERVER_ERROR",
       "getAllSizesService",
-      lang,
       __
     );
   }

@@ -14,19 +14,16 @@ import {
 } from "./closure.dto";
 import ClosureModel, { IClosure } from "./closure.model";
 import { closureResponseMapper, closureWithLangMapper } from "./closure.mapper";
-import { translateViEn } from "../../utils/helpers/translate.helper";
 
 export interface ClosureService {
   createClosureService(
     DTOClosure: IClosureDTO,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<IClosureResponseDTO | null>>;
 
   updateClosureService(
     id: string,
     DTOClosure: IClosureDTO,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<IClosureResponseDTO | null>>;
 
@@ -49,50 +46,36 @@ export interface ClosureService {
 export class ClosureServiceImpl implements ClosureService {
   async createClosureService(
     DTOClosure: IClosureDTO,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<IClosureResponseDTO | null>> {
     return tryCatchService(
       async () => {
         const { name, description } = DTOClosure;
 
-        const field = lang.startsWith("vi") ? "name.vi" : "name.en";
-
-        const existingClosure = await ClosureModel.findOne({ [field]: name });
+        const existingClosure = await ClosureModel.findOne({
+          $or: [{ "name.vi": name.vi }, { "name.en": name.en }],
+        });
 
         if (existingClosure) {
-          return apiError(HttpStatus.CONFLICT, __("CLORUSE_ALREADY_EXISTS"));
+          return apiError(HttpStatus.CONFLICT, __("CLOSURE_ALREADY_EXISTS"));
         }
 
-        const { textVi: nameVi, textEn: nameEn } = await translateViEn(
-          name,
-          lang
-        );
-        const { textVi: descriptionVi, textEn: descriptionEn } =
-          await translateViEn(description, lang);
-
+        // Lấy trực tiếp dữ liệu
         const newClosure = new ClosureModel({
-          name: {
-            vi: nameVi,
-            en: nameEn,
-          },
-          description: {
-            vi: descriptionVi,
-            en: descriptionEn,
-          },
+          name,
+          description,
         });
 
         const created = await newClosure.save();
         const response: IClosureResponseDTO = closureResponseMapper(created);
         return apiResponse(
           HttpStatus.CREATED,
-          __("Closure_CREATED_SUCCESSFULLY"),
+          __("CLOSURE_CREATED_SUCCESSFULLY"),
           response
         );
       },
       "INTERNAL_SERVER_ERROR",
       "createClosureService",
-      lang,
       __
     );
   }
@@ -100,54 +83,34 @@ export class ClosureServiceImpl implements ClosureService {
   async updateClosureService(
     id: string,
     DTOClosure: IClosureDTO,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<IClosureResponseDTO | null>> {
     return tryCatchService(
       async () => {
         const { name, description } = DTOClosure;
 
-        const field = lang.startsWith("vi") ? "name.vi" : "name.en";
-
-        const { textVi: nameVi, textEn: nameEn } = await translateViEn(
-          name,
-          lang
-        );
-        const { textVi: descriptionVi, textEn: descriptionEn } =
-          await translateViEn(description, lang);
-
-        const existingClosure = await ClosureModel.findOne({ [field]: name });
+        const existingClosure = await ClosureModel.findOne({
+          $or: [{ "name.vi": name.vi }, { "name.en": name.en }],
+        });
 
         if (existingClosure) {
-          return apiError(HttpStatus.CONFLICT, __("CLORUSE_ALREADY_EXISTS"));
+          return apiError(HttpStatus.CONFLICT, __("CLOSURE_ALREADY_EXISTS"));
         }
-
-        const closureUpdate = {
-          name: {
-            vi: nameVi,
-            en: nameEn,
-          },
-          description: {
-            vi: descriptionVi,
-            en: descriptionEn,
-          },
-        };
 
         const updated = await ClosureModel.findByIdAndUpdate(
           id,
-          closureUpdate,
+          { name, description },
           { new: true }
         );
 
         if (!updated) {
-          return apiError(HttpStatus.NOT_FOUND, __("CLORUSE_NOT_FOUND"));
+          return apiError(HttpStatus.NOT_FOUND, __("CLOSURE_NOT_FOUND"));
         }
 
-        return apiResponse(HttpStatus.OK, __("CLORUSE_UPDATED_SUCCESSFULLY"));
+        return apiResponse(HttpStatus.OK, __("CLOSURE_UPDATED_SUCCESSFULLY"));
       },
       "INTERNAL_SERVER_ERROR",
       "updateClosureService",
-      lang,
       __
     );
   }
@@ -168,18 +131,7 @@ export class ClosureServiceImpl implements ClosureService {
   > {
     return tryCatchService(
       async () => {
-        let query = ClosureModel.find();
         const skip = (page - 1) * limit;
-        const nameField = lang.startsWith("vi") ? "name.vi" : "name.en";
-        const descriptionField = lang.startsWith("vi") ? "name.vi" : "name.en";
-
-        // const listClosure: IClosure[] = await query.select({
-        //   [nameField]: 1,
-        //   [descriptionField]: 1,
-        //   _id: 1,
-        //   isActive: 1,
-        // });
-
         const result = await ClosureModel.aggregate([
           {
             $facet: {
@@ -224,7 +176,6 @@ export class ClosureServiceImpl implements ClosureService {
       },
       "INTERNAL_SERVER_ERROR",
       "getAllClosureService",
-      lang,
       __
     );
   }

@@ -18,7 +18,6 @@ import { FilterQuery } from "mongoose";
 export interface BrandService {
   createBrandService(
     DTOBrand: IBrandDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<IBrandResponseDto | null>>;
 
@@ -48,20 +47,17 @@ export interface BrandService {
   updateBrandService(
     id: string,
     DTOBrand: IBrandDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 
   updateBrandActiveService(
     id: string,
     DTOBrand: IUpdateActiveBrandDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 
   deleteBrandService(
     id: string,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<any>>;
 }
@@ -145,14 +141,12 @@ export class BrandServiceImpl implements BrandService {
       },
       "INTERNAL_SERVER_ERROR",
       "getBrandsService",
-      lang,
       __
     );
   }
 
   async createBrandService(
     DTOBrand: IBrandDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<IBrandResponseDto | null>> {
     return tryCatchService(
@@ -182,7 +176,6 @@ export class BrandServiceImpl implements BrandService {
       },
       "INTERNAL_SERVER_ERROR",
       "createBrandService",
-      lang,
       __
     );
   }
@@ -190,7 +183,6 @@ export class BrandServiceImpl implements BrandService {
   async updateBrandService(
     id: string,
     DTOBrand: any,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>> {
     return tryCatchService(
@@ -218,7 +210,6 @@ export class BrandServiceImpl implements BrandService {
       },
       "INTERNAL_SERVER_ERROR",
       "updateBrandService",
-      lang,
       __
     );
   }
@@ -226,7 +217,6 @@ export class BrandServiceImpl implements BrandService {
   async updateBrandActiveService(
     id: string,
     DTOBrand: IUpdateActiveBrandDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>> {
     return tryCatchService(
@@ -250,7 +240,6 @@ export class BrandServiceImpl implements BrandService {
       },
       "INTERNAL_SERVER_ERROR",
       "updateBrandActiveService",
-      lang,
       __
     );
   }
@@ -277,14 +266,12 @@ export class BrandServiceImpl implements BrandService {
       },
       "INTERNAL_SERVER_ERROR",
       "getBrandServce",
-      lang,
       __
     );
   }
 
   async deleteBrandService(
     id: string,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<any>> {
     return tryCatchService(
@@ -299,7 +286,6 @@ export class BrandServiceImpl implements BrandService {
       },
       "INTERNAL_SERVER_ERROR",
       "deleteBrandService",
-      lang,
       __
     );
   }

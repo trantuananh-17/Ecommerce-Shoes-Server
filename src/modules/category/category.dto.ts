@@ -1,5 +1,8 @@
 export interface ICreateCategoryDto {
-  name: string;
+  name: {
+    vi: string;
+    en: string;
+  };
 }
 
 export interface ICreateCategoryResponseDto {
@@ -30,6 +33,9 @@ export interface IUpdateActiveCategoryDto {
 }
 
 export interface IUpdateCategoryDto {
-  name: string;
+  name: {
+    vi: string;
+    en: string;
+  };
   isActive: boolean;
 }

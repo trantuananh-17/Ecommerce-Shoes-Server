@@ -1,16 +1,16 @@
-import { ColorService, ColorServiceImpl } from "./../services/color.service";
+import { ColorService, ColorServiceImpl } from "./color.service";
 import { Request, Response } from "express";
 import {
   colodIdsValidate,
   colorUpdateValidate,
   colorValidate,
-} from "../validators/color.validate";
-import { handleValidationError } from "../../../utils/helpers/validation.helper";
-import HttpStatus from "../../../utils/http-status.utils";
-import { apiError } from "../../../utils/helpers/api-response.helper";
+} from "./color.validate";
+import { handleValidationError } from "../../utils/helpers/validation.helper";
+import HttpStatus from "../../utils/http-status.utils";
+import { apiError } from "../../utils/helpers/api-response.helper";
 import { isValidObjectId } from "mongoose";
-import { errorRes } from "../../../utils/helpers/error-response.helper";
-import { tryCatchController } from "../../../utils/helpers/trycatch.helper";
+import { errorRes } from "../../utils/helpers/error-response.helper";
+import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 
 export class ColorController {
   private readonly colorService: ColorService;
@@ -30,7 +30,6 @@ export class ColorController {
 
       const response = await this.colorService.createColorService(
         value,
-        lang,
         req.__.bind(req)
       );
 
@@ -123,7 +122,6 @@ export class ColorController {
 
         const response = await this.colorService.deleteColorService(
           colorId,
-          lang,
           req.__.bind(req)
         );
 
@@ -161,7 +159,6 @@ export class ColorController {
         // Gọi service để xóa nhiều kích thước
         const response = await this.colorService.deleteManyColorService(
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -198,7 +195,6 @@ export class ColorController {
         const response = await this.colorService.updateColorService(
           colorId,
           value,
-          lang,
           req.__.bind(req)
         );
 

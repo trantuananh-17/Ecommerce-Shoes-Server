@@ -1,8 +1,5 @@
-import {
-  IColorResponseDto,
-  IColorWithLangResponseDto,
-} from "../dtos/color.dto";
-import { IColor } from "../models/color.model";
+import { IColorResponseDto, IColorWithLangResponseDto } from "./color.dto";
+import { IColor } from "./color.model";
 
 export const colorResponseMapper = (color: IColor): IColorResponseDto => {
   return {

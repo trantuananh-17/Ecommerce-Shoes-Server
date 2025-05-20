@@ -21,7 +21,6 @@ export class ClosureController {
     return tryCatchController(
       async () => {
         const { error, value } = closureValidate.validate(req.body ?? {});
-        const lang = req.lang || "vi";
 
         if (error) {
           handleValidationError(res, error, req.__.bind(req));
@@ -30,7 +29,6 @@ export class ClosureController {
 
         const response = await this.closureService.createClosureService(
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -73,14 +71,13 @@ export class ClosureController {
   ): Promise<any> => {
     return tryCatchController(
       async () => {
-        const lang = req.lang || "vi";
         const brandId = req.params.id;
         const { error, value } = closureValidate.validate(req.body ?? {});
 
         if (!isValidObjectId(brandId)) {
           return errorRes(
             res,
-            req.__("INVALID_BRAND_ID"),
+            req.__("INVALID_COLSURE_ID"),
             HttpStatus.BAD_REQUEST
           );
         }
@@ -93,7 +90,6 @@ export class ClosureController {
         const response = await this.closureService.updateClosureService(
           brandId,
           value,
-          lang,
           req.__.bind(req)
         );
 

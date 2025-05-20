@@ -19,19 +19,16 @@ import BannedModel, { IBanned } from "./banned.model";
 export interface BannedService {
   createBannedWordService(
     DTOBanned: IBannedDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<IBannedResponseDto | null>>;
 
   deleteBannedWordService(
     id: string,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 
   deleteManyBannedWordService(
     value: IBannedWordDeleteManyDto,
-    lang: string,
     __: TranslateFunction
   ): Promise<APIResponse<any>>;
 
@@ -44,18 +41,14 @@ export interface BannedService {
 }
 
 export class BannedServiceImpl implements BannedService {
-  async createBannedWordService(
-    DTOBanned: IBannedDto,
-    lang: string,
-    __: TranslateFunction
-  ) {
+  async createBannedWordService(DTOBanned: IBannedDto, __: TranslateFunction) {
     return tryCatchService(
       async () => {
         const { word } = DTOBanned;
 
-        const field = lang.startsWith("vi") ? "word.vi" : "word.en";
-
-        const existingBanned = await BannedModel.findOne({ [field]: word });
+        const existingBanned = await BannedModel.findOne({
+          $or: [{ "word.vi": word.vi }, { "word.en": word.en }],
+        });
 
         if (existingBanned) {
           return apiError(
@@ -64,18 +57,8 @@ export class BannedServiceImpl implements BannedService {
           );
         }
 
-        let wordVi = "";
-        let wordEn = "";
-
-        if (lang.startsWith("vi")) {
-          wordVi = word;
-          const { text } = await translate(word, { from: "vi", to: "en" });
-          wordEn = text;
-        } else {
-          wordEn = word;
-          const { text } = await translate(word, { from: "en", to: "vi" });
-          wordVi = text;
-        }
+        const wordVi = word.vi;
+        const wordEn = word.en;
 
         const newBanner = new BannedModel({
           word: {
@@ -94,16 +77,11 @@ export class BannedServiceImpl implements BannedService {
       },
       "INTERNAL_SERVER_ERROR",
       "createBannedService",
-      lang,
       __
     );
   }
 
-  async deleteBannedWordService(
-    id: string,
-    lang: string,
-    __: TranslateFunction
-  ) {
+  async deleteBannedWordService(id: string, __: TranslateFunction) {
     return tryCatchService(
       async () => {
         const deleted = await BannedModel.findByIdAndDelete(id);
@@ -119,14 +97,12 @@ export class BannedServiceImpl implements BannedService {
       },
       "INTERNAL_SERVER_ERROR",
       "deleteBannedServce",
-      lang,
       __
     );
   }
 
   async deleteManyBannedWordService(
     value: IBannedWordDeleteManyDto,
-    lang: string,
     __: TranslateFunction
   ) {
     return tryCatchService(
@@ -142,7 +118,6 @@ export class BannedServiceImpl implements BannedService {
       },
       "INTERNAL_SERVER_ERROR",
       "deleteBannedServce",
-      lang,
       __
     );
   }
@@ -176,7 +151,6 @@ export class BannedServiceImpl implements BannedService {
       },
       "INTERNAL_SERVER_ERROR",
       "getAllBannedWordService",
-      lang,
       __
     );
   }

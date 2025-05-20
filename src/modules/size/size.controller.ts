@@ -28,7 +28,6 @@ export class SizeController {
 
       const response = await this.sizeService.getAllSizesService(
         req.__.bind(req),
-        lang,
         limit,
         page
       );
@@ -133,7 +132,6 @@ export class SizeController {
         // Gọi service để xóa nhiều kích thước
         const response = await this.sizeService.deleteManySizeService(
           value,
-          lang,
           req.__.bind(req)
         );
 

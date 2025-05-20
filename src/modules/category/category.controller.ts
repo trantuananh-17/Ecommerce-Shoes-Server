@@ -36,7 +36,6 @@ export class CategoryController {
 
         const response = await this.categoryService.createCategoryService(
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -76,7 +75,6 @@ export class CategoryController {
         const response = await this.categoryService.updateCategoryActiveService(
           categoryId,
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -116,7 +114,6 @@ export class CategoryController {
         const response = await this.categoryService.updateCategoryService(
           categoryId,
           value,
-          lang,
           req.__.bind(req)
         );
 
@@ -174,7 +171,6 @@ export class CategoryController {
 
         const response = await this.categoryService.deleteCategoryService(
           categoryId,
-          lang,
           req.__.bind(req)
         );
 
