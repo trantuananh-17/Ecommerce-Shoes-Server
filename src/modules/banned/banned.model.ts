@@ -20,5 +20,5 @@ const bannedSchema: Schema = new Schema<IBanned>(
   { timestamps: true }
 );
 
-const BannedModel = model<IBanned>("Banner", bannedSchema);
+const BannedModel = model<IBanned>("Banned", bannedSchema);
 export default BannedModel;
