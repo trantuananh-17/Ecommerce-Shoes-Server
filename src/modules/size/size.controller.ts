@@ -17,34 +17,23 @@ export class SizeController {
   }
 
   getAllSizesController = async (req: Request, res: Response): Promise<any> => {
-    try {
-      const lang = req.lang || "vi";
-      const page = req.query.page
-        ? parseInt(req.query.page as string)
-        : undefined;
-      const limit = req.query.limit
-        ? parseInt(req.query.limit as string)
-        : undefined;
+    return tryCatchController(
+      async () => {
+        const page = req.pagination?.page || 1;
+        const limit = req.pagination?.limit || 12;
 
-      const response = await this.sizeService.getAllSizesService(
-        req.__.bind(req),
-        limit,
-        page
-      );
-
-      res.status(response.status_code).json(response);
-    } catch (error: any) {
-      console.error("Error in SizeController.getAllSizesController:", error);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(
-          apiError(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            req.__("INTERNAL_SERVER_ERROR"),
-            error
-          )
+        const result = await this.sizeService.getAllSizesService(
+          req.__.bind(req),
+          limit,
+          page
         );
-    }
+
+        return res.status(result.status_code).json(result);
+      },
+      res,
+      req,
+      "getAllSizesController"
+    );
   };
 
   createSizeController = async (
@@ -104,43 +93,5 @@ export class SizeController {
           )
         );
     }
-  };
-
-  deleteManySizeController = async (
-    req: Request,
-    res: Response
-  ): Promise<any> => {
-    return tryCatchController(
-      async () => {
-        const lang = req.lang || "Vi";
-        const { error, value } = sizeIdsValidate.validate(req.body ?? {});
-
-        if (error) {
-          return handleValidationError(res, error, req.__.bind(req)); // Nếu có lỗi validate
-        }
-
-        for (let sizeId of value.ids) {
-          if (!isValidObjectId(sizeId)) {
-            return errorRes(
-              res,
-              req.__("INVALID_SIZE_ID"),
-              HttpStatus.BAD_REQUEST
-            );
-          }
-        }
-
-        // Gọi service để xóa nhiều kích thước
-        const response = await this.sizeService.deleteManySizeService(
-          value,
-          req.__.bind(req)
-        );
-
-        // Trả về kết quả xóa
-        res.status(response.status_code).json(response);
-      },
-      res,
-      req,
-      "deleteManySizeController"
-    );
   };
 }

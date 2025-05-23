@@ -23,11 +23,21 @@ export interface ColorService {
   ): Promise<APIResponse<IColorResponseDto | null>>;
 
   getAllColorsService(
+    query: string | undefined,
     lang: string,
     __: TranslateFunction,
-    limit?: number,
-    page?: number
-  ): Promise<APIResponse<IColorWithLangResponseDto[]>>;
+    page: number,
+    limit: number,
+    isActive?: boolean
+  ): Promise<
+    APIResponse<{
+      data: IColorWithLangResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  >;
 
   getColorService(
     id: string,
@@ -88,32 +98,80 @@ export class ColorServiceImpl implements ColorService {
   }
 
   async getAllColorsService(
+    query: string | undefined,
     lang: string,
     __: TranslateFunction,
-    limit?: number,
-    page?: number
-  ) {
+    page: number,
+    limit: number,
+    isActive?: boolean
+  ): Promise<
+    APIResponse<{
+      data: IColorWithLangResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  > {
     return tryCatchService(
       async () => {
-        let query = ColorModel.find();
+        const filter: any = {};
 
-        // Nếu có truyền phân trang
-        if (limit !== undefined && page !== undefined) {
-          const skip = (page - 1) * limit;
-          query = query.skip(skip).limit(limit);
+        if (query?.trim()) {
+          const searchRegex = new RegExp(query.trim(), "i");
+          const nameField = lang.startsWith("vi") ? "name.vi" : "name.en";
+          filter[nameField] = searchRegex;
         }
 
-        const listColor: IColor[] = await query;
+        if (typeof isActive === "boolean") {
+          filter.isActive = isActive;
+        }
 
-        const response: IColorWithLangResponseDto[] = listColor.map((color) =>
+        const skip = (page - 1) * limit;
+
+        const result = await ColorModel.aggregate([
+          { $match: filter },
+          {
+            $facet: {
+              data: [
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                  $project: {
+                    _id: 1,
+                    isActive: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    name: 1,
+                    hex: 1,
+                  },
+                },
+              ],
+              totalCount: [{ $count: "count" }],
+            },
+          },
+        ]);
+
+        const aggregationResult = result[0] as {
+          data: IColor[];
+          totalCount: { count: number }[];
+        };
+
+        const totalDocs = aggregationResult.totalCount[0]?.count || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
+
+        const response = aggregationResult.data.map((color) =>
           colorWithLangMapper(color, lang)
         );
 
-        return apiResponse(
-          HttpStatus.OK,
-          __("GET_ALL_COLOR_SUCCESSFULLY"),
-          response
-        );
+        return apiResponse(HttpStatus.OK, __("GET_ALL_COLOR_SUCCESSFULLY"), {
+          data: response,
+          totalDocs,
+          totalPages,
+          currentPage: page,
+          limit,
+        });
       },
       "INTERNAL_SERVER_ERROR",
       "getAllColorsService",

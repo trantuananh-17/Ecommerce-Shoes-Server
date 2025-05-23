@@ -1,6 +1,7 @@
 import routes from "./routes";
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { connectDB } from "./config/mongodb.config";
 import { getLangFromHeader } from "./middleware/language.middleware";
 import logRequestTime from "./middleware/winston.middleware";
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 app.use(i18n.init);
 app.use(getLangFromHeader);

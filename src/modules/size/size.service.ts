@@ -6,11 +6,7 @@ import {
 } from "../../utils/helpers/api-response.helper";
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
-import {
-  ICreateSizeDto,
-  ISizeDeleteManyDto,
-  ISizeResponseDto,
-} from "./size.dto";
+import { ICreateSizeDto, ISizeResponseDto } from "./size.dto";
 import { sizeResponseMapper } from "./size.mapper";
 import SizeModel, { ISize } from "./size.model";
 
@@ -25,16 +21,19 @@ export interface SizeService {
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 
-  deleteManySizeService(
-    value: ISizeDeleteManyDto,
-    __: TranslateFunction
-  ): Promise<APIResponse<any>>;
-
   getAllSizesService(
     __: TranslateFunction,
-    limit?: number,
-    page?: number
-  ): Promise<APIResponse<ISizeResponseDto[]>>;
+    limit: number,
+    page: number
+  ): Promise<
+    APIResponse<{
+      data: ISizeResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  >;
 }
 
 export class SizeServiceImpl implements SizeService {
@@ -83,49 +82,52 @@ export class SizeServiceImpl implements SizeService {
     }
   }
 
-  async deleteManySizeService(
-    value: ISizeDeleteManyDto,
-    __: TranslateFunction
-  ) {
-    return tryCatchService(
-      async () => {
-        const response = await SizeModel.deleteMany({
-          _id: { $in: value.ids },
-        });
-        return apiResponse(
-          HttpStatus.OK,
-          __("DELETE_MANY_SIZE_SUCCESSFULLY"),
-          response
-        );
-      },
-      "INTERNAL_SERVER_ERROR",
-      "deleteManySizeService",
-      __
-    );
-  }
-
   async getAllSizesService(
     __: TranslateFunction,
-    limit?: number,
-    page?: number
-  ) {
+    limit = 6,
+    page = 1
+  ): Promise<
+    APIResponse<{
+      data: ISizeResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  > {
     return tryCatchService(
       async () => {
-        let query = SizeModel.find().sort({ name: 1 });
+        const skip = (page - 1) * limit;
 
-        if (limit !== undefined && page !== undefined) {
-          const skip = (page - 1) * limit;
-          query = query.skip(skip).limit(limit);
-        }
+        const result = await SizeModel.aggregate([
+          {
+            $addFields: {
+              nameAsNumber: { $toInt: "$name" },
+            },
+          },
+          {
+            $facet: {
+              data: [
+                { $sort: { nameAsNumber: 1 } },
+                { $skip: skip },
+                { $limit: limit },
+              ],
+              totalCount: [{ $count: "count" }],
+            },
+          },
+        ]);
 
-        const listSize: ISize[] = await query.exec();
-        const response: ISizeResponseDto[] = listSize.map(sizeResponseMapper);
+        const sizes = result[0]?.data || [];
+        const totalDocs = result[0]?.totalCount[0]?.count || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
 
-        return apiResponse(
-          HttpStatus.OK,
-          __("GET_ALL_SIZE_SUCCESSFULLY"),
-          response
-        );
+        return apiResponse(HttpStatus.OK, __("GET_ALL_SIZE_SUCCESSFULLY"), {
+          data: sizes.map(sizeResponseMapper),
+          totalDocs,
+          totalPages,
+          currentPage: page,
+          limit,
+        });
       },
       "INTERNAL_SERVER_ERROR",
       "getAllSizesService",

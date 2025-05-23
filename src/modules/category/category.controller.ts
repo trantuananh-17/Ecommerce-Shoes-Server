@@ -133,17 +133,23 @@ export class CategoryController {
       async () => {
         const lang = req.lang || "vi";
 
-        const { active } = req.query;
+        const page = req.pagination?.page || 1;
+        const limit = req.pagination?.limit || 12;
 
-        const filter = active !== undefined ? active === "true" : undefined;
+        const isActive =
+          req.query.isActive !== undefined
+            ? req.query.isActive === "true"
+            : undefined;
 
-        const response = await this.categoryService.getAllCategoryService(
+        const result = await this.categoryService.getAllCategoryService(
           lang,
           req.__.bind(req),
-          filter
+          page,
+          limit,
+          isActive
         );
 
-        res.status(response.status_code).json(response);
+        return res.status(result.status_code).json(result);
       },
       res,
       req,

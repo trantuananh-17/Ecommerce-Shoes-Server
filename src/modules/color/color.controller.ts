@@ -56,18 +56,24 @@ export class ColorController {
       async () => {
         const lang = req.lang || "vi";
 
-        const page = req.query.page
-          ? parseInt(req.query.page as string)
-          : undefined;
-        const limit = req.query.limit
-          ? parseInt(req.query.limit as string)
-          : undefined;
+        const query =
+          typeof req.query.q === "string" ? req.query.q.trim() : undefined;
+
+        const isActive =
+          req.query.isActive !== undefined
+            ? req.query.isActive === "true"
+            : undefined;
+
+        const page = req.pagination?.page || 1;
+        const limit = req.pagination?.limit || 12;
 
         const response = await this.colorService.getAllColorsService(
+          query,
           lang,
           req.__.bind(req),
+          page,
           limit,
-          page
+          isActive
         );
 
         res.status(response.status_code).json(response);

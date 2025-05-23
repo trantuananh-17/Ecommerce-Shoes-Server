@@ -1,12 +1,17 @@
 import { Router } from "express";
 import { ColorController } from "./color.controller";
+import { paginationMiddleware } from "../../middleware/pipe/paginationMiddleware";
 
 const colorRouter = Router();
 
 const colorController = new ColorController();
 
 colorRouter.post("/", colorController.createColorController);
-colorRouter.get("/", colorController.getAllColorsController);
+colorRouter.get(
+  "/",
+  paginationMiddleware(),
+  colorController.getAllColorsController
+);
 colorRouter.get("/:id", colorController.getColorController);
 colorRouter.delete("/", colorController.deleteManyColorController);
 colorRouter.delete("/:id", colorController.deleteColorController);
