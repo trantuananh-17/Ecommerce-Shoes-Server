@@ -9,8 +9,8 @@ export const colorResponseMapper = (color: IColor): IColorResponseDto => {
       en: color.name.en,
     },
     isActive: color.isActive,
-    createdAt: color.createdAt.toLocaleString(),
-    updatedAt: color.updatedAt.toLocaleString(),
+    createdAt: color.createdAt.toISOString(),
+    updatedAt: color.updatedAt.toISOString(),
   };
 };
 
@@ -22,7 +22,7 @@ export const colorWithLangMapper = (
     id: color._id.toString(),
     name: color.name[lang as keyof typeof color.name],
     isActive: color.isActive,
-    createdAt: color.createdAt.toLocaleString(),
-    updatedAt: color.updatedAt.toLocaleString(),
+    createdAt: color.createdAt.toISOString(),
+    updatedAt: color.updatedAt.toISOString(),
   };
 };

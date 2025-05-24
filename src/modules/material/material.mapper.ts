@@ -14,8 +14,8 @@ export const materialResponseMapper = (
       vi: material.description.vi,
       en: material.description.en,
     },
-    createdAt: material.createdAt.toLocaleString(),
-    updatedAt: material.updatedAt.toLocaleString(),
+    createdAt: material.createdAt.toISOString(),
+    updatedAt: material.updatedAt.toISOString(),
   };
 };
 
@@ -28,7 +28,7 @@ export const materialWithLangMapper = (
     name: material.name[lang as keyof typeof material.name],
     description:
       material.description[lang as keyof typeof material.description],
-    createdAt: material.createdAt.toLocaleString(),
-    updatedAt: material.updatedAt.toLocaleString(),
+    createdAt: material.createdAt.toISOString(),
+    updatedAt: material.updatedAt.toISOString(),
   };
 };

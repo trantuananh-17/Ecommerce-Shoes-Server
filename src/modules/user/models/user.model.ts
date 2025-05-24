@@ -1,4 +1,4 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 
 type Avatar = { url: string; id: string };
 
@@ -12,7 +12,8 @@ export enum Role {
   USER = "user",
 }
 
-export interface User extends Document {
+export interface IUser extends Document {
+  _id: Types.ObjectId;
   email: string;
   password: string;
   fullname: string;
@@ -29,10 +30,12 @@ export interface User extends Document {
   refreshTokens: string[];
   avatar?: Avatar;
   role: Role;
-  cart: Schema.Types.ObjectId;
+  cart?: Schema.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const userSchema: Schema = new Schema<User>(
+const userSchema: Schema = new Schema<IUser>(
   {
     email: { type: String, required: true },
     password: { type: String, required: true },
@@ -66,12 +69,11 @@ const userSchema: Schema = new Schema<User>(
     cart: {
       type: Schema.Types.ObjectId,
       ref: "Cart",
-      required: true,
     },
   },
   { timestamps: true }
 );
 
-const UserModel = model("User", userSchema);
+const UserModel = model<IUser>("User", userSchema);
 
 export default UserModel;

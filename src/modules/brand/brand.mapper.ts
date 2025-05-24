@@ -8,8 +8,8 @@ export const brandResponseMapper = (brand: IBrand): IBrandResponseDto => {
     country: brand.country,
     websiteUrl: brand.websiteUrl,
     isActive: brand.isActive,
-    createdAt: brand.createdAt.toLocaleString(),
-    updatedAt: brand.updatedAt.toLocaleString(),
+    createdAt: brand.createdAt.toISOString(),
+    updatedAt: brand.updatedAt.toISOString(),
   };
 };
 

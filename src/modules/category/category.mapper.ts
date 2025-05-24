@@ -31,7 +31,7 @@ export const categoryResponseMapper = (
     name: category.name[lang as keyof typeof category.name],
     slug: category.slug[lang as keyof typeof category.slug],
     isActive: category.isActive,
-    createdAt: category.createdAt.toLocaleString(),
-    updatedAt: category.updatedAt.toLocaleString(),
+    createdAt: category.createdAt.toISOString(),
+    updatedAt: category.updatedAt.toISOString(),
   };
 };

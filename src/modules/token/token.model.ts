@@ -1,8 +1,10 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { compare, genSalt, hash } from "bcrypt";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-enum TokenType {
+export enum TokenType {
   RESET = "reset",
   VERIFY = "verify",
+  CHANGE_PASSWORD = "change_password",
 }
 
 export interface TokenDocument extends Document {
@@ -10,11 +12,18 @@ export interface TokenDocument extends Document {
   token: string;
   type: TokenType;
   isRevoked: boolean;
-  expiresAt: Date;
   createdAt: Date;
 }
 
-const tokenSchema = new Schema<TokenDocument>({
+interface Methods {
+  compareToken(token: string): Promise<boolean>;
+}
+
+const tokenSchema = new Schema<
+  TokenDocument,
+  Model<TokenDocument, {}, Methods>,
+  Methods
+>({
   user: {
     type: Schema.Types.ObjectId,
     ref: "User",
@@ -33,17 +42,30 @@ const tokenSchema = new Schema<TokenDocument>({
     type: Boolean,
     default: false,
   },
-  expiresAt: {
-    type: Date,
-    required: true,
-  },
+
   createdAt: {
     type: Date,
+    expires: 3600,
     default: Date.now,
   },
 });
 
-tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 604800 });
+tokenSchema.pre("save", async function (next) {
+  if (this.isModified("token")) {
+    const salt = await genSalt(10);
+    this.token = await hash(this.token, salt);
+  }
+  next();
+});
 
-const TokenModel = mongoose.model<TokenDocument>("Token", tokenSchema);
+tokenSchema.methods.compareToken = async function (token: string) {
+  return await compare(token, this.token);
+};
+
+// Khai báo model với đầy đủ kiểu để nhận diện method compareToken
+const TokenModel = mongoose.model<
+  TokenDocument,
+  Model<TokenDocument, {}, Methods>
+>("Token", tokenSchema);
+
 export default TokenModel;

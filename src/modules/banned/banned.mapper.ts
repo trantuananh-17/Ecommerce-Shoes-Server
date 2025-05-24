@@ -8,8 +8,8 @@ export const bannedResponseMapper = (banned: IBanned): IBannedResponseDto => {
       vi: banned.word.vi,
       en: banned.word.en,
     },
-    createdAt: banned.createdAt.toLocaleString(),
-    updatedAt: banned.updatedAt.toLocaleString(),
+    createdAt: banned.createdAt.toISOString(),
+    updatedAt: banned.updatedAt.toISOString(),
   };
 };
 
@@ -20,7 +20,7 @@ export const bannedWithLangMapper = (
   return {
     id: banned._id.toString(),
     word: banned.word[lang as keyof typeof banned.word],
-    createdAt: banned.createdAt.toLocaleString(),
-    updatedAt: banned.updatedAt.toLocaleString(),
+    createdAt: banned.createdAt.toISOString(),
+    updatedAt: banned.updatedAt.toISOString(),
   };
 };

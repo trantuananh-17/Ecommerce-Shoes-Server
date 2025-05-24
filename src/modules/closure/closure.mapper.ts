@@ -14,8 +14,8 @@ export const closureResponseMapper = (
       vi: closure.description.vi,
       en: closure.description.en,
     },
-    createdAt: closure.createdAt.toLocaleString(),
-    updatedAt: closure.updatedAt.toLocaleString(),
+    createdAt: closure.createdAt.toISOString(),
+    updatedAt: closure.updatedAt.toISOString(),
   };
 };
 
@@ -27,7 +27,7 @@ export const closureWithLangMapper = (
     id: closure._id.toString(),
     name: closure.name[lang as keyof typeof closure.name],
     description: closure.description[lang as keyof typeof closure.description],
-    createdAt: closure.createdAt.toLocaleString(),
-    updatedAt: closure.updatedAt.toLocaleString(),
+    createdAt: closure.createdAt.toISOString(),
+    updatedAt: closure.updatedAt.toISOString(),
   };
 };

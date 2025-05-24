@@ -72,8 +72,6 @@ export class BrandServiceImpl implements BrandService {
           name: 1,
         });
 
-        console.log(result);
-
         const response: IBrandNameResponseDto[] = result.map((brand) =>
           brandNameResponseMapper(brand)
         );

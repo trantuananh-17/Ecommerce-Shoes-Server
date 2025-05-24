@@ -7,9 +7,11 @@ import brandRouter from "./modules/brand/brand.routes";
 import closureRouter from "./modules/closure/closure.routes";
 import materialRouter from "./modules/material/material.routes";
 import discountRouter from "./modules/discount/discount.routes";
+import authRouter from "./modules/auth/auth.routes";
 
 const router = Router();
 
+router.use("/auth", authRouter);
 router.use("/banneds", bannerRouter);
 router.use("/categories", categoryRouter);
 router.use("/colors", colorRouter);

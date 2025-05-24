@@ -58,8 +58,8 @@ export const discountInfoResponseMapper = (
         }
       : undefined,
 
-    createdAt: discount.createdAt.toLocaleString(),
-    updatedAt: discount.updatedAt.toLocaleString(),
+    createdAt: discount.createdAt.toISOString(),
+    updatedAt: discount.updatedAt.toISOString(),
   };
 };
 
@@ -81,7 +81,7 @@ export const discountResponseMapper = (
       ],
     isActive: discount.isActive,
     minItems: discount.minItems,
-    createdAt: discount.createdAt.toLocaleString(),
-    updatedAt: discount.updatedAt.toLocaleString(),
+    createdAt: discount.createdAt.toISOString(),
+    updatedAt: discount.updatedAt.toISOString(),
   };
 };
