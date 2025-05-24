@@ -17,3 +17,8 @@ export interface IBrandResponseDto {
 export interface IUpdateActiveBrandDto {
   isActive: boolean;
 }
+
+export interface IBrandNameResponseDto {
+  id: string;
+  name: string;
+}

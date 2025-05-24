@@ -8,10 +8,11 @@ import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import {
   IBrandDto,
+  IBrandNameResponseDto,
   IBrandResponseDto,
   IUpdateActiveBrandDto,
 } from "./brand.dto";
-import { brandResponseMapper } from "./brand.mapper";
+import { brandNameResponseMapper, brandResponseMapper } from "./brand.mapper";
 import BrandModel, { IBrand } from "./brand.model";
 import { FilterQuery } from "mongoose";
 
@@ -44,6 +45,10 @@ export interface BrandService {
     __: TranslateFunction
   ): Promise<APIResponse<IBrandResponseDto | null>>;
 
+  getBrandNameService(
+    __: TranslateFunction
+  ): Promise<APIResponse<IBrandNameResponseDto[] | null>>;
+
   updateBrandService(
     id: string,
     DTOBrand: IBrandDto,
@@ -58,6 +63,31 @@ export interface BrandService {
 }
 
 export class BrandServiceImpl implements BrandService {
+  getBrandNameService(
+    __: TranslateFunction
+  ): Promise<APIResponse<IBrandNameResponseDto[] | null>> {
+    return tryCatchService(
+      async () => {
+        const result = await BrandModel.find({}, { _id: 1, name: 1 }).sort({
+          name: 1,
+        });
+
+        console.log(result);
+
+        const response: IBrandNameResponseDto[] = result.map((brand) =>
+          brandNameResponseMapper(brand)
+        );
+
+        return apiResponse(HttpStatus.OK, __("GET_BRANDS_SUCCESSFULLY"), {
+          response,
+        });
+      },
+      "INTERNAL_SERVER_ERROR",
+      "createBrandService",
+      __
+    );
+  }
+
   async getAllBrandsService(
     query: string | undefined,
     lang: string,

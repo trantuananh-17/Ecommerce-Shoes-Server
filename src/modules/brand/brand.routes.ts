@@ -6,6 +6,7 @@ const brandRouter = Router();
 const brandController = new BrandController();
 
 brandRouter.post("/", brandController.createBrandController);
+brandRouter.get("/list-name", brandController.getBrandNameController);
 brandRouter.get(
   "/",
   paginationMiddleware(),

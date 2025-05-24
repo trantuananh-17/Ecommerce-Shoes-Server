@@ -155,7 +155,7 @@ export class BrandController {
         if (!isValidObjectId(brandId)) {
           return errorRes(
             res,
-            req.__("INVALID_COLOR_ID"),
+            req.__("INVALID_BRAND_ID"),
             HttpStatus.BAD_REQUEST
           );
         }
@@ -163,6 +163,24 @@ export class BrandController {
         const response = await this.brandService.getBrandService(
           brandId,
           lang,
+          req.__.bind(req)
+        );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getBrandController"
+    );
+  };
+
+  getBrandNameController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const response = await this.brandService.getBrandNameService(
           req.__.bind(req)
         );
 

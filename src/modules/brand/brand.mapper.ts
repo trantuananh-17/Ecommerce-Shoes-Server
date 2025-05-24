@@ -1,4 +1,4 @@
-import { IBrandResponseDto } from "./brand.dto";
+import { IBrandNameResponseDto, IBrandResponseDto } from "./brand.dto";
 import { IBrand } from "./brand.model";
 
 export const brandResponseMapper = (brand: IBrand): IBrandResponseDto => {
@@ -10,5 +10,14 @@ export const brandResponseMapper = (brand: IBrand): IBrandResponseDto => {
     isActive: brand.isActive,
     createdAt: brand.createdAt.toLocaleString(),
     updatedAt: brand.updatedAt.toLocaleString(),
+  };
+};
+
+export const brandNameResponseMapper = (
+  brand: IBrand
+): IBrandNameResponseDto => {
+  return {
+    id: brand._id.toString(),
+    name: brand.name,
   };
 };
