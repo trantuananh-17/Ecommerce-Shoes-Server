@@ -156,35 +156,4 @@ export class CategoryController {
       "getAllCategoryController"
     );
   };
-
-  deleteCategoryController = async (
-    req: Request,
-    res: Response
-  ): Promise<any> => {
-    return tryCatchController(
-      async () => {
-        const lang = req.lang || "vi";
-
-        const categoryId = req.params.id;
-
-        if (!isValidObjectId(categoryId)) {
-          return errorRes(
-            res,
-            req.__("INVALID_CATEGORY_ID"),
-            HttpStatus.BAD_REQUEST
-          );
-        }
-
-        const response = await this.categoryService.deleteCategoryService(
-          categoryId,
-          req.__.bind(req)
-        );
-
-        res.status(response.status_code).json(response);
-      },
-      res,
-      req,
-      "deleteCategoryController"
-    );
-  };
 }

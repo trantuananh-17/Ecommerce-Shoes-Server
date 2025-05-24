@@ -15,6 +15,5 @@ brandRouter.get(
 brandRouter.get("/:id", brandController.getBrandController);
 brandRouter.put("/:id", brandController.updateBrandController);
 brandRouter.patch("/:id", brandController.updateBrandActiveController);
-brandRouter.delete("/:id", brandController.deleteBrandController);
 
 export default brandRouter;

@@ -1,5 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-import { Gender } from "../../user/user.model";
+import { Gender } from "../user/models/user.model";
 
 type ProductImage = { url: string; id: string };
 

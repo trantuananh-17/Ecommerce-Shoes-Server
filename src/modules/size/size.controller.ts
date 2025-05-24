@@ -66,32 +66,4 @@ export class SizeController {
         );
     }
   };
-
-  deleteSizeController = async (req: Request, res: Response): Promise<any> => {
-    try {
-      const sizeId = req.params.id;
-
-      if (!isValidObjectId(sizeId)) {
-        return errorRes(res, req.__("INVALID_SIZE_ID"), HttpStatus.BAD_REQUEST);
-      }
-
-      const response = await this.sizeService.deleteSizeService(
-        sizeId,
-        req.__.bind(req)
-      );
-
-      res.status(response.status_code).json(response);
-    } catch (error: any) {
-      console.error("Error in SizeController.deleteSizeController:", error);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(
-          apiError(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            req.__("INTERNAL_SERVER_ERROR"),
-            error
-          )
-        );
-    }
-  };
 }

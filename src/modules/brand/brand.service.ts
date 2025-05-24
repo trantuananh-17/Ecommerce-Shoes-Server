@@ -55,11 +55,6 @@ export interface BrandService {
     DTOBrand: IUpdateActiveBrandDto,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
-
-  deleteBrandService(
-    id: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<any>>;
 }
 
 export class BrandServiceImpl implements BrandService {
@@ -225,7 +220,7 @@ export class BrandServiceImpl implements BrandService {
 
         const updated = await BrandModel.findByIdAndUpdate(
           id,
-          { isActive: isActive },
+          { veisActi: isActive },
           { new: true }
         );
 
@@ -266,26 +261,6 @@ export class BrandServiceImpl implements BrandService {
       },
       "INTERNAL_SERVER_ERROR",
       "getBrandServce",
-      __
-    );
-  }
-
-  async deleteBrandService(
-    id: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<any>> {
-    return tryCatchService(
-      async () => {
-        const deleted = await BrandModel.findByIdAndDelete(id);
-
-        if (!deleted) {
-          return apiError(HttpStatus.NOT_FOUND, __("BRAND_NOT_FOUND"));
-        }
-
-        return apiResponse(HttpStatus.OK, __("BRAND_DELETED_SUCCESSFULLY"));
-      },
-      "INTERNAL_SERVER_ERROR",
-      "deleteBrandService",
       __
     );
   }

@@ -16,11 +16,6 @@ export interface SizeService {
     __: TranslateFunction
   ): Promise<APIResponse<ISizeResponseDto | null>>;
 
-  deleteSizeService(
-    id: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<null>>;
-
   getAllSizesService(
     __: TranslateFunction,
     limit: number,
@@ -55,24 +50,6 @@ export class SizeServiceImpl implements SizeService {
         __("SIZE_CREATED_SUCCESSFULLY"),
         response
       );
-    } catch (error: any) {
-      return apiError(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        __("INTERNAL_SERVER_ERROR"),
-        error
-      );
-    }
-  }
-
-  async deleteSizeService(id: string, __: TranslateFunction) {
-    try {
-      const deleted = await SizeModel.findByIdAndDelete(id);
-
-      if (!deleted) {
-        return apiError(HttpStatus.NOT_FOUND, __("SIZE_NOT_FOUND"));
-      }
-
-      return apiResponse(HttpStatus.OK, __("SIZE_DELETED_SUCCESSFULLY"));
     } catch (error: any) {
       return apiError(
         HttpStatus.INTERNAL_SERVER_ERROR,

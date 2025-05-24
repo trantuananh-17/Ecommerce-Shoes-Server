@@ -7,6 +7,5 @@ const controller = new SizeController();
 
 sizeRouter.get("/", paginationMiddleware(), controller.getAllSizesController);
 sizeRouter.post("/", controller.createSizeController);
-sizeRouter.delete("/:id", controller.deleteSizeController);
 
 export default sizeRouter;

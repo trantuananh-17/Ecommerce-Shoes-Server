@@ -6,6 +6,7 @@ import categoryRouter from "./modules/category/category.routes";
 import brandRouter from "./modules/brand/brand.routes";
 import closureRouter from "./modules/closure/closure.routes";
 import materialRouter from "./modules/material/material.routes";
+import discountRouter from "./modules/discount/discount.routes";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/sizes", sizeRouter);
 router.use("/brands", brandRouter);
 router.use("/closures", closureRouter);
 router.use("/materials", materialRouter);
+router.use("/discounts", discountRouter);
 
 export default router;

@@ -53,11 +53,6 @@ export interface CategoryService {
     DTOCategory: IUpdateCategoryDto,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
-
-  deleteCategoryService(
-    id: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<any>>;
 }
 
 export class CategoryServiceImpl implements CategoryService {
@@ -269,26 +264,6 @@ export class CategoryServiceImpl implements CategoryService {
       },
       "INTERNAL_SERVER_ERROR",
       "updateCategoryService",
-      __
-    );
-  }
-
-  async deleteCategoryService(
-    id: string,
-    __: TranslateFunction
-  ): Promise<APIResponse<any>> {
-    return tryCatchService(
-      async () => {
-        const deleted = await CategoryModel.findByIdAndDelete(id);
-
-        if (!deleted) {
-          return apiError(HttpStatus.NOT_FOUND, __("CATEGORY_NOT_FOUND"));
-        }
-
-        return apiResponse(HttpStatus.OK, __("CATEGORY_DELETED_SUCCESSFULLY"));
-      },
-      "INTERNAL_SERVER_ERROR",
-      "deleteCategoryService",
       __
     );
   }
