@@ -70,7 +70,7 @@ export class AuthServiceImpl implements AuthService {
         });
         await newToken.save();
 
-        const link = `${process.env.API_CLIENT_URL}/verify.html?id=${response.id}&token=${token}`;
+        const link = `${process.env.API_URL}/verify?id=${response.id}&token=${token}`;
 
         console.log(link);
 

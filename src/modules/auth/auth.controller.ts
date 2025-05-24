@@ -5,8 +5,6 @@ import {
   verifyEmailValidator,
 } from "./validators/register.validator";
 import { AuthService, AuthServiceImpl } from "./service/auth.service";
-import HttpStatus from "../../utils/http-status.utils";
-import { apiError } from "../../utils/helpers/api-response.helper";
 import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 
 export class AuthController {
@@ -40,7 +38,7 @@ export class AuthController {
   verifyEmailController = async (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {
-        const { error, value } = verifyEmailValidator.validate(req.body ?? {});
+        const { error, value } = verifyEmailValidator.validate(req.query ?? {});
 
         if (error) {
           return handleValidationError(res, error, req.__.bind(req));
@@ -50,7 +48,16 @@ export class AuthController {
           value,
           req.__.bind(req)
         );
-        res.status(response.status_code).json(response);
+
+        if (response.status_code === 200) {
+          return res.redirect(
+            `http://localhost:3000/user/verify-email?status=success`
+          );
+        } else {
+          return res.redirect(
+            `http://localhost:3000/user/verify-email?status=failed`
+          );
+        }
       },
       res,
       req,

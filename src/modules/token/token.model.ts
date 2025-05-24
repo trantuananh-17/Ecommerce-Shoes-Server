@@ -62,7 +62,6 @@ tokenSchema.methods.compareToken = async function (token: string) {
   return await compare(token, this.token);
 };
 
-// Khai báo model với đầy đủ kiểu để nhận diện method compareToken
 const TokenModel = mongoose.model<
   TokenDocument,
   Model<TokenDocument, {}, Methods>
