@@ -12,6 +12,12 @@ export enum Role {
   USER = "user",
 }
 
+export enum UserType {
+  FACEBOOK = "facebook",
+  GOOGLE = "google",
+  LOCAL = "local",
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   email: string;
@@ -33,6 +39,7 @@ export interface IUser extends Document {
   cart?: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  loginType: UserType;
 }
 
 const userSchema: Schema = new Schema<IUser>(
@@ -69,6 +76,12 @@ const userSchema: Schema = new Schema<IUser>(
     cart: {
       type: Schema.Types.ObjectId,
       ref: "Cart",
+    },
+    loginType: {
+      type: String,
+      enum: Object.values(UserType),
+      default: UserType.LOCAL,
+      required: true,
     },
   },
   { timestamps: true }

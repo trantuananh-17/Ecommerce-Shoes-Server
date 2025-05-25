@@ -6,5 +6,11 @@ const authController = new AuthController();
 
 authRouter.post("/register", authController.registerController);
 authRouter.get("/verify", authController.verifyEmailController);
+authRouter.patch(
+  "/change-password/:id",
+  authController.changePasswordMeController
+);
+authRouter.post("/forgot", authController.forgotPasswordController);
+authRouter.post("/reset-password", authController.resetPasswordController);
 
 export default authRouter;

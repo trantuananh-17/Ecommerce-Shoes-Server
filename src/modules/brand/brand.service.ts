@@ -248,7 +248,7 @@ export class BrandServiceImpl implements BrandService {
 
         const updated = await BrandModel.findByIdAndUpdate(
           id,
-          { veisActi: isActive },
+          { isActive: isActive },
           { new: true }
         );
 
