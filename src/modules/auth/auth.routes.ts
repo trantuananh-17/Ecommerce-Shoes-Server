@@ -5,6 +5,7 @@ const authRouter = Router();
 const authController = new AuthController();
 
 authRouter.post("/register", authController.registerController);
+authRouter.post("/login", authController.loginController);
 authRouter.get("/verify", authController.verifyEmailController);
 authRouter.patch(
   "/change-password/:id",

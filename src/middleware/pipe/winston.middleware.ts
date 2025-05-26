@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import logger from "../config/winston.config";
+import logger from "../../config/winston.config";
 
 // Middleware log thời gian của mỗi API
 const logRequestTime = (req: Request, res: Response, next: NextFunction) => {

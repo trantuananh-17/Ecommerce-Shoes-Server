@@ -3,8 +3,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./config/mongodb.config";
-import { getLangFromHeader } from "./middleware/language.middleware";
-import logRequestTime from "./middleware/winston.middleware";
+import { getLangFromHeader } from "./middleware/pipe/language.middleware";
+import logRequestTime from "./middleware/pipe/winston.middleware";
 import i18n from "./config/i18n.config";
 
 dotenv.config();

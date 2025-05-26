@@ -12,3 +12,8 @@ export interface ICreateSizeDto {
 export interface ISizeDeleteManyDto {
   ids: string[];
 }
+
+export interface ISizeNameDto {
+  id: string;
+  name: string;
+}

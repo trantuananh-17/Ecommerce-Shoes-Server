@@ -7,7 +7,7 @@ export interface IForgotPasswordMeDto {
   email: string;
 }
 
-export interface IResetPassswordDto {\
+export interface IResetPassswordDto {
   id: string;
   token: string;
   newPassword: string;

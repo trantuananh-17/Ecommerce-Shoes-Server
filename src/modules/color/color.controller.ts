@@ -84,6 +84,27 @@ export class ColorController {
     );
   };
 
+  getAllColorNameController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "vi";
+
+        const response = await this.colorService.getAllColorNameService(
+          lang,
+          req.__.bind(req)
+        );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getAllColorNameController"
+    );
+  };
+
   getColorController = async (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {

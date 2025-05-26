@@ -15,6 +15,7 @@ import {
 import { isValidObjectId } from "mongoose";
 import { errorRes } from "../../utils/helpers/error-response.helper";
 import HttpStatus from "../../utils/http-status.utils";
+import { LoginValidator } from "./validators/login.validate";
 
 dotenv.config();
 
@@ -73,6 +74,44 @@ export class AuthController {
       res,
       req,
       "verifyEmailController"
+    );
+  };
+
+  loginController = async (req: Request, res: Response): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const { error, value } = LoginValidator.validate(req.body ?? {});
+
+        if (error) {
+          return handleValidationError(res, error, req.__.bind(req));
+        }
+
+        const response = await this.authService.loginUserService(
+          value,
+          req.__.bind(req)
+        );
+
+        const { data } = response;
+
+        if (data) {
+          console.log(data);
+          const { token } = data;
+          if (token) {
+            const { refresh_token } = token;
+            res.cookie("refresh_token", refresh_token, {
+              httpOnly: true,
+              secure: false,
+              sameSite: "strict",
+              path: "/",
+            });
+          }
+        }
+
+        return res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "loginController"
     );
   };
 

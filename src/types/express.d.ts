@@ -13,5 +13,8 @@ declare global {
         limit: number;
       };
     }
+    interface Request {
+      userId?: Types.ObjectId;
+    }
   }
 }

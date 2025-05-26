@@ -1,12 +1,17 @@
 import {
   IColorDeleteManyDto,
+  IColorNameDto,
   IColorResponseDto,
   IColorUpdateDTO,
   IColorWithLangResponseDto,
   ICreateColorDto,
 } from "./color.dto";
 import ColorModel, { IColor } from "./color.model";
-import { colorResponseMapper, colorWithLangMapper } from "./color.mapper";
+import {
+  colorNameResponseMapper,
+  colorResponseMapper,
+  colorWithLangMapper,
+} from "./color.mapper";
 import HttpStatus from "../../utils/http-status.utils";
 import {
   apiError,
@@ -45,6 +50,11 @@ export interface ColorService {
     __: TranslateFunction
   ): Promise<APIResponse<IColorWithLangResponseDto | null>>;
 
+  getAllColorNameService(
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IColorNameDto[] | null>>;
+
   deleteColorService(
     id: string,
     __: TranslateFunction
@@ -63,6 +73,33 @@ export interface ColorService {
 }
 
 export class ColorServiceImpl implements ColorService {
+  getAllColorNameService(
+    lang: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IColorNameDto[] | null>> {
+    return tryCatchService(
+      async () => {
+        const result = await ColorModel.find(
+          { isActive: true },
+          { _id: 1, name: 1 }
+        ).sort({
+          name: 1,
+        });
+
+        const response: IColorNameDto[] = result.map((color) =>
+          colorNameResponseMapper(color, lang)
+        );
+
+        return apiResponse(HttpStatus.OK, __("GET_COLORS_SUCCESSFULLY"), {
+          response,
+        });
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllColorNameService",
+      __
+    );
+  }
+
   async createColorService(DTOColor: ICreateColorDto, __: TranslateFunction) {
     return tryCatchService(
       async () => {

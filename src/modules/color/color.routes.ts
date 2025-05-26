@@ -13,6 +13,7 @@ colorRouter.get(
   colorController.getAllColorsController
 );
 colorRouter.get("/:id", colorController.getColorController);
+colorRouter.get("/all/color-name", colorController.getAllColorNameController);
 colorRouter.delete("/", colorController.deleteManyColorController);
 colorRouter.delete("/:id", colorController.deleteColorController);
 colorRouter.patch("/:id", colorController.updateColorController);

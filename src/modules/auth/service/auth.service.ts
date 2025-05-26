@@ -24,6 +24,8 @@ import {
   IForgotPasswordMeDto,
   IResetPassswordDto,
 } from "../dtos/password.dto";
+import { ILoginDto, ILoginResponseDto } from "../dtos/login.dto";
+import { generateToken } from "../helper/token.helper";
 
 dotenv.config();
 
@@ -33,7 +35,10 @@ export interface AuthService {
     __: TranslateFunction
   ): Promise<APIResponse<IRegisterResponseDto | null>>;
 
-  // loginUserService(): Promise<APIResponse<null>>;
+  loginUserService(
+    DTOUser: ILoginDto,
+    __: TranslateFunction
+  ): Promise<APIResponse<ILoginResponseDto | null>>;
 
   verifyEmailService(
     DTOVerify: IVerifyEmailDto,
@@ -93,8 +98,6 @@ export class AuthServiceImpl implements AuthService {
 
         const link = `${process.env.API_URL}/verify?id=${response.id}&token=${token}`;
 
-        console.log(link);
-
         await sendVerification(response.email, link);
         return apiResponse(
           HttpStatus.CREATED,
@@ -143,6 +146,87 @@ export class AuthServiceImpl implements AuthService {
       },
       "INTERNAL_SERVER_ERROR",
       "verifyEmailService",
+      __
+    );
+  }
+
+  async loginUserService(
+    DTOUser: ILoginDto,
+    __: TranslateFunction
+  ): Promise<APIResponse<ILoginResponseDto | null>> {
+    return tryCatchService(
+      async () => {
+        const { email, password } = DTOUser;
+
+        const checkUser = await UserModel.findOne({ email: email });
+
+        if (checkUser === null) {
+          return apiError(HttpStatus.UNAUTHORIZED, __("INVALID_CREDENTIALS"));
+        }
+
+        const comparePassword = await bcrypt.compare(
+          password,
+          checkUser.password
+        );
+
+        if (!comparePassword) {
+          return apiError(HttpStatus.UNAUTHORIZED, __("INVALID_CREDENTIALS"));
+        }
+
+        if (checkUser.verified === false) {
+          return apiError(HttpStatus.FORBIDDEN, __("ACCOUNT_NOT_VERIFIED"));
+        }
+
+        const tokenPayload = {
+          id: checkUser._id.toString(),
+          email: checkUser.email,
+          role: checkUser.role,
+          loginType: checkUser.loginType,
+        };
+
+        const secretKey = process.env.SECRET_KEY;
+
+        if (secretKey) {
+          const accessToken = await generateToken(
+            tokenPayload,
+            secretKey,
+            "15m"
+          );
+
+          const refreshToken = await generateToken(
+            tokenPayload,
+            secretKey,
+            "7d"
+          );
+
+          if (!checkUser.refreshTokens) {
+            checkUser.refreshTokens = [refreshToken];
+          } else {
+            checkUser.refreshTokens.push(refreshToken);
+
+            if (checkUser.refreshTokens.length > 10) {
+              checkUser.refreshTokens = checkUser.refreshTokens.slice(-10);
+            }
+          }
+
+          await checkUser.save();
+
+          const userInfo: ILoginResponseDto = {
+            id: checkUser._id.toString(),
+            email: checkUser.email,
+            fullname: checkUser.fullname,
+            avatar: checkUser.avatar?.url || "",
+            token: {
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            },
+          };
+
+          return apiResponse(HttpStatus.OK, __("LOGIN_SUCCESSFULLY"), userInfo);
+        }
+      },
+      "INTERNAL_SERVER_ERROR",
+      "loginUserService",
       __
     );
   }

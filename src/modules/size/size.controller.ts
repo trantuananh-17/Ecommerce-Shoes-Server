@@ -66,4 +66,22 @@ export class SizeController {
         );
     }
   };
+
+  getAllSizeNameController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const response = await this.sizeService.getAllSizeNameService(
+          req.__.bind(req)
+        );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getAllSizeNameController"
+    );
+  };
 }

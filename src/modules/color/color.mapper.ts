@@ -1,4 +1,8 @@
-import { IColorResponseDto, IColorWithLangResponseDto } from "./color.dto";
+import {
+  IColorNameDto,
+  IColorResponseDto,
+  IColorWithLangResponseDto,
+} from "./color.dto";
 import { IColor } from "./color.model";
 
 export const colorResponseMapper = (color: IColor): IColorResponseDto => {
@@ -24,5 +28,15 @@ export const colorWithLangMapper = (
     isActive: color.isActive,
     createdAt: color.createdAt.toISOString(),
     updatedAt: color.updatedAt.toISOString(),
+  };
+};
+
+export const colorNameResponseMapper = (
+  color: IColor,
+  lang: string | "vi"
+): IColorNameDto => {
+  return {
+    id: color._id.toString(),
+    name: color.name[lang as keyof typeof color.name],
   };
 };

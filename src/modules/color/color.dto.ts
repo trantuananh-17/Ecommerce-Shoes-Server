@@ -31,3 +31,8 @@ export interface IColorUpdateDTO {
 export interface IColorDeleteManyDto {
   ids: string[];
 }
+
+export interface IColorNameDto {
+  id: string;
+  name: string;
+}

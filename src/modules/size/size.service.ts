@@ -6,8 +6,8 @@ import {
 } from "../../utils/helpers/api-response.helper";
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
-import { ICreateSizeDto, ISizeResponseDto } from "./size.dto";
-import { sizeResponseMapper } from "./size.mapper";
+import { ICreateSizeDto, ISizeNameDto, ISizeResponseDto } from "./size.dto";
+import { sizeNameResponseMapper, sizeResponseMapper } from "./size.mapper";
 import SizeModel, { ISize } from "./size.model";
 
 export interface SizeService {
@@ -29,9 +29,49 @@ export interface SizeService {
       limit: number;
     }>
   >;
+
+  getAllSizeNameService(
+    __: TranslateFunction
+  ): Promise<APIResponse<ISizeNameDto[] | null>>;
 }
 
 export class SizeServiceImpl implements SizeService {
+  async getAllSizeNameService(
+    __: TranslateFunction
+  ): Promise<APIResponse<ISizeNameDto[] | null>> {
+    return tryCatchService(
+      async () => {
+        const result = await SizeModel.aggregate([
+          {
+            $addFields: {
+              nameAsNumber: { $toInt: "$name" },
+            },
+          },
+          {
+            $sort: { nameAsNumber: 1 },
+          },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+            },
+          },
+        ]);
+
+        const response: ISizeNameDto[] = result.map((size) =>
+          sizeNameResponseMapper(size)
+        );
+
+        return apiResponse(HttpStatus.OK, __("GET_SIZES_SUCCESSFULLY"), {
+          response,
+        });
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllSizeNameService",
+      __
+    );
+  }
+
   async createSizeService(DTOSize: ICreateSizeDto, __: TranslateFunction) {
     try {
       const { name } = DTOSize;
