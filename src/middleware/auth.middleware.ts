@@ -15,19 +15,26 @@ const handleUnauthorizedError = (res: Response, __: TranslateFunction) => {
   });
 };
 
-const AuthRole = (role: string, isAuthMe: boolean = false) => {
+const AuthRole = (
+  role: string,
+  isAuthMe: boolean = false,
+  isPublic: boolean = false
+) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const authHeader = req.headers.authorization;
       const token = authHeader?.split("Bearer ")[1];
 
+      if (isPublic) {
+        next();
+      }
+
       if (!token) {
-        res.status(401).json({ messag: "Ban chuia dang nhap" });
+        res.status(401).json({ messag: "Ban chua dang nhap" });
         return;
       }
 
       const secretKey = process.env.SECRET_KEY;
-      console.log(secretKey);
 
       if (secretKey) {
         jwt.verify(token, secretKey, (error: unknown, data) => {

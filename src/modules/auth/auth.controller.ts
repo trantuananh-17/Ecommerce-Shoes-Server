@@ -16,14 +16,18 @@ import { isValidObjectId } from "mongoose";
 import { errorRes } from "../../utils/helpers/error-response.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import { LoginValidator } from "./validators/login.validate";
+import { tokenSchema } from "../token/token.validate";
+import { JwtService, JwtServiceImpl } from "../token/token.service";
 
 dotenv.config();
 
 export class AuthController {
   private readonly authService: AuthService;
+  private readonly jwtService: JwtService;
 
   constructor() {
     this.authService = new AuthServiceImpl();
+    this.jwtService = new JwtServiceImpl();
   }
 
   registerController = async (req: Request, res: Response): Promise<any> => {
@@ -209,6 +213,46 @@ export class AuthController {
       res,
       req,
       "resetPasswordController"
+    );
+  };
+
+  refreshTokenController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const { error, value } = tokenSchema.validate(req.body ?? {});
+
+        if (error) {
+          return handleValidationError(res, error, req.__.bind(req));
+        }
+
+        const response = await this.jwtService.refreshTokenService(
+          value,
+          req.__.bind(req)
+        );
+
+        return res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "refreshTokenController"
+    );
+  };
+
+  logoutController = async (req: Request, res: Response): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const response = await this.authService.logoutService(
+          req,
+          req.__.bind(req)
+        );
+        return res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "logoutController"
     );
   };
 }

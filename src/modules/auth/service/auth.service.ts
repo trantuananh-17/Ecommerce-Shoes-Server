@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { TranslateFunction } from "../../../types/express";
 import {
   apiError,
@@ -25,7 +26,8 @@ import {
   IResetPassswordDto,
 } from "../dtos/password.dto";
 import { ILoginDto, ILoginResponseDto } from "../dtos/login.dto";
-import { generateToken } from "../helper/token.helper";
+import { generateToken, TokenPayload } from "../helper/token.helper";
+import { Request } from "express";
 
 dotenv.config();
 
@@ -58,6 +60,11 @@ export interface AuthService {
 
   resetPasswordService(
     DTOResetPasswrod: IResetPassswordDto,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>>;
+
+  logoutService(
+    req: Request,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 }
@@ -349,6 +356,52 @@ export class AuthServiceImpl implements AuthService {
       },
       "INTERNAL_SERVER_ERROR",
       "resetPasswordService",
+      __
+    );
+  }
+
+  async logoutService(
+    req: Request,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>> {
+    return tryCatchService(
+      async () => {
+        const secretKey = process.env.SECRET_KEY;
+        const refresh_token = req.cookies?.refresh_token;
+
+        console.log(secretKey, refresh_token);
+
+        if (!secretKey || !refresh_token) {
+          return apiError(HttpStatus.UNAUTHORIZED, __("UNAUTHORIZED"));
+        }
+
+        let userInfo: TokenPayload;
+        try {
+          userInfo = jwt.verify(refresh_token, secretKey) as TokenPayload;
+        } catch (err) {
+          return apiError(HttpStatus.UNAUTHORIZED, __("INVALID_REFRESH_TOKEN"));
+        }
+
+        const user = await UserModel.findById(userInfo.id);
+        if (!user) {
+          return apiError(HttpStatus.UNAUTHORIZED, __("USER_NOT_FOUND"));
+        }
+
+        user.refreshTokens = user.refreshTokens.filter(
+          (token) => token !== refresh_token
+        );
+        await user.save();
+
+        req.res?.clearCookie("refresh_token", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+        });
+
+        return apiResponse(HttpStatus.OK, __("LOGOUT_SUCCESS"));
+      },
+      "INTERNAL_SERVER_ERROR",
+      "logoutService  ",
       __
     );
   }
