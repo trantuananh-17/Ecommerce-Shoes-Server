@@ -9,9 +9,14 @@ authRouter.post("/register", authController.registerController);
 authRouter.post("/login", authController.loginController);
 authRouter.post("/refresh", authController.refreshTokenController);
 authRouter.post("/logout", authController.logoutController);
+authRouter.get(
+  "/me",
+  AuthRole("*", true),
+  authController.getUserInfoController
+);
 authRouter.get("/verify", authController.verifyEmailController);
 authRouter.patch(
-  "/change-password/:id",
+  "/change-password/",
   AuthRole("*", true),
   authController.changePasswordMeController
 );

@@ -28,6 +28,8 @@ import {
 import { ILoginDto, ILoginResponseDto } from "../dtos/login.dto";
 import { generateToken, TokenPayload } from "../helper/token.helper";
 import { Request } from "express";
+import { IUserInfoResponseDto } from "../../user/user.dto";
+import { userInfoResponseMapper } from "../../user/user.mapper";
 
 dotenv.config();
 
@@ -67,6 +69,11 @@ export interface AuthService {
     req: Request,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
+
+  getUserInfoService(
+    userId: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IUserInfoResponseDto | null>>;
 }
 
 export class AuthServiceImpl implements AuthService {
@@ -222,6 +229,7 @@ export class AuthServiceImpl implements AuthService {
             id: checkUser._id.toString(),
             email: checkUser.email,
             fullname: checkUser.fullname,
+            role: checkUser.role,
             avatar: checkUser.avatar?.url || "",
             token: {
               access_token: accessToken,
@@ -369,8 +377,6 @@ export class AuthServiceImpl implements AuthService {
         const secretKey = process.env.SECRET_KEY;
         const refresh_token = req.cookies?.refresh_token;
 
-        console.log(secretKey, refresh_token);
-
         if (!secretKey || !refresh_token) {
           return apiError(HttpStatus.UNAUTHORIZED, __("UNAUTHORIZED"));
         }
@@ -384,7 +390,7 @@ export class AuthServiceImpl implements AuthService {
 
         const user = await UserModel.findById(userInfo.id);
         if (!user) {
-          return apiError(HttpStatus.UNAUTHORIZED, __("USER_NOT_FOUND"));
+          return apiError(HttpStatus.BAD_REQUEST, __("USER_NOT_EXIST"));
         }
 
         user.refreshTokens = user.refreshTokens.filter(
@@ -395,13 +401,40 @@ export class AuthServiceImpl implements AuthService {
         req.res?.clearCookie("refresh_token", {
           httpOnly: true,
           secure: true,
-          sameSite: "strict",
+          sameSite: "none",
+          path: "/",
         });
 
         return apiResponse(HttpStatus.OK, __("LOGOUT_SUCCESS"));
       },
       "INTERNAL_SERVER_ERROR",
       "logoutService  ",
+      __
+    );
+  }
+
+  async getUserInfoService(
+    userId: string,
+    __: TranslateFunction
+  ): Promise<APIResponse<IUserInfoResponseDto | null>> {
+    return tryCatchService(
+      async () => {
+        const user = await UserModel.findOne({ _id: userId });
+
+        if (user === null) {
+          return apiError(HttpStatus.BAD_REQUEST, __("USER_NOT_EXIST"));
+        }
+
+        const userInfo: IUserInfoResponseDto = userInfoResponseMapper(user);
+
+        return apiResponse(
+          HttpStatus.OK,
+          __("GET_USER_INFO_SUCCESSFULLY"),
+          userInfo
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getUserInfoService  ",
       __
     );
   }

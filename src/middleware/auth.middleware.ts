@@ -9,7 +9,7 @@ dotenv.config();
 
 const handleUnauthorizedError = (res: Response, __: TranslateFunction) => {
   return res.status(HttpStatus.UNAUTHORIZED).json({
-    status: "Error",
+    status: HttpStatus.UNAUTHORIZED,
     message: __("UNAUTHORIZED"),
     data: null,
   });

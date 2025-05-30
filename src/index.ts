@@ -14,7 +14,12 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // FE origin
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 app.use(i18n.init);

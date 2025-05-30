@@ -7,6 +7,7 @@ export interface ILoginResponseDto {
   id: string;
   email: string;
   fullname: string;
+  role: string;
   avatar: string;
   token: {
     access_token: string;

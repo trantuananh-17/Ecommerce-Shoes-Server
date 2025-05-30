@@ -98,15 +98,24 @@ export class AuthController {
         const { data } = response;
 
         if (data) {
-          console.log(data);
           const { token } = data;
           if (token) {
             const { refresh_token } = token;
+            // res.cookie("refresh_token", refresh_token, {
+            //   httpOnly: true,
+            //   // secure: false,
+            //   // sameSite: "strict",
+            //   sameSite: "none",
+            //   secure: true,
+            //   path: "/",
+            // });
+
             res.cookie("refresh_token", refresh_token, {
               httpOnly: true,
-              secure: false,
-              sameSite: "strict",
+              secure: true,
+              sameSite: "none",
               path: "/",
+              maxAge: 7 * 24 * 60 * 60 * 1000, // ✅ 7 ngày
             });
           }
         }
@@ -125,18 +134,10 @@ export class AuthController {
   ): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.params.id;
+        const userId = req.userId;
         const { error, value } = changePasswordValidate.validate(
           req.body ?? {}
         );
-
-        if (!isValidObjectId(userId)) {
-          return errorRes(
-            res,
-            req.__("INVALID_BRAND_ID"),
-            HttpStatus.BAD_REQUEST
-          );
-        }
 
         if (error) {
           return handleValidationError(res, error, req.__.bind(req));
@@ -222,16 +223,21 @@ export class AuthController {
   ): Promise<any> => {
     return tryCatchController(
       async () => {
-        const { error, value } = tokenSchema.validate(req.body ?? {});
-
-        if (error) {
-          return handleValidationError(res, error, req.__.bind(req));
-        }
-
         const response = await this.jwtService.refreshTokenService(
-          value,
+          req,
           req.__.bind(req)
         );
+
+        if (response.data?.refresh_token) {
+          res.cookie("refresh_token", response.data.refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            path: "/",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+          });
+          delete response.data.refresh_token;
+        }
 
         return res.status(response.status_code).json(response);
       },
@@ -253,6 +259,24 @@ export class AuthController {
       res,
       req,
       "logoutController"
+    );
+  };
+
+  getUserInfoController = async (req: Request, res: Response): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const userId = req.userId;
+
+        const response = await this.authService.getUserInfoService(
+          userId,
+          req.__.bind(req)
+        );
+
+        return res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getUserInfoController"
     );
   };
 }
