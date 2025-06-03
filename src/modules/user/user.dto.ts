@@ -1,3 +1,11 @@
+export interface IAuthInfoResponseDto {
+  id: string;
+  email: string;
+  fullname: string;
+  role: string;
+  loginType: string;
+}
+
 export interface IUserInfoResponseDto {
   id: string;
   email: string;
@@ -12,4 +20,8 @@ export interface IUserInfoResponseDto {
   address: string;
   avatar: string;
   loginType: string;
+}
+
+export interface IUserActiveDto {
+  isActive: boolean;
 }
