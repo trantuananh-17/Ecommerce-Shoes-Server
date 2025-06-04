@@ -7,7 +7,11 @@ import {
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import UserModel from "./models/user.model";
-import { IUserActiveDto, IUserInfoResponseDto } from "./user.dto";
+import {
+  IUserActiveDto,
+  IUserInfoResponseDto,
+  IUserUpdateDto,
+} from "./user.dto";
 import { userInfoResponseMapper } from "./user.mapper";
 
 export interface IUserService {
@@ -18,11 +22,12 @@ export interface IUserService {
 
   updateUserInfoService(
     userId: string,
-    DTOUser: IUserInfoResponseDto,
+    DTOUser: IUserUpdateDto,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
 
-  deleteUserService(
+  updateActiveUserService(
+    userId: string,
     DTOUser: IUserActiveDto,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
@@ -56,15 +61,74 @@ export class UserServiceImpl implements IUserService {
   }
   async updateUserInfoService(
     userId: string,
-    DTOUser: IUserInfoResponseDto,
+    DTOUser: IUserUpdateDto,
     __: TranslateFunction
   ): Promise<APIResponse<null>> {
-    throw new Error("Method not implemented.");
+    return tryCatchService(
+      async () => {
+        const {
+          fullname,
+          phoneNumber,
+          gender,
+          birth,
+          province,
+          district,
+          ward,
+          address,
+        } = DTOUser;
+
+        const existingUser = await UserModel.findById(userId);
+        if (!existingUser) {
+          return apiError(HttpStatus.NOT_FOUND, __("USER_NOT_FOUND"));
+        }
+
+        existingUser.fullname = fullname ?? existingUser.fullname;
+        existingUser.phoneNumber = phoneNumber ?? existingUser.phoneNumber;
+        existingUser.gender = gender ?? existingUser.gender;
+        if (birth !== undefined) {
+          existingUser.birth =
+            typeof birth === "string" ? new Date(birth) : birth;
+        }
+
+        existingUser.province = province ?? existingUser.province;
+        existingUser.district = district ?? existingUser.district;
+        existingUser.ward = ward ?? existingUser.ward;
+        existingUser.address = address ?? existingUser.address;
+
+        await existingUser.save();
+
+        return apiResponse(HttpStatus.OK, __("USER_UPDATED_SUCCESSFULLY"));
+      },
+      "INTERNAL_SERVER_ERROR",
+      "updateUserInfoService",
+      __
+    );
   }
-  async deleteUserService(
+
+  async updateActiveUserService(
+    userId: string,
     DTOUser: IUserActiveDto,
     __: TranslateFunction
   ): Promise<APIResponse<null>> {
-    throw new Error("Method not implemented.");
+    return tryCatchService(
+      async () => {
+        const { isActive } = DTOUser;
+
+        const updated = await UserModel.findByIdAndUpdate(
+          userId,
+          { isActive: isActive },
+          { new: true }
+        );
+
+        if (!updated) {
+          return apiError(HttpStatus.NOT_FOUND, __("USER_NOT_FOUND"));
+        }
+
+        return apiResponse(HttpStatus.OK, __("USER_UPDATED_SUCCESSFULLY"));
+      },
+      "INTERNAL_SERVER_ERROR",
+      "updateActiveUserService",
+      __
+    );
   }
 }

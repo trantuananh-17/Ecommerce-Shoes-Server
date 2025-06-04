@@ -1,14 +1,22 @@
-import AWS from "aws-sdk";
+import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
+const region = process.env.AWS_REGION;
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+if (!region || !accessKeyId || !secretAccessKey) {
+  throw new Error("Missing AWS configuration in environment variables.");
+}
+
+const s3Client = new S3Client({
+  region,
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
 });
 
-const s3 = new AWS.S3();
-
-export default s3;
+export default s3Client;
