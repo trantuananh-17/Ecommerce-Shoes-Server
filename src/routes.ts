@@ -8,10 +8,12 @@ import closureRouter from "./modules/closure/closure.routes";
 import materialRouter from "./modules/material/material.routes";
 import discountRouter from "./modules/discount/discount.routes";
 import authRouter from "./modules/auth/auth.routes";
+import userRouter from "./modules/user/user.routes";
 
 const router = Router();
 
 router.use("/auth", authRouter);
+router.use("/users", userRouter);
 router.use("/banneds", bannerRouter);
 router.use("/categories", categoryRouter);
 router.use("/colors", colorRouter);

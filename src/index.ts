@@ -1,5 +1,5 @@
 import routes from "./routes";
-import express from "express";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./config/mongodb.config";
@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
+const bucketName = process.env.AWS_NAME;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -28,8 +28,8 @@ import {
 import { ILoginDto, ILoginResponseDto } from "../dtos/login.dto";
 import { generateToken, TokenPayload } from "../helper/token.helper";
 import { Request } from "express";
-import { IUserInfoResponseDto } from "../../user/user.dto";
-import { userInfoResponseMapper } from "../../user/user.mapper";
+import { IAuthInfoResponseDto } from "../../user/user.dto";
+import { authInfoResponseMapper } from "../../user/user.mapper";
 
 dotenv.config();
 
@@ -73,7 +73,7 @@ export interface AuthService {
   getUserInfoService(
     userId: string,
     __: TranslateFunction
-  ): Promise<APIResponse<IUserInfoResponseDto | null>>;
+  ): Promise<APIResponse<IAuthInfoResponseDto | null>>;
 }
 
 export class AuthServiceImpl implements AuthService {
@@ -416,7 +416,7 @@ export class AuthServiceImpl implements AuthService {
   async getUserInfoService(
     userId: string,
     __: TranslateFunction
-  ): Promise<APIResponse<IUserInfoResponseDto | null>> {
+  ): Promise<APIResponse<IAuthInfoResponseDto | null>> {
     return tryCatchService(
       async () => {
         const user = await UserModel.findOne({ _id: userId });
@@ -425,7 +425,7 @@ export class AuthServiceImpl implements AuthService {
           return apiError(HttpStatus.BAD_REQUEST, __("USER_NOT_EXIST"));
         }
 
-        const userInfo: IUserInfoResponseDto = userInfoResponseMapper(user);
+        const userInfo: IAuthInfoResponseDto = authInfoResponseMapper(user);
 
         return apiResponse(
           HttpStatus.OK,
