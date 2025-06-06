@@ -16,5 +16,9 @@ declare global {
     interface Request {
       userId?: Types.ObjectId;
     }
+
+    interface Request {
+      files: { [key: string]: File | File[] };
+    }
   }
 }

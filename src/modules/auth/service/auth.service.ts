@@ -191,6 +191,10 @@ export class AuthServiceImpl implements AuthService {
           return apiError(HttpStatus.FORBIDDEN, __("ACCOUNT_NOT_VERIFIED"));
         }
 
+        if (checkUser.isActive === false) {
+          return apiError(HttpStatus.FORBIDDEN, __("ACCOUNT_NOT_ACTIVE"));
+        }
+
         const tokenPayload = {
           id: checkUser._id.toString(),
           email: checkUser.email,
