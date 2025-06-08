@@ -1,20 +1,27 @@
-import { Document, model, Schema } from "mongoose";
-import { Gender } from "../user/models/user.model";
+import { Document, model, Schema, Types } from "mongoose";
+import { Gender } from "../../user/models/user.model";
 
-type ProductImage = { url: string; id: string };
+export type ProductImage = { url: string; id: string };
 
 enum ShoeCollarType {
-  LowCut = "Giày cổ thấp",
-  MidCut = "Giày cổ vừa",
-  HighCut = "Giày cổ cao",
+  LowCut = "LowCut",
+  MidCut = "MidCut",
+  HighCut = "HighCut",
 }
 
 export interface Product extends Document {
-  name: string;
+  _id: Types.ObjectId;
+  name: {
+    vi: string;
+    en: string;
+  };
+  slug: { vi: string; en: string };
   brand: Schema.Types.ObjectId;
   price: number;
-  description: string;
-  warranty: string;
+  description: {
+    vi: string;
+    en: string;
+  };
   isActive: boolean;
   gender: Gender;
   shoeCollarType: ShoeCollarType;
@@ -22,34 +29,55 @@ export interface Product extends Document {
   material: Schema.Types.ObjectId;
   closure: Schema.Types.ObjectId;
   eventDiscounts: Schema.Types.ObjectId;
-  colorSize: Schema.Types.ObjectId[];
+  color: Schema.Types.ObjectId;
+  thumbnail?: string;
+  images?: ProductImage[];
+  sizes: Schema.Types.ObjectId[];
   ratings: Schema.Types.ObjectId[];
   averageRating: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const productSchema: Schema = new Schema<Product>(
   {
-    name: { type: String, required: true },
+    name: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
     brand: { type: Schema.Types.ObjectId, ref: "Brand" },
     price: { type: Number, required: true },
-    description: { type: String, required: true },
-    warranty: { type: String, required: true },
+    description: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
     isActive: { type: Boolean, default: true },
     gender: {
       type: String,
-      enum: Object.values(ShoeCollarType),
+      enum: Object.values(Gender),
       required: true,
     },
     shoeCollarType: {
       type: String,
-      enum: Object.values(Gender),
+      enum: Object.values(ShoeCollarType),
       required: false,
     },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     material: { type: Schema.Types.ObjectId, ref: "Material", required: true },
     closure: { type: Schema.Types.ObjectId, ref: "Closure", required: true },
     eventDiscounts: { type: Schema.Types.ObjectId, ref: "EventDiscount" },
-    colorSize: [{ type: Schema.Types.ObjectId, ref: "ColorSize" }],
+    color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
+    thumbnail: { type: String },
+    images: [
+      {
+        type: Object,
+        url: { type: String },
+        id: { type: String },
+      },
+    ],
+    sizes: [
+      { type: Schema.Types.ObjectId, ref: "SizeQuantity", required: true },
+    ],
     ratings: [{ type: Schema.Types.ObjectId, ref: "ProductRate" }],
     averageRating: { type: Number, default: 0 },
   },

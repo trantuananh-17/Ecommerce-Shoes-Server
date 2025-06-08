@@ -9,6 +9,7 @@ import materialRouter from "./modules/material/material.routes";
 import discountRouter from "./modules/discount/discount.routes";
 import authRouter from "./modules/auth/auth.routes";
 import userRouter from "./modules/user/user.routes";
+import productRouter from "./modules/product/product.routes";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/brands", brandRouter);
 router.use("/closures", closureRouter);
 router.use("/materials", materialRouter);
 router.use("/discounts", discountRouter);
+router.use("/products", productRouter);
 
 export default router;
