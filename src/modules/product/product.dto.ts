@@ -25,9 +25,16 @@ export interface ISizeQuantityDto {
   quantity: number;
 }
 
-export interface IProductResponseDto {
+export interface ICreateProductResponseDto {
   id: string;
-  name: string;
+  name: {
+    vi: string;
+    en: string;
+  };
+  slug: {
+    vi: string;
+    en: string;
+  };
   brand: string;
   price: number;
   description: {
@@ -52,8 +59,14 @@ export interface IProductResponseDto {
 }
 
 export interface IUpdateProductDto {
-  id: string;
-  name: string;
+  name: {
+    vi: string;
+    en: string;
+  };
+  slug: {
+    vi: string;
+    en: string;
+  };
   brand: string;
   price: number;
   description: {
@@ -61,8 +74,8 @@ export interface IUpdateProductDto {
     en: string;
   };
   isActive: boolean;
-  gender: string;
-  shoeCollarType: string;
+  gender: Gender;
+  shoeCollarType: ShoeCollarType;
   category: string;
   material: string;
   closure: string;

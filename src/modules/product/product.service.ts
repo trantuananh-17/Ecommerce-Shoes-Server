@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { TranslateFunction } from "../../types/express";
 import {
   apiError,
@@ -8,8 +8,8 @@ import {
 import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import ProductModel, { ProductImage } from "./models/product.model";
 import {
+  ICreateProductResponseDto,
   IProductDto,
-  IProductResponseDto,
   ISizeQuantityDto,
   IUpdateProductDto,
 } from "./product.dto";
@@ -20,6 +20,9 @@ import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import s3 from "../../config/s3.config";
 import { DeleteObjectRequest } from "aws-sdk/clients/s3";
+import { productCreateResponseMapper } from "./product.mapper";
+import { Gender } from "aws-sdk/clients/polly";
+import { slugify } from "../../utils/helpers/slugify.helper";
 
 dotenv.config();
 
@@ -29,7 +32,7 @@ export interface ProductService {
     images: Express.Multer.File[],
     sizeQuantity: ISizeQuantityDto[],
     __: TranslateFunction
-  ): Promise<APIResponse<IProductResponseDto | null>>;
+  ): Promise<APIResponse<ICreateProductResponseDto | null>>;
 
   updateProductService(
     id: string,
@@ -37,7 +40,7 @@ export interface ProductService {
     images: Express.Multer.File[],
     sizeQuantity: ISizeQuantityDto[],
     __: TranslateFunction
-  ): Promise<APIResponse<IProductResponseDto | null>>;
+  ): Promise<APIResponse<ICreateProductResponseDto | null>>;
 }
 
 export class ProductServiceImpl implements ProductService {
@@ -46,10 +49,10 @@ export class ProductServiceImpl implements ProductService {
     images: Express.Multer.File[],
     sizeQuantity: ISizeQuantityDto[],
     __: TranslateFunction
-  ): Promise<APIResponse<IProductResponseDto | null>> {
+  ): Promise<APIResponse<ICreateProductResponseDto | null>> {
     return tryCatchService(
       async () => {
-        const data = { ...product };
+        const { name, ...data } = product;
 
         const bucketName = process.env.AWS_NAME!;
         const uploadPromises = images.map(async (file) => {
@@ -76,12 +79,22 @@ export class ProductServiceImpl implements ProductService {
 
         const imageUrls = await Promise.all(uploadPromises);
 
+        const slugVi = slugify(name.vi);
+        const slugEn = slugify(name.en);
+
         const newProduct = await ProductModel.create({
           ...data,
+          name,
+          slug: {
+            vi: slugVi,
+            en: slugEn,
+          },
           images: imageUrls,
           sizes: [],
           ratings: [],
         });
+
+        console.log(newProduct);
 
         const sizeQuantityWithProductId = sizeQuantity.map((item) => ({
           ...item,
@@ -94,12 +107,14 @@ export class ProductServiceImpl implements ProductService {
         const sizeQuantityIds = sizes.map((s) => s._id);
 
         newProduct.sizes = sizeQuantityIds;
-        await newProduct.save();
+        const created = await newProduct.save();
+        const response: ICreateProductResponseDto =
+          productCreateResponseMapper(created);
 
         return apiResponse(
           HttpStatus.OK,
           __("PRODUCT_CREATED_SUCCESSFULLY"),
-          newProduct
+          response
         );
       },
       "INTERNAL_SERVER_ERROR",
@@ -111,56 +126,97 @@ export class ProductServiceImpl implements ProductService {
   updateProductService(
     id: string,
     product: IUpdateProductDto,
-    images: Express.Multer.File[],
+    newImages: Express.Multer.File[],
     sizeQuantity: ISizeQuantityDto[],
     __: TranslateFunction
-  ): Promise<APIResponse<IProductResponseDto | null>> {
+  ): Promise<APIResponse<ICreateProductResponseDto | null>> {
     return tryCatchService(
       async () => {
-        const existingProduct = await ProductModel.findById(id);
         const bucketName = process.env.AWS_NAME!;
 
-        if (!existingProduct) {
+        const {
+          name,
+          description,
+          price,
+          brand,
+          category,
+          closure,
+          color,
+          gender,
+          isActive,
+          material,
+          shoeCollarType,
+          sizes,
+          slug,
+          images,
+          thumbnail,
+        } = product;
+
+        const productUpdate = {
+          name,
+          description,
+          price,
+          brand,
+          category,
+          closure,
+          color,
+          gender,
+          isActive,
+          material,
+          shoeCollarType,
+          sizes,
+          slug,
+          thumbnail,
+        };
+
+        const productUpdated = await ProductModel.findByIdAndUpdate(
+          id,
+          productUpdate,
+          {
+            new: true,
+          }
+        );
+
+        if (!productUpdated) {
           return apiError(HttpStatus.NOT_FOUND, __("PRODUCT_NOT_FOUND"));
         }
 
-        existingProduct.name = product.name ?? existingProduct.name;
-        existingProduct.description =
-          product.description ?? existingProduct.description;
-        existingProduct.price = product.price ?? existingProduct.price;
-        existingProduct.category = product.category ?? existingProduct.category;
-        existingProduct.brand = product.brand ?? existingProduct.brand;
-        existingProduct.isActive = product.isActive ?? existingProduct.isActive;
-        existingProduct.gender = product.gender ?? existingProduct.gender;
-        existingProduct.shoeCollarType =
-          product.shoeCollarType ?? existingProduct.shoeCollarType;
-        existingProduct.material = product.material ?? existingProduct.material;
-        existingProduct.closure = product.closure ?? existingProduct.closure;
-        existingProduct.color = product.color ?? existingProduct.color;
+        console.log(images);
 
+        // Lấy danh sách id trong product
         const ids =
-          (product.images as ProductImage[] | undefined)?.map(
-            (img) => img.id
-          ) || [];
-        const listImage = (existingProduct.images as ProductImage[]).filter(
-          (img) => ids.includes(img.id)
+          (images as ProductImage[] | undefined)?.map((img) => img.key) || [];
+
+        console.log(ids);
+
+        // Lấy danh sách ảnh có id này
+        const listImage = (productUpdated.images as ProductImage[]).filter(
+          (img) => ids.includes(img.key)
         );
 
-        const toDelete = (existingProduct.images as ProductImage[]).filter(
-          (img) => !ids.includes(img.id)
+        console.log(listImage);
+
+        // Lọc xem id nào bị thiếu để xóa
+        const toDelete = (productUpdated.images as ProductImage[]).filter(
+          (img) => !ids.includes(img.key)
         );
+
+        console.log(toDelete);
+
+        // Xóa cùng lúc
         await Promise.all(
           toDelete.map((img) => {
             const params: DeleteObjectRequest = {
               Bucket: bucketName,
-              Key: img.id,
+              Key: img.key,
             };
             return s3.deleteObject(params).promise();
           })
         );
 
+        // Upload ảnh mới(Nếu có).
         const newUploads = await Promise.all(
-          images.map(async (file) => {
+          newImages.map(async (file) => {
             const resized = await sharp(file.buffer)
               .resize({ width: 800 })
               .toBuffer();
@@ -176,15 +232,15 @@ export class ProductServiceImpl implements ProductService {
             const res = await s3.upload(params).promise();
             return {
               url: res.Location,
-              id: newKey,
+              key: newKey,
             };
           })
         );
 
-        existingProduct.images = [...listImage, ...newUploads];
+        productUpdated.images = [...listImage, ...newUploads];
 
         const existingSizeQuantities = await SizeQuantityModel.find({
-          productId: existingProduct._id,
+          productId: productUpdated._id,
         });
         const existingMap = new Map(
           existingSizeQuantities.map((sq) => [sq.size.toString(), sq])
@@ -204,21 +260,21 @@ export class ProductServiceImpl implements ProductService {
             } else {
               const created = await SizeQuantityModel.create({
                 ...item,
-                productId: existingProduct._id,
+                productId: productUpdated._id,
               });
               return created._id;
             }
           })
         );
 
-        existingProduct.sizes = newSizeQuantityIds;
+        productUpdated.sizes = newSizeQuantityIds;
 
-        await existingProduct.save();
+        await productUpdated.save();
 
         return apiResponse(
           HttpStatus.OK,
           __("PRODUCT_UPDATED_SUCCESSFULLY"),
-          existingProduct
+          productUpdated
         );
       },
       "INTERNAL_SERVER_ERROR",

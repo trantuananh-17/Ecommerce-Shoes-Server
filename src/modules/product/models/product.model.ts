@@ -1,7 +1,7 @@
 import { Document, model, Schema, Types } from "mongoose";
 import { Gender } from "../../user/models/user.model";
 
-export type ProductImage = { url: string; id: string };
+export type ProductImage = { url: string; key: string };
 
 enum ShoeCollarType {
   LowCut = "LowCut",
@@ -45,6 +45,10 @@ const productSchema: Schema = new Schema<Product>(
       vi: { type: String, required: true },
       en: { type: String, required: true },
     },
+    slug: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
     brand: { type: Schema.Types.ObjectId, ref: "Brand" },
     price: { type: Number, required: true },
     description: {
@@ -68,13 +72,15 @@ const productSchema: Schema = new Schema<Product>(
     eventDiscounts: { type: Schema.Types.ObjectId, ref: "EventDiscount" },
     color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
     thumbnail: { type: String },
-    images: [
-      {
-        type: Object,
-        url: { type: String },
-        id: { type: String },
-      },
-    ],
+    images: {
+      type: [
+        {
+          url: { type: String, required: true },
+          key: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
     sizes: [
       { type: Schema.Types.ObjectId, ref: "SizeQuantity", required: true },
     ],
@@ -84,5 +90,5 @@ const productSchema: Schema = new Schema<Product>(
   { timestamps: true }
 );
 
-const ProductModel = model("Product", productSchema);
+const ProductModel = model<Product>("Product", productSchema);
 export default ProductModel;

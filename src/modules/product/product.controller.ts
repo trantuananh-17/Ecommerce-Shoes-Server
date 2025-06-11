@@ -36,7 +36,6 @@ export class ProductController {
         try {
           productData = JSON.parse(req.body.product);
           sizeQuantityData = JSON.parse(req.body.sizeQuantity);
-          console.log(productData, sizeQuantityData);
         } catch (e) {
           return res.status(400).json({ message: "INVALID_JSON_FORMAT" });
         }
@@ -92,7 +91,6 @@ export class ProductController {
         try {
           productData = JSON.parse(req.body.product);
           sizeQuantityData = JSON.parse(req.body.sizeQuantity);
-          console.log(productData, sizeQuantityData);
         } catch (e) {
           return res.status(400).json({ message: "INVALID_JSON_FORMAT" });
         }

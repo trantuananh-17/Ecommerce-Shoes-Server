@@ -144,6 +144,15 @@ export const productUpdateValidate = Joi.object({
       "object.base": "NAME_MUST_BE_OBJECT",
     }),
 
+  slug: Joi.object({
+    vi: Joi.string().trim().optional(),
+    en: Joi.string().trim().optional(),
+  })
+    .optional()
+    .messages({
+      "object.base": "DESCRIPTION_MUST_BE_OBJECT",
+    }),
+
   brand: Joi.string().optional().messages({
     "string.pattern.base": "BRAND_INVALID_ID",
   }),

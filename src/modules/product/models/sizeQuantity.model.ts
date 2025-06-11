@@ -1,6 +1,7 @@
-import { model, Schema, Document, Types } from "mongoose";
+import mongoose, { model, Schema, Document, Types } from "mongoose";
 
 export interface ISizeQuantity extends Document {
+  _id: Schema.Types.ObjectId;
   productId: Types.ObjectId;
   size: Types.ObjectId;
   quantity: number;

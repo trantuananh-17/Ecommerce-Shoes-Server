@@ -1,0 +1,35 @@
+{
+        "id": "6849b52a9cafaac2364584cc",
+        "name": {
+            "vi": "Giày thể thao",
+            "en": "Sport Shoes"
+        },
+        "slug": {
+            "vi": "giay-the-thao",
+            "en": "sport-shoes"
+        },
+        "brand": "6831c59a3ef76939296b5b56",
+        "price": 1299000,
+        "description": {
+            "vi": "Giày thể thao",
+            "en": "Sport Shoes"
+        },
+        "isActive": true,
+        "gender": "Male",
+        "shoeCollarType": "MidCut",
+        "category": "682c6f3ac8d98a0f72374fa8",
+        "material": "682ca157aae4046fbc0a97bb",
+        "closure": "645f2f4a3b9f1c0000000000",
+        "color": "682c92d74f19eed7045c9fa5",
+        "images": [
+            {
+                "key": "uploads/04765b2c-6d52-43c8-9701-589ea2cb3540-a1232.png",
+                "url": https://shoes-ecommerce.s3.ap-southeast-1.amazonaws.com/uploads/04765b2c-6d52-43c8-9701-589ea2cb3540-a1232.png"
+            }
+        ],
+        "sizes": [
+            "6849b52a9cafaac2364584ce",
+            "6849b52a9cafaac2364584cf",
+            "6849b52a9cafaac2364584d0"
+        ]
+    }
