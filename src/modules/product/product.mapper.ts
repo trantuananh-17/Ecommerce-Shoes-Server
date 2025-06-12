@@ -39,7 +39,7 @@ export const productCreateResponseMapper = (
 };
 
 export const productResponseMapper = (product: any): IProductResponseDto => {
-  const event = product.matchedEvents?.[0]; // lấy event đầu tiên nếu có
+  const event = product.matchedEvents?.[0];
   const hasDiscount = !!event;
 
   const discountPercentage = event?.discountPercentage ?? 0;

@@ -231,6 +231,10 @@ export class ProductServiceImpl implements ProductService {
         }
 
         pipeline.push({
+          $sort: { createdAt: -1 },
+        });
+
+        pipeline.push({
           $lookup: {
             from: "eventdiscounts",
             let: { productId: "$_id" },
