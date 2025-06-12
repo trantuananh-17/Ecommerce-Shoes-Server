@@ -26,37 +26,54 @@ const AuthRole = (
       const token = authHeader?.split("Bearer ")[1];
 
       if (isPublic) {
-        next();
-      }
+        if (token) {
+          const secretKey = process.env.SECRET_KEY;
 
-      if (!token) {
-        res.status(401).json({ messag: "Ban chua dang nhap" });
-        return;
-      }
+          if (secretKey) {
+            jwt.verify(token, secretKey, (error: unknown, data) => {
+              if (error || !data) {
+                return handleUnauthorizedError(res, req.__.bind(req));
+              }
 
-      const secretKey = process.env.SECRET_KEY;
+              const user = data as TokenPayload;
+              req.userId = user.id;
 
-      if (secretKey) {
-        jwt.verify(token, secretKey, (error: unknown, data) => {
-          if (error || !data) {
-            return handleUnauthorizedError(res, req.__.bind(req));
+              next();
+            });
           }
+        } else {
+          next();
+        }
+      } else {
+        if (!token) {
+          res.status(401).json({ message: "Ban chua dang nhap" });
+          return;
+        }
 
-          const user = data as TokenPayload;
+        const secretKey = process.env.SECRET_KEY;
 
-          const hasRole =
-            role === "*" || // Cả user và admin
-            user.role.includes(role) || // người dùng có role cần thiết
-            user.role.includes(Role.ADMIN) || // hoặc là admin
-            (isAuthMe && req.params?.id === user.id); // hoặc là chính người dùng (nếu cho phép)
+        if (secretKey) {
+          jwt.verify(token, secretKey, (error: unknown, data) => {
+            if (error || !data) {
+              return handleUnauthorizedError(res, req.__.bind(req));
+            }
 
-          if (hasRole) {
-            req.userId = user.id;
-            next();
-          } else {
-            return handleUnauthorizedError(res, req.__.bind(req));
-          }
-        });
+            const user = data as TokenPayload;
+
+            const hasRole =
+              role === "*" || // Cả user và admin
+              user.role.includes(role) || // Người dùng có role yêu cầu
+              user.role.includes(Role.ADMIN) || // Hoặc là admin
+              (isAuthMe && req.params?.id === user.id); // Hoặc là chính người dùng
+
+            if (hasRole) {
+              req.userId = user.id;
+              next();
+            } else {
+              return handleUnauthorizedError(res, req.__.bind(req));
+            }
+          });
+        }
       }
     } catch (error) {
       console.error("AuthRole middleware error:", error);
