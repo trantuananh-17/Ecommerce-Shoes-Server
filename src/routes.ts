@@ -10,6 +10,7 @@ import discountRouter from "./modules/discount/discount.routes";
 import authRouter from "./modules/auth/auth.routes";
 import userRouter from "./modules/user/user.routes";
 import productRouter from "./modules/product/product.routes";
+import eventRouter from "./modules/event/event.routes";
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use("/closures", closureRouter);
 router.use("/materials", materialRouter);
 router.use("/discounts", discountRouter);
 router.use("/products", productRouter);
+router.use("/events", eventRouter);
 
 export default router;
