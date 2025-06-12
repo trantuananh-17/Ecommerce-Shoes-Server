@@ -28,7 +28,6 @@ export interface Product extends Document {
   category: Schema.Types.ObjectId;
   material: Schema.Types.ObjectId;
   closure: Schema.Types.ObjectId;
-  eventDiscounts: Schema.Types.ObjectId;
   color: Schema.Types.ObjectId;
   thumbnail?: string;
   images?: ProductImage[];
@@ -69,7 +68,6 @@ const productSchema: Schema = new Schema<Product>(
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     material: { type: Schema.Types.ObjectId, ref: "Material", required: true },
     closure: { type: Schema.Types.ObjectId, ref: "Closure", required: true },
-    eventDiscounts: { type: Schema.Types.ObjectId, ref: "EventDiscount" },
     color: { type: Schema.Types.ObjectId, ref: "Color", required: true },
     thumbnail: { type: String },
     images: {

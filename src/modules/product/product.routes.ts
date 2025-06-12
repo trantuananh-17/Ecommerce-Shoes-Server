@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ProductController } from "./product.controller";
 import upload from "../../middleware/upload.middleware";
 import AuthRole from "../../middleware/auth.middleware";
+import { paginationMiddleware } from "../../middleware/pipe/paginationMiddleware";
 
 const productRouter = Router();
 
@@ -19,6 +20,12 @@ productRouter.put(
   // AuthRole("admin", true),
   upload.array("images", 6),
   productController.updateProductController
+);
+
+productRouter.get(
+  "/",
+  paginationMiddleware(),
+  productController.getAllProductController
 );
 
 export default productRouter;
