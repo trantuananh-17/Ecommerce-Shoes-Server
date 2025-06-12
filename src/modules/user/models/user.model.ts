@@ -3,8 +3,8 @@ import { Document, model, Schema, Types } from "mongoose";
 type Avatar = { url: string; id: string };
 
 export enum Gender {
-  MALE = "Nam",
-  FEMALE = "Nữ",
+  MALE = "Male",
+  FEMALE = "Female",
 }
 
 export enum Role {
