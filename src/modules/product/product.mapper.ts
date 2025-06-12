@@ -60,5 +60,12 @@ export const productResponseMapper = (product: any): IProductResponseDto => {
 
     thumbnail: product.thumbnail,
     averageRating: product.averageRating,
+
+    // Trả về tổng số lượng từ tất cả các kích thước
+    sizes: product.sizes,
+    sizesWithQuantity: product.sizesWithQuantity,
+
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
   };
 };

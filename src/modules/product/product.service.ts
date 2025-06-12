@@ -68,6 +68,7 @@ export interface ProductService {
       color?: string;
       closure?: string;
       searchText?: string;
+      sortBy?: string;
     },
     userId?: string
   ): Promise<
@@ -96,6 +97,7 @@ export class ProductServiceImpl implements ProductService {
       color?: string;
       closure?: string;
       searchText?: string;
+      sortBy?: string;
     },
     userId?: string
   ): Promise<
@@ -115,18 +117,13 @@ export class ProductServiceImpl implements ProductService {
         const matchFilter: any = {};
 
         // if (typeof isActive === "boolean") matchFilter.isActive = isActive;
-        console.log(userId);
 
         if (userId) {
           const user = await UserModel.findById(userId);
           if (user?.role === "admin") {
-            console.log(user?.role);
-
             if (typeof isActive === "boolean") matchFilter.isActive = isActive;
           }
         }
-
-        console.log(matchFilter);
 
         if (filters?.gender) matchFilter.gender = filters.gender;
 
@@ -265,10 +262,6 @@ export class ProductServiceImpl implements ProductService {
         }
 
         pipeline.push({
-          $sort: { createdAt: -1 },
-        });
-
-        pipeline.push({
           $lookup: {
             from: "eventdiscounts",
             let: { productId: "$_id" },
@@ -339,10 +332,88 @@ export class ProductServiceImpl implements ProductService {
               ],
             },
 
+            // Add discountPercentage cho việc sắp xếp
+            discountPercentage: {
+              $cond: [
+                { $gt: [{ $size: "$matchedEvents" }, 0] }, // Nếu có sự kiện giảm giá
+                {
+                  $arrayElemAt: ["$matchedEvents.discountPercentage", 0],
+                },
+                0, // Nếu không có giảm giá, mặc định là 0
+              ],
+            },
+
             name: { $ifNull: [`$name.${lang}`, "$name.en"] },
             slug: { $ifNull: [`$slug.${lang}`, "$slug.en"] },
             description: {
               $ifNull: [`$description.${lang}`, "$description.en"],
+            },
+          },
+        });
+
+        if (filters?.sortBy) {
+          if (filters.sortBy === "discountPercentage_desc") {
+            pipeline.push({
+              $sort: { discountPercentage: -1 },
+            });
+          } else if (filters.sortBy === "discountPercentage_asc") {
+            pipeline.push({
+              $sort: { discountPercentage: 1 },
+            });
+          } else if (filters.sortBy === "discounted_price_asc") {
+            pipeline.push({
+              $sort: { discountedPrice: 1 },
+            });
+          } else if (filters.sortBy === "discounted_price_desc") {
+            pipeline.push({
+              $sort: { discountedPrice: -1 },
+            });
+          } else if (filters.sortBy === "price_asc") {
+            pipeline.push({
+              $sort: { price: 1 },
+            });
+          } else if (filters.sortBy === "price_desc") {
+            pipeline.push({
+              $sort: { price: -1 },
+            });
+          } else if (filters.sortBy === "createdAt_desc") {
+            pipeline.push({
+              $sort: { createdAt: -1 },
+            });
+          } else if (filters.sortBy === "createdAt_asc") {
+            pipeline.push({
+              $sort: { createdAt: 1 },
+            });
+          } else {
+            pipeline.push({
+              $sort: { createdAt: -1 },
+            });
+          }
+        } else {
+          pipeline.push({
+            $sort: { createdAt: -1 }, // Mặc định nếu không có sortBy
+          });
+        }
+
+        pipeline.push({
+          $lookup: {
+            from: "sizequantities",
+            localField: "sizes",
+            foreignField: "_id",
+            as: "sizeQuantities",
+          },
+        });
+
+        pipeline.push({
+          $addFields: {
+            sizesWithQuantity: {
+              $sum: {
+                $map: {
+                  input: "$sizeQuantities",
+                  as: "sizeQty",
+                  in: "$$sizeQty.quantity",
+                },
+              },
             },
           },
         });
@@ -404,7 +475,7 @@ export class ProductServiceImpl implements ProductService {
 
           const uploadResult = await s3.upload(params).promise();
           return {
-            id: key,
+            key: key,
             url: uploadResult.Location,
           };
         });
@@ -425,8 +496,6 @@ export class ProductServiceImpl implements ProductService {
           sizes: [],
           ratings: [],
         });
-
-        console.log(newProduct);
 
         const sizeQuantityWithProductId = sizeQuantity.map((item) => ({
           ...item,

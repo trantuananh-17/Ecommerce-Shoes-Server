@@ -171,7 +171,10 @@ export class ProductController {
         if (req.query.searchText) {
           filters.searchText = req.query.searchText;
         }
-        console.log(userId);
+
+        if (req.query.sortBy) {
+          filters.sortBy = req.query.sortBy;
+        }
 
         const result = await this.productService.getProductsService(
           lang,

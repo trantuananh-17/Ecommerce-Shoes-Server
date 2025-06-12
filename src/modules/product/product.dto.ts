@@ -132,6 +132,7 @@ export interface IProductResponseDto {
 
   sizes?: string[];
   averageRating: number;
+  sizesWithQuantity: number;
 
   createdAt?: Date;
   updatedAt?: Date;
