@@ -1,6 +1,7 @@
 import { Document, model, Schema } from "mongoose";
 
 export interface EventDiscount extends Document {
+  _id: Schema.Types.ObjectId;
   name: string;
   discountPercentage: number;
   startDate: Date;
@@ -21,5 +22,8 @@ const eventDiscountSchema: Schema = new Schema<EventDiscount>(
   { timestamps: true }
 );
 
-const EventDiscountModel = model("EventDiscount", eventDiscountSchema);
+const EventDiscountModel = model<EventDiscount>(
+  "EventDiscount",
+  eventDiscountSchema
+);
 export default EventDiscountModel;

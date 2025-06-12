@@ -28,6 +28,7 @@ import {
 } from "./product.mapper";
 import { Gender } from "aws-sdk/clients/polly";
 import { slugify } from "../../utils/helpers/slugify.helper";
+import UserModel from "../user/models/user.model";
 
 dotenv.config();
 
@@ -67,7 +68,8 @@ export interface ProductService {
       color?: string;
       closure?: string;
       searchText?: string;
-    }
+    },
+    userId?: string
   ): Promise<
     APIResponse<{
       data: IProductResponseDto[];
@@ -94,7 +96,8 @@ export class ProductServiceImpl implements ProductService {
       color?: string;
       closure?: string;
       searchText?: string;
-    }
+    },
+    userId?: string
   ): Promise<
     APIResponse<{
       data: IProductResponseDto[];
@@ -111,7 +114,19 @@ export class ProductServiceImpl implements ProductService {
 
         const matchFilter: any = {};
 
-        if (typeof isActive === "boolean") matchFilter.isActive = isActive;
+        // if (typeof isActive === "boolean") matchFilter.isActive = isActive;
+        console.log(userId);
+
+        if (userId) {
+          const user = await UserModel.findById(userId);
+          if (user?.role === "admin") {
+            console.log(user?.role);
+
+            if (typeof isActive === "boolean") matchFilter.isActive = isActive;
+          }
+        }
+
+        console.log(matchFilter);
 
         if (filters?.gender) matchFilter.gender = filters.gender;
 
@@ -129,7 +144,7 @@ export class ProductServiceImpl implements ProductService {
           pipeline.push({ $unwind: "$categoryInfo" });
           pipeline.push({
             $match: {
-              "categoryInfo.name.vi": filters.category,
+              [`categoryInfo.name.${lang}`]: filters.category,
             },
           });
         }
@@ -146,7 +161,7 @@ export class ProductServiceImpl implements ProductService {
           pipeline.push({ $unwind: "$brandInfo" });
           pipeline.push({
             $match: {
-              "brandInfo.name.vi": filters.brand,
+              [`brandInfo.name.${lang}`]: filters.brand,
             },
           });
         }
@@ -163,7 +178,7 @@ export class ProductServiceImpl implements ProductService {
           pipeline.push({ $unwind: "$materialInfo" });
           pipeline.push({
             $match: {
-              "materialInfo.name.vi": filters.material,
+              [`materialInfo.name.${lang}`]: filters.material,
             },
           });
         }
@@ -180,7 +195,7 @@ export class ProductServiceImpl implements ProductService {
           pipeline.push({ $unwind: "$colorInfo" });
           pipeline.push({
             $match: {
-              "colorInfo.name.vi": filters.color,
+              [`colorInfo.name.${lang}`]: filters.color,
             },
           });
         }
@@ -197,7 +212,7 @@ export class ProductServiceImpl implements ProductService {
           pipeline.push({ $unwind: "$closureInfo" });
           pipeline.push({
             $match: {
-              "closureInfo.name.vi": filters.closure,
+              [`closureInfo.name.${lang}`]: filters.closure,
             },
           });
         }
@@ -226,6 +241,25 @@ export class ProductServiceImpl implements ProductService {
                   [`name.${lang}`]: { $regex: regex },
                 },
               ],
+            },
+          });
+        }
+
+        if (userId) {
+          pipeline.push({
+            $lookup: {
+              from: "wishlists",
+              localField: "_id",
+              foreignField: "productId",
+              as: "wishlistInfo",
+            },
+          });
+
+          pipeline.push({
+            $addFields: {
+              isInWishlist: {
+                $gt: [{ $size: "$wishlistInfo" }, 0],
+              },
             },
           });
         }
@@ -280,7 +314,17 @@ export class ProductServiceImpl implements ProductService {
                             1,
                             {
                               $divide: [
-                                "$matchedEvents.0.discountPercentage",
+                                {
+                                  $ifNull: [
+                                    {
+                                      $arrayElemAt: [
+                                        "$matchedEvents.discountPercentage",
+                                        0,
+                                      ],
+                                    },
+                                    0,
+                                  ],
+                                },
                                 100,
                               ],
                             },
@@ -294,6 +338,7 @@ export class ProductServiceImpl implements ProductService {
                 "$price",
               ],
             },
+
             name: { $ifNull: [`$name.${lang}`, "$name.en"] },
             slug: { $ifNull: [`$slug.${lang}`, "$slug.en"] },
             description: {

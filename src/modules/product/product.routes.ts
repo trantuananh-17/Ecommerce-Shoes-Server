@@ -24,6 +24,7 @@ productRouter.put(
 
 productRouter.get(
   "/",
+  AuthRole("*", false, true),
   paginationMiddleware(),
   productController.getAllProductController
 );

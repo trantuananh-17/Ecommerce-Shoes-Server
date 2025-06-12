@@ -132,65 +132,57 @@ export class ProductController {
       async () => {
         const lang = req.lang || "vi";
 
-        // Lấy giá trị isActive từ query params
+        const userId = req.userId;
+
         const isActive =
           req.query.isActive !== undefined
             ? req.query.isActive === "true"
             : undefined;
 
-        // Lấy page và limit từ pagination
         const page = req.pagination?.page || 1;
         const limit = req.pagination?.limit || 12;
 
-        // Lọc các giá trị từ query
         const filters: any = {};
 
-        // Lọc theo gender (nếu có)
         if (req.query.gender) {
           filters.gender = req.query.gender;
         }
 
-        // Lọc theo category (nếu có)
         if (req.query.category) {
           filters.category = req.query.category;
         }
 
-        // Lọc theo brand (nếu có)
         if (req.query.brand) {
           filters.brand = req.query.brand;
         }
 
-        // Lọc theo material (nếu có)
         if (req.query.material) {
           filters.material = req.query.material;
         }
 
-        // Lọc theo color (nếu có)
         if (req.query.color) {
           filters.color = req.query.color;
         }
 
-        // Lọc theo closure (nếu có)
         if (req.query.closure) {
           filters.closure = req.query.closure;
         }
 
-        // Lọc theo searchText (nếu có)
         if (req.query.searchText) {
           filters.searchText = req.query.searchText;
         }
+        console.log(userId);
 
-        // Gọi service để lấy dữ liệu sản phẩm
         const result = await this.productService.getProductsService(
           lang,
           req.__.bind(req),
           page,
           limit,
           isActive,
-          filters // Truyền filters vào
+          filters,
+          userId
         );
 
-        // Trả về kết quả dưới dạng JSON
         return res.status(result.status_code).json(result);
       },
       res,

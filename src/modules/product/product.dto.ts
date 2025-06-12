@@ -100,23 +100,29 @@ export interface IProductResponseDto {
     en: string;
   };
 
-  slug: {
+  slug?: {
     vi: string;
     en: string;
   };
 
-  price: number; // Giá gốc
-  discountedPrice: number; // Giá sau khi giảm (bằng price nếu không có event)
-  isDiscounted: boolean; // Cờ đánh dấu sản phẩm có đang được giảm giá không
+  description?: {
+    vi: string;
+    en: string;
+  };
 
-  discountPercentage?: number; // % giảm (nếu có)
+  price: number;
+  discountedPrice: number;
+  isDiscounted: boolean;
+
+  discountPercentage?: number;
   eventName?: string;
+  isInWishlist?: boolean;
 
-  brand: string;
-  category: string;
-  material: string;
-  closure: string;
-  color: string;
+  brand?: string;
+  category?: string;
+  material?: string;
+  closure?: string;
+  color?: string;
 
   thumbnail?: string;
   images?: {
@@ -124,9 +130,9 @@ export interface IProductResponseDto {
     key: string;
   }[];
 
-  sizes: string[];
+  sizes?: string[];
   averageRating: number;
 
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
