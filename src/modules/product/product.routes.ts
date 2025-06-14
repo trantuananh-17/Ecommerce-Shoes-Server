@@ -29,4 +29,10 @@ productRouter.get(
   productController.getAllProductController
 );
 
+productRouter.get(
+  "/slug/:slug",
+  AuthRole("*", false, true),
+  productController.getDetailProductBySlugController
+);
+
 export default productRouter;

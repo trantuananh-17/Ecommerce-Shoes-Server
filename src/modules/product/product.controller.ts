@@ -156,18 +156,6 @@ export class ProductController {
           filters.brand = req.query.brand;
         }
 
-        if (req.query.material) {
-          filters.material = req.query.material;
-        }
-
-        if (req.query.color) {
-          filters.color = req.query.color;
-        }
-
-        if (req.query.closure) {
-          filters.closure = req.query.closure;
-        }
-
         if (req.query.searchText) {
           filters.searchText = req.query.searchText;
         }
@@ -176,7 +164,7 @@ export class ProductController {
           filters.sortBy = req.query.sortBy;
         }
 
-        const result = await this.productService.getProductsService(
+        const response = await this.productService.getProductsService(
           lang,
           req.__.bind(req),
           page,
@@ -186,11 +174,33 @@ export class ProductController {
           userId
         );
 
-        return res.status(result.status_code).json(result);
+        res.status(response.status_code).json(response);
       },
       res,
       req,
-      "getAllDiscountController"
+      "getAllProductController"
+    );
+  };
+
+  getDetailProductBySlugController = async (req: Request, res: Response) => {
+    tryCatchController(
+      async () => {
+        const lang = req.lang || "vi";
+        const slug = req.params.slug;
+        const userId = req.userId;
+
+        const response = await this.productService.getDetailProductBySlugServie(
+          lang,
+          slug,
+          req.__.bind(req),
+          userId
+        );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getDetailProductBySlugController"
     );
   };
 }

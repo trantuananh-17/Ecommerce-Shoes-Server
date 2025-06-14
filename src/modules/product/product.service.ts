@@ -24,11 +24,13 @@ import s3 from "../../config/s3.config";
 import { DeleteObjectRequest } from "aws-sdk/clients/s3";
 import {
   productCreateResponseMapper,
+  productDetailResponseMapper,
   productResponseMapper,
 } from "./product.mapper";
 import { Gender } from "aws-sdk/clients/polly";
 import { slugify } from "../../utils/helpers/slugify.helper";
 import UserModel from "../user/models/user.model";
+import { discountFields, eventDiscountLookupStage } from "./product.pipeline";
 
 dotenv.config();
 
@@ -80,9 +82,232 @@ export interface ProductService {
       limit: number;
     }>
   >;
+
+  getDetailProductBySlugServie(
+    lang: string | "vi",
+    slug: string,
+    __: TranslateFunction,
+    userId?: string
+  ): Promise<APIResponse<IProductResponseDto | null>>;
 }
 
 export class ProductServiceImpl implements ProductService {
+  getDetailProductBySlugServie(
+    lang: string | "vi",
+    slug: string,
+    __: TranslateFunction,
+    userId?: string
+  ): Promise<APIResponse<IProductResponseDto | null>> {
+    return tryCatchService(
+      async () => {
+        const now = new Date();
+        const pipeline: any[] = [
+          {
+            $match: {
+              $or: [{ [`slug.${lang}`]: slug }, { [`slug.en`]: slug }],
+            },
+          },
+          eventDiscountLookupStage(now),
+          {
+            $addFields: {
+              ...discountFields(lang),
+            },
+          },
+
+          ...(userId
+            ? [
+                {
+                  $lookup: {
+                    from: "wishlists",
+                    localField: "_id",
+                    foreignField: "productId",
+                    as: "wishlistInfo",
+                  },
+                },
+                {
+                  $addFields: {
+                    isInWishlist: {
+                      $gt: [{ $size: "$wishlistInfo" }, 0],
+                    },
+                  },
+                },
+              ]
+            : []),
+
+          {
+            $lookup: {
+              from: "categories",
+              localField: "category",
+              foreignField: "_id",
+              as: "categoryInfo",
+            },
+          },
+          { $unwind: "$categoryInfo" },
+
+          {
+            $lookup: {
+              from: "colors",
+              localField: "color",
+              foreignField: "_id",
+              as: "colorInfo",
+            },
+          },
+          { $unwind: "$colorInfo" },
+
+          {
+            $lookup: {
+              from: "closures",
+              localField: "closure",
+              foreignField: "_id",
+              as: "closureInfo",
+            },
+          },
+          { $unwind: "$closureInfo" },
+
+          {
+            $lookup: {
+              from: "materials",
+              localField: "material",
+              foreignField: "_id",
+              as: "materialInfo",
+            },
+          },
+          { $unwind: "$materialInfo" },
+
+          {
+            $lookup: {
+              from: "brands",
+              localField: "brand",
+              foreignField: "_id",
+              as: "brandInfo",
+            },
+          },
+          { $unwind: "$brandInfo" },
+
+          // Join sizeQuantities
+          {
+            $lookup: {
+              from: "sizequantities",
+              localField: "sizes",
+              foreignField: "_id",
+              as: "sizeQuantities",
+            },
+          },
+          { $unwind: "$sizeQuantities" },
+
+          // Join sizes
+          {
+            $lookup: {
+              from: "sizes",
+              localField: "sizeQuantities.size",
+              foreignField: "_id",
+              as: "sizeInfo",
+            },
+          },
+          { $unwind: "$sizeInfo" },
+
+          // Group lại để gom sizes
+          {
+            $group: {
+              _id: "$_id",
+              doc: { $first: "$$ROOT" },
+              sizes: {
+                $push: {
+                  sizeId: "$sizeInfo._id",
+                  sizeName: "$sizeInfo.name",
+                  quantity: "$sizeQuantities.quantity",
+                },
+              },
+            },
+          },
+          {
+            $replaceRoot: {
+              newRoot: {
+                $mergeObjects: ["$doc", { sizes: "$sizes" }],
+              },
+            },
+          },
+
+          // Final projected fields (optional - include only needed fields)
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              slug: 1,
+              description: 1,
+              price: 1,
+              sizes: 1,
+              isInWishlist: 1,
+              category: {
+                $ifNull: [
+                  { $getField: { field: lang, input: "$categoryInfo.name" } },
+                  "$categoryInfo.name.en",
+                ],
+              },
+              color: {
+                $ifNull: [
+                  { $getField: { field: lang, input: "$colorInfo.name" } },
+                  "$colorInfo.name.en",
+                ],
+              },
+              brand: {
+                name: "$brandInfo.name",
+                country: "$brandInfo.country",
+                websiteUrl: "$brandInfo.websiteUrl",
+              },
+              material: {
+                name: {
+                  $ifNull: [
+                    { $getField: { field: lang, input: "$materialInfo.name" } },
+                    "$materialInfo.name.en",
+                  ],
+                },
+                description: {
+                  $ifNull: [
+                    {
+                      $getField: {
+                        field: lang,
+                        input: "$materialInfo.description",
+                      },
+                    },
+                    "$materialInfo.description.en",
+                  ],
+                },
+              },
+              closure: {
+                name: "$closureInfo.name",
+                country: "$closureInfo.country",
+                websiteUrl: "$closureInfo.websiteUrl",
+              },
+              discount: 1,
+              discountPercent: 1,
+              discountEndDate: 1,
+            },
+          },
+        ];
+
+        const [product] = await ProductModel.aggregate(pipeline);
+
+        if (!product) {
+          return apiResponse(HttpStatus.NOT_FOUND, __("PRODUCT_NOT_FOUND"));
+        }
+
+        console.log(product);
+
+        const productDetail = productDetailResponseMapper(product);
+
+        return apiResponse(
+          HttpStatus.OK,
+          __("GET_DETAIL_PRODUCT_SUCCESS"),
+          productDetail
+        );
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getDetailProductBySlugServie",
+      __
+    );
+  }
+
   getProductsService(
     lang: string = "vi",
     __: TranslateFunction,
@@ -113,6 +338,17 @@ export class ProductServiceImpl implements ProductService {
       async () => {
         const now = new Date();
         const skip = (page - 1) * limit;
+
+        const sortOptions: Record<string, any> = {
+          discountPercentage_desc: { discountPercentage: -1 },
+          discountPercentage_asc: { discountPercentage: 1 },
+          discounted_price_asc: { discountedPrice: 1 },
+          discounted_price_desc: { discountedPrice: -1 },
+          price_asc: { price: 1 },
+          price_desc: { price: -1 },
+          createdAt_desc: { createdAt: -1 },
+          createdAt_asc: { createdAt: 1 },
+        };
 
         const matchFilter: any = {};
 
@@ -163,57 +399,6 @@ export class ProductServiceImpl implements ProductService {
           });
         }
 
-        if (filters?.material) {
-          pipeline.push({
-            $lookup: {
-              from: "materials",
-              localField: "material",
-              foreignField: "_id",
-              as: "materialInfo",
-            },
-          });
-          pipeline.push({ $unwind: "$materialInfo" });
-          pipeline.push({
-            $match: {
-              [`materialInfo.name.${lang}`]: filters.material,
-            },
-          });
-        }
-
-        if (filters?.color) {
-          pipeline.push({
-            $lookup: {
-              from: "colors",
-              localField: "color",
-              foreignField: "_id",
-              as: "colorInfo",
-            },
-          });
-          pipeline.push({ $unwind: "$colorInfo" });
-          pipeline.push({
-            $match: {
-              [`colorInfo.name.${lang}`]: filters.color,
-            },
-          });
-        }
-
-        if (filters?.closure) {
-          pipeline.push({
-            $lookup: {
-              from: "closures",
-              localField: "closure",
-              foreignField: "_id",
-              as: "closureInfo",
-            },
-          });
-          pipeline.push({ $unwind: "$closureInfo" });
-          pipeline.push({
-            $match: {
-              [`closureInfo.name.${lang}`]: filters.closure,
-            },
-          });
-        }
-
         if (filters?.searchText) {
           const regex = new RegExp(filters.searchText, "i");
           pipeline.push({
@@ -224,9 +409,6 @@ export class ProductServiceImpl implements ProductService {
                 },
                 {
                   [`brandInfo.name.${lang}`]: { $regex: regex },
-                },
-                {
-                  [`closureInfo.name.${lang}`]: { $regex: regex },
                 },
                 {
                   [`materialInfo.name.${lang}`]: { $regex: regex },
@@ -261,139 +443,21 @@ export class ProductServiceImpl implements ProductService {
           });
         }
 
-        pipeline.push({
-          $lookup: {
-            from: "eventdiscounts",
-            let: { productId: "$_id" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [
-                      { $eq: ["$isActive", true] },
-                      { $lte: ["$startDate", now] },
-                      { $gte: ["$endDate", now] },
-                      { $in: ["$$productId", "$products"] },
-                    ],
-                  },
-                },
-              },
-              {
-                $project: {
-                  name: 1,
-                  discountPercentage: 1,
-                  _id: 0,
-                },
-              },
-            ],
-            as: "matchedEvents",
-          },
-        });
-
-        pipeline.push({
-          $addFields: {
-            discountInfo: { $arrayElemAt: ["$matchedEvents", 0] },
-            isDiscounted: { $gt: [{ $size: "$matchedEvents" }, 0] },
-            discountedPrice: {
-              $cond: [
-                { $gt: [{ $size: "$matchedEvents" }, 0] },
-                {
-                  $round: [
-                    {
-                      $multiply: [
-                        "$price",
-                        {
-                          $subtract: [
-                            1,
-                            {
-                              $divide: [
-                                {
-                                  $ifNull: [
-                                    {
-                                      $arrayElemAt: [
-                                        "$matchedEvents.discountPercentage",
-                                        0,
-                                      ],
-                                    },
-                                    0,
-                                  ],
-                                },
-                                100,
-                              ],
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    0,
-                  ],
-                },
-                "$price",
-              ],
-            },
-
-            // Add discountPercentage cho việc sắp xếp
-            discountPercentage: {
-              $cond: [
-                { $gt: [{ $size: "$matchedEvents" }, 0] }, // Nếu có sự kiện giảm giá
-                {
-                  $arrayElemAt: ["$matchedEvents.discountPercentage", 0],
-                },
-                0, // Nếu không có giảm giá, mặc định là 0
-              ],
-            },
-
-            name: { $ifNull: [`$name.${lang}`, "$name.en"] },
-            slug: { $ifNull: [`$slug.${lang}`, "$slug.en"] },
-            description: {
-              $ifNull: [`$description.${lang}`, "$description.en"],
-            },
-          },
-        });
-
-        if (filters?.sortBy) {
-          if (filters.sortBy === "discountPercentage_desc") {
-            pipeline.push({
-              $sort: { discountPercentage: -1 },
-            });
-          } else if (filters.sortBy === "discountPercentage_asc") {
-            pipeline.push({
-              $sort: { discountPercentage: 1 },
-            });
-          } else if (filters.sortBy === "discounted_price_asc") {
-            pipeline.push({
-              $sort: { discountedPrice: 1 },
-            });
-          } else if (filters.sortBy === "discounted_price_desc") {
-            pipeline.push({
-              $sort: { discountedPrice: -1 },
-            });
-          } else if (filters.sortBy === "price_asc") {
-            pipeline.push({
-              $sort: { price: 1 },
-            });
-          } else if (filters.sortBy === "price_desc") {
-            pipeline.push({
-              $sort: { price: -1 },
-            });
-          } else if (filters.sortBy === "createdAt_desc") {
-            pipeline.push({
-              $sort: { createdAt: -1 },
-            });
-          } else if (filters.sortBy === "createdAt_asc") {
-            pipeline.push({
-              $sort: { createdAt: 1 },
-            });
-          } else {
-            pipeline.push({
-              $sort: { createdAt: -1 },
-            });
-          }
-        } else {
+        pipeline.push(eventDiscountLookupStage(now)),
+          // Lấy discountPercentage
           pipeline.push({
-            $sort: { createdAt: -1 }, // Mặc định nếu không có sortBy
+            $addFields: {
+              ...discountFields(lang),
+            },
           });
-        }
+
+        // Sort
+
+        const sortStage = sortOptions[filters?.sortBy ?? ""] || {
+          createdAt: -1,
+        };
+
+        pipeline.push({ $sort: sortStage });
 
         pipeline.push({
           $lookup: {
@@ -419,18 +483,39 @@ export class ProductServiceImpl implements ProductService {
         });
 
         pipeline.push({
+          $project: {
+            id: "$_id",
+            name: 1,
+            slug: 1,
+            price: 1,
+            discountedPrice: 1,
+            isDiscounted: 1,
+            discountPercentage: 1,
+            thumbnail: 1,
+            averageRating: 1,
+            isInWishlist: 1,
+            sizes: 1,
+            sizesWithQuantity: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        });
+
+        pipeline.push({
           $facet: {
             paginatedResults: [{ $skip: skip }, { $limit: limit }],
             totalCount: [{ $count: "count" }],
           },
         });
 
-        const [result] = await ProductModel.aggregate(pipeline);
+        const [product] = await ProductModel.aggregate(pipeline);
 
-        const products = (result?.paginatedResults ?? []).map(
+        console.log(product);
+
+        const products = (product?.paginatedResults ?? []).map(
           productResponseMapper
         );
-        const totalDocs = result?.totalCount?.[0]?.count || 0;
+        const totalDocs = product?.totalCount?.[0]?.count || 0;
         const totalPages = Math.ceil(totalDocs / limit);
 
         return apiResponse(HttpStatus.OK, __("GET_ALL_DISCOUNT_SUCCESSFULLY"), {
@@ -460,7 +545,12 @@ export class ProductServiceImpl implements ProductService {
         const bucketName = process.env.AWS_NAME!;
         const uploadPromises = images.map(async (file) => {
           const resizedBuffer = await sharp(file.buffer)
-            .resize({ width: 800 })
+            .resize({
+              width: 850,
+              height: 1200,
+              fit: "cover",
+              position: "center",
+            })
             .toBuffer();
 
           const id = uuidv4();
@@ -493,6 +583,7 @@ export class ProductServiceImpl implements ProductService {
             en: slugEn,
           },
           images: imageUrls,
+          thumbnail: imageUrls[0].url,
           sizes: [],
           ratings: [],
         });

@@ -39,24 +39,48 @@ export const productCreateResponseMapper = (
 };
 
 export const productResponseMapper = (product: any): IProductResponseDto => {
-  const event = product.matchedEvents?.[0];
-  const hasDiscount = !!event;
+  return {
+    id: product.id || product._id?.toString(),
+    name: product.name,
+    slug: product.slug,
+    price: product.price,
+    discountedPrice: product.discountedPrice,
+    isDiscounted: product.isDiscounted,
+    discountPercentage: product.discountPercentage,
+    isInWishlist:
+      product.isInWishlist ??
+      (product.wishlistInfo && product.wishlistInfo.length > 0),
 
-  const discountPercentage = event?.discountPercentage ?? 0;
-  const discountedPrice = hasDiscount
-    ? Math.round(product.price * (1 - discountPercentage / 100))
-    : product.price;
+    thumbnail: product.thumbnail,
+    averageRating: product.averageRating ?? 0,
 
-  const isInWishlist = product.wishlistInfo && product.wishlistInfo.length > 0;
+    sizes: product.sizes,
+    sizesWithQuantity: product.sizesWithQuantity ?? 0,
 
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+  };
+};
+
+export const productDetailResponseMapper = (
+  product: any
+): IProductResponseDto => {
   return {
     id: product._id.toString(),
     name: product.name,
+    slug: product.slug,
+    brand: product.brand,
+    category: product.category,
+    color: product.color,
+    closure: product.closure,
+    material: product.material,
     price: product.price,
-    discountedPrice,
-    isDiscounted: hasDiscount,
-    discountPercentage: hasDiscount ? discountPercentage : undefined,
-    isInWishlist,
+    discountedPrice: product.discountedPrice,
+    isDiscounted: product.isDiscounted,
+    discountPercentage: product.discountPercentage,
+    isInWishlist:
+      product.isInWishlist ??
+      (product.wishlistInfo && product.wishlistInfo.length > 0),
 
     thumbnail: product.thumbnail,
     averageRating: product.averageRating,
