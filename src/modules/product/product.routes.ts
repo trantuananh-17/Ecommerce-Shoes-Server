@@ -11,22 +11,43 @@ const productController = new ProductController();
 productRouter.post(
   "/",
   // AuthRole("admin", true),
-  upload.array("images", 8),
+  upload.array("images", 5),
   productController.createProductController
 );
 
 productRouter.put(
   "/:id",
   // AuthRole("admin", true),
-  upload.array("images", 6),
+  upload.array("images", 5),
   productController.updateProductController
 );
+
+productRouter.patch("/:id", productController.updateProductActiveController);
 
 productRouter.get(
   "/",
   AuthRole("*", false, true),
   paginationMiddleware(),
   productController.getAllProductController
+);
+
+productRouter.get(
+  "/admin",
+  AuthRole("admin", false),
+  paginationMiddleware(),
+  productController.getAllProductAdminController
+);
+
+productRouter.get(
+  "/slug/:slug",
+  AuthRole("*", false, true),
+  productController.getDetailProductBySlugController
+);
+
+productRouter.get(
+  "/productId/:id",
+  AuthRole("admin", false),
+  productController.getDetailProductByIdController
 );
 
 export default productRouter;

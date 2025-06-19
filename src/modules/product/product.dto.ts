@@ -94,45 +94,109 @@ export interface IUpdateActiveDto {
 
 export interface IProductResponseDto {
   id: string;
-
   name: {
     vi: string;
     en: string;
   };
-
   slug?: {
     vi: string;
     en: string;
   };
-
   description?: {
     vi: string;
     en: string;
   };
-
   price: number;
-  discountedPrice: number;
-  isDiscounted: boolean;
-
+  discountedPrice?: number;
+  isDiscounted?: boolean;
   discountPercentage?: number;
   eventName?: string;
   isInWishlist?: boolean;
-
+  gender?: Gender;
   brand?: string;
   category?: string;
   material?: string;
   closure?: string;
   color?: string;
-
   thumbnail?: string;
   images?: {
     url: string;
     key: string;
   }[];
-
+  isActive?: boolean;
   sizes?: string[];
-  averageRating: number;
+  averageRating?: number;
+  sizesWithQuantity: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
+export interface IProductByIdResponseDto {
+  id: string;
+  name: {
+    vi: string;
+    en: string;
+  };
+  description?: {
+    vi: string;
+    en: string;
+  };
+  price: number;
+  brand?: {
+    _id: string;
+    name: string;
+    country?: string;
+    websiteUrl?: string;
+  };
+  category?: {
+    _id: string;
+    name: {
+      vi: string;
+      en: string;
+    };
+  };
+  material?: {
+    _id: string;
+    name: {
+      vi: string;
+      en: string;
+    };
+    description?: {
+      vi: string;
+      en: string;
+    };
+  };
+  closure?: {
+    _id: string;
+    name: {
+      vi: string;
+      en: string;
+    };
+    description: {
+      vi: string;
+      en: string;
+    };
+  };
+  color?: {
+    _id: string;
+    name: {
+      vi: string;
+      en: string;
+    };
+  };
+  thumbnail?: string;
+  images?: {
+    url: string;
+    key: string;
+    _id?: string;
+  }[];
+  sizes?: {
+    sizeId: string;
+    sizeName: string;
+    quantity: number;
+  }[];
+  averageRating: number;
+  sizesWithQuantity: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

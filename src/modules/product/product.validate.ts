@@ -225,3 +225,10 @@ export const productUpdateValidate = Joi.object({
       "array.base": "SIZES_MUST_BE_ARRAY",
     }),
 });
+
+export const updateProductActiveValidate = Joi.object({
+  isActive: Joi.boolean().required().empty().messages({
+    "string.empty": "PRODUCT_ACTIVE_EMPTY",
+    "any.required": "PRODUCT_ACTIVE_REQUIRED",
+  }),
+});
