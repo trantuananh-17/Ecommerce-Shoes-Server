@@ -1028,7 +1028,9 @@ export class ProductServiceImpl implements ProductService {
         const sizes = await SizeQuantityModel.insertMany(
           sizeQuantityWithProductId
         );
-        const sizeQuantityIds = sizes.map((s) => s._id);
+        const sizeQuantityIds = sizes.map(
+          (s) => new Types.ObjectId(s._id.toString())
+        );
 
         newProduct.sizes = sizeQuantityIds;
         const created = await newProduct.save();
@@ -1070,11 +1072,14 @@ export class ProductServiceImpl implements ProductService {
           isActive,
           material,
           shoeCollarType,
-          sizes,
           slug,
           images,
           thumbnail,
         } = product;
+
+        const productInfo = await ProductModel.findById(id);
+
+        const oldSizeIds = productInfo?.sizes ?? [];
 
         const productUpdate = {
           name,
@@ -1088,7 +1093,6 @@ export class ProductServiceImpl implements ProductService {
           isActive,
           material,
           shoeCollarType,
-          sizes,
           slug,
           thumbnail,
         };
@@ -1105,29 +1109,18 @@ export class ProductServiceImpl implements ProductService {
           return apiError(HttpStatus.NOT_FOUND, __("PRODUCT_NOT_FOUND"));
         }
 
-        console.log(images);
-
-        // Lấy danh sách id trong product
+        // Xử lý các ảnh liên quan
         const ids =
           (images as ProductImage[] | undefined)?.map((img) => img.key) || [];
-
-        console.log(ids);
-
-        // Lấy danh sách ảnh có id này
         const listImage = (productUpdated.images as ProductImage[]).filter(
           (img) => ids.includes(img.key)
         );
 
-        console.log(listImage);
-
-        // Lọc xem id nào bị thiếu để xóa
+        // Lọc các ảnh bị thiếu để xóa
         const toDelete = (productUpdated.images as ProductImage[]).filter(
           (img) => !ids.includes(img.key)
         );
 
-        console.log(toDelete);
-
-        // Xóa cùng lúc
         await Promise.all(
           toDelete.map((img) => {
             const params: DeleteObjectRequest = {
@@ -1138,7 +1131,7 @@ export class ProductServiceImpl implements ProductService {
           })
         );
 
-        // Upload ảnh mới(Nếu có).
+        // Upload ảnh mới
         const newUploads = await Promise.all(
           newImages.map(async (file) => {
             const resized = await sharp(file.buffer)
@@ -1163,36 +1156,42 @@ export class ProductServiceImpl implements ProductService {
 
         productUpdated.images = [...listImage, ...newUploads];
 
-        const existingSizeQuantities = await SizeQuantityModel.find({
-          productId: productUpdated._id,
-        });
-        const existingMap = new Map(
-          existingSizeQuantities.map((sq) => [sq.size.toString(), sq])
-        );
-
         const newSizeQuantityIds = await Promise.all(
           sizeQuantity.map(async (item) => {
             const sizeId = item.size.toString();
-            const existing = existingMap.get(sizeId);
 
-            if (existing) {
-              if (existing.quantity !== item.quantity) {
-                existing.quantity = item.quantity;
-                await existing.save();
-              }
-              return existing._id;
+            // Kiểm tra sự tồn tại của sự kết hợp productId và size trước khi tạo mới
+            const existingSizeQuantity = await SizeQuantityModel.findOne({
+              productId: productUpdated._id,
+              size: sizeId,
+            });
+
+            if (existingSizeQuantity) {
+              // Nếu tồn tại, cộng dồn quantity
+              existingSizeQuantity.quantity = item.quantity;
+              await existingSizeQuantity.save(); // Lưu lại sự thay đổi
+              return existingSizeQuantity._id; // Trả về id của size đã tồn tại
             } else {
+              // Nếu không tồn tại, tạo mới size quantity
               const created = await SizeQuantityModel.create({
                 ...item,
                 productId: productUpdated._id,
               });
-              return created._id;
+              return created._id; // Trả về id của size mới
             }
           })
         );
 
-        productUpdated.sizes = newSizeQuantityIds;
+        const uniqueSizeQuantityIds = [
+          ...new Set(newSizeQuantityIds.map((id) => id.toString())),
+        ].map((id) => new Types.ObjectId(id));
 
+        console.log(uniqueSizeQuantityIds);
+
+        // Sử dụng Set để loại bỏ trùng lặp sizeId trước khi cập nhật vào sản phẩm
+        productUpdated.sizes = uniqueSizeQuantityIds;
+
+        // Lưu lại sản phẩm với sizes đã được cập nhật
         await productUpdated.save();
 
         return apiResponse(

@@ -85,7 +85,6 @@ export interface IUpdateProductDto {
     key: string;
     url: string;
   }[];
-  sizes: string[];
 }
 
 export interface IUpdateActiveDto {

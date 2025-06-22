@@ -1,3 +1,4 @@
+import { Schema } from "mongoose";
 import { ICreateEventResponseDto } from "./event.dto";
 import { EventDiscount } from "./event.model";
 

@@ -31,8 +31,8 @@ export interface Product extends Document {
   color: Schema.Types.ObjectId;
   thumbnail?: string;
   images?: ProductImage[];
-  sizes: Schema.Types.ObjectId[];
-  ratings: Schema.Types.ObjectId[];
+  sizes: Types.ObjectId[];
+  ratings: Types.ObjectId[];
   averageRating: number;
   createdAt: Date;
   updatedAt: Date;
@@ -79,10 +79,8 @@ const productSchema: Schema = new Schema<Product>(
       ],
       default: [],
     },
-    sizes: [
-      { type: Schema.Types.ObjectId, ref: "SizeQuantity", required: true },
-    ],
-    ratings: [{ type: Schema.Types.ObjectId, ref: "ProductRate" }],
+    sizes: [{ type: Types.ObjectId, ref: "SizeQuantity", required: true }],
+    ratings: [{ type: Types.ObjectId, ref: "ProductRate" }],
     averageRating: { type: Number, default: 0 },
   },
   { timestamps: true }

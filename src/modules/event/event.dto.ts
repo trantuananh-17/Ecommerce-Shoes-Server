@@ -1,4 +1,4 @@
-export interface ICreateEventDto {
+export interface IEventDto {
   name: string;
   discountPercentage: number;
   startDate: Date;
