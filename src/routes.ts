@@ -11,6 +11,7 @@ import authRouter from "./modules/auth/auth.routes";
 import userRouter from "./modules/user/user.routes";
 import productRouter from "./modules/product/product.routes";
 import eventRouter from "./modules/event/event.routes";
+import cartRouter from "./modules/cart/cart.routes";
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use("/materials", materialRouter);
 router.use("/discounts", discountRouter);
 router.use("/products", productRouter);
 router.use("/events", eventRouter);
+router.use("/carts", cartRouter);
 
 export default router;

@@ -25,5 +25,5 @@ const cartSchema: Schema = new Schema<Cart>(
   { timestamps: true }
 );
 
-const CartModel = model("Cart", cartSchema);
+const CartModel = model<Cart>("Cart", cartSchema);
 export default CartModel;
