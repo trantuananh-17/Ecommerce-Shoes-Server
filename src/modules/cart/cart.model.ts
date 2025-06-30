@@ -1,9 +1,9 @@
-import { Document, model, Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 
 export interface Cart {
   user: Schema.Types.ObjectId;
   products: {
-    product: Schema.Types.ObjectId;
+    sizeQuantity: Schema.Types.ObjectId;
     quantity: number;
   }[];
 }
@@ -13,9 +13,9 @@ const cartSchema: Schema = new Schema<Cart>(
     user: { type: Schema.Types.ObjectId, ref: "User" },
     products: [
       {
-        product: {
+        sizeQuantity: {
           type: Schema.Types.ObjectId,
-          ref: "Product",
+          ref: "SizeQuantity",
           required: true,
         },
         quantity: { type: Number, required: true },

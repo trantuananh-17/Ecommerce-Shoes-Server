@@ -217,13 +217,6 @@ export const productUpdateValidate = Joi.object({
     .messages({
       "array.base": "IMAGES_MUST_BE_ARRAY",
     }),
-
-  sizes: Joi.array()
-    .items(Joi.string().messages({ "string.pattern.base": "SIZE_ID_INVALID" }))
-    .optional()
-    .messages({
-      "array.base": "SIZES_MUST_BE_ARRAY",
-    }),
 });
 
 export const updateProductActiveValidate = Joi.object({
