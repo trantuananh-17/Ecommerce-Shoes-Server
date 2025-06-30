@@ -141,12 +141,12 @@ export class ProductController {
     return tryCatchController(
       async () => {
         const lang = req.lang || "vi";
-        const brandId = req.params.id;
+        const productId = req.params.id;
         const { error, value } = updateProductActiveValidate.validate(
           req.body ?? {}
         );
 
-        if (!isValidObjectId(brandId)) {
+        if (!isValidObjectId(productId)) {
           return errorRes(
             res,
             req.__("INVALID_BRAND_ID"),
@@ -160,7 +160,7 @@ export class ProductController {
         }
 
         const response = await this.productService.updateProductActiveService(
-          brandId,
+          productId,
           value,
           req.__.bind(req)
         );

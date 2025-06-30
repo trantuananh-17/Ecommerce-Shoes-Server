@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { ICreateEventResponseDto } from "./event.dto";
+import { ICreateEventResponseDto, IEventResponseDto } from "./event.dto";
 import { EventDiscount } from "./event.model";
 
 export const eventResponseMapper = (
@@ -12,6 +12,18 @@ export const eventResponseMapper = (
     startDate: event.startDate,
     endDate: event.endDate,
     products: event.products.map((product) => product.toString()),
+    isActive: event.isActive,
+  };
+};
+
+export const eventsResponseMapper = (event: any): IEventResponseDto => {
+  return {
+    id: event._id.toString(),
+    name: event.name,
+    discountPercentage: event.discountPercentage,
+    startDate: event.startDate,
+    endDate: event.endDate,
+    numberOfProducts: event.numberOfProducts,
     isActive: event.isActive,
   };
 };

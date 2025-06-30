@@ -9,9 +9,14 @@ import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import { ICreateCategoryResponseDto } from "../category/category.dto";
 import ProductModel from "../product/models/product.model";
-import { ICreateEventResponseDto, IEventDto } from "./event.dto";
-import { eventResponseMapper } from "./event.mapper";
-import EventDiscountModel from "./event.model";
+import {
+  ICreateEventResponseDto,
+  IEventDto,
+  IEventResponseDto,
+  IUpdateActiveDto,
+} from "./event.dto";
+import { eventResponseMapper, eventsResponseMapper } from "./event.mapper";
+import EventDiscountModel, { EventDiscount } from "./event.model";
 import { Schema, Types } from "mongoose";
 
 export interface EventService {
@@ -25,9 +30,124 @@ export interface EventService {
     event: IEventDto,
     __: TranslateFunction
   ): Promise<APIResponse<null>>;
+
+  updateEventActiveService(
+    id: string,
+    EventActive: IUpdateActiveDto,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>>;
+
+  getEventsService(
+    __: TranslateFunction,
+    page: number,
+    limit: number
+  ): Promise<
+    APIResponse<{
+      data: IEventResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  >;
 }
 
 export class EventServiceImpl implements EventService {
+  getEventsService(
+    __: TranslateFunction,
+    page: number,
+    limit: number
+  ): Promise<
+    APIResponse<{
+      data: IEventResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  > {
+    return tryCatchService(
+      async () => {
+        const skip = (page - 1) * limit;
+
+        const result = await EventDiscountModel.aggregate([
+          {
+            $facet: {
+              data: [
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                  $project: {
+                    name: 1,
+                    discountPercentage: 1,
+                    startDate: 1,
+                    endDate: 1,
+                    isActive: 1,
+                    products: 1,
+                    numberOfProducts: { $size: "$products" },
+                  },
+                },
+              ],
+              totalCount: [{ $count: "count" }],
+            },
+          },
+        ]);
+
+        const aggregationResult = result[0];
+        const response = aggregationResult.data.map(eventsResponseMapper);
+        const totalDocs = aggregationResult.totalCount[0]?.count || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
+
+        return apiResponse(HttpStatus.OK, __("GET_ALL_EVENT_SUCCESSFULLY"), {
+          data: response,
+          totalDocs,
+          totalPages,
+          currentPage: page,
+          limit,
+        });
+      },
+      "INTERNAL_SERVER_ERROR",
+      "updateEventActiveService",
+      __
+    );
+  }
+
+  updateEventActiveService(
+    id: string,
+    EventActive: IUpdateActiveDto,
+    __: TranslateFunction
+  ): Promise<APIResponse<null>> {
+    return tryCatchService(
+      async () => {
+        const { isActive } = EventActive;
+
+        const existingProduct = await EventDiscountModel.findOne({ id });
+
+        if (existingProduct) {
+          return apiError(HttpStatus.NOT_FOUND, __("EVENT_NOT_FOUND"));
+        }
+
+        const updated = await EventDiscountModel.findByIdAndUpdate(
+          id,
+          {
+            isActive,
+          },
+          { new: true }
+        );
+
+        if (!updated) {
+          return apiError(HttpStatus.NOT_FOUND, __("EVENT_NOT_FOUND"));
+        }
+
+        return apiResponse(HttpStatus.OK, __("EVENT_UPDATED_SUCCESSFULLY"));
+      },
+      "INTERNAL_SERVER_ERROR",
+      "updateEventActiveService",
+      __
+    );
+  }
+
   updateEventService(
     eventId: string,
     event: IEventDto,
@@ -126,6 +246,10 @@ export class EventServiceImpl implements EventService {
   ): Promise<APIResponse<ICreateCategoryResponseDto | null>> {
     return tryCatchService(
       async () => {
+        const now = new Date();
+
+        console.log(now);
+
         const { name, discountPercentage, startDate, endDate, products } =
           event;
 
@@ -137,14 +261,19 @@ export class EventServiceImpl implements EventService {
           {
             $match: {
               products: { $in: productIds },
+              endDate: { $gte: now },
+              startDate: { $lte: now },
             },
           },
           {
             $project: {
               products: 1,
+              endDate: 1,
             },
           },
         ]);
+
+        console.log("Matched Events:", existingEvents);
 
         if (existingEvents.length > 0) {
           return apiError(

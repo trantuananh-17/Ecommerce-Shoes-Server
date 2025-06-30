@@ -30,3 +30,10 @@ export const eventSchema = Joi.object({
     "any.required": "PRODUCTS_REQUIRED",
   }),
 });
+
+export const updateEventActiveValidate = Joi.object({
+  isActive: Joi.boolean().required().empty().messages({
+    "string.empty": "EVENT_ACTIVE_EMPTY",
+    "any.required": "EVENT_ACTIVE_REQUIRED",
+  }),
+});
