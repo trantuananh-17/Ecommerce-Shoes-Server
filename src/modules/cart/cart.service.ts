@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { TranslateFunction } from "../../types/express";
 import {
   apiError,
@@ -9,6 +8,10 @@ import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import SizeQuantityModel from "../product/models/sizeQuantity.model";
 import {
+  discountFieldsForCart,
+  eventDiscountLookupStageForCart,
+} from "../product/product.pipeline";
+import {
   ICartItemsDto,
   ICartItemSumaryDto,
   ICreateCartItemDto,
@@ -16,11 +19,6 @@ import {
 } from "./cart.dto";
 import { cartResponseMapper } from "./cart.mapper";
 import CartModel from "./cart.model";
-import {
-  discountFieldsForCart,
-  eventDiscountLookupStage,
-  eventDiscountLookupStageForCart,
-} from "../product/product.pipeline";
 
 export interface CartService {
   createCartItemService(

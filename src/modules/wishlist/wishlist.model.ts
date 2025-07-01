@@ -1,8 +1,8 @@
-import { Document, model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 export interface Wishlist {
   user: Schema.Types.ObjectId;
-  products: Schema.Types.ObjectId[];
+  products: Types.ObjectId[];
 }
 
 const wishlistSchema: Schema = new Schema<Wishlist>(
@@ -13,5 +13,5 @@ const wishlistSchema: Schema = new Schema<Wishlist>(
   { timestamps: true }
 );
 
-const WishlistModel = model("Wishlist", wishlistSchema);
+const WishlistModel = model<Wishlist>("Wishlist", wishlistSchema);
 export default WishlistModel;

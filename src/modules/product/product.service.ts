@@ -508,8 +508,19 @@ export class ProductServiceImpl implements ProductService {
                 {
                   $lookup: {
                     from: "wishlists",
-                    localField: "_id",
-                    foreignField: "productId",
+                    let: { productId: "$_id" },
+                    pipeline: [
+                      {
+                        $match: {
+                          $expr: {
+                            $and: [
+                              { $eq: ["$user", new Types.ObjectId(userId)] },
+                              { $in: ["$$productId", "$products"] },
+                            ],
+                          },
+                        },
+                      },
+                    ],
                     as: "wishlistInfo",
                   },
                 },
@@ -856,8 +867,19 @@ export class ProductServiceImpl implements ProductService {
           pipeline.push({
             $lookup: {
               from: "wishlists",
-              localField: "_id",
-              foreignField: "productId",
+              let: { productId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ["$user", new Types.ObjectId(userId)] },
+                        { $in: ["$$productId", "$products"] },
+                      ],
+                    },
+                  },
+                },
+              ],
               as: "wishlistInfo",
             },
           });
