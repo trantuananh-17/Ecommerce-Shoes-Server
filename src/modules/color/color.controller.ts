@@ -84,6 +84,38 @@ export class ColorController {
     );
   };
 
+  getAllColorsByAdminController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const query =
+          typeof req.query.q === "string" ? req.query.q.trim() : undefined;
+
+        const isActive =
+          req.query.isActive !== undefined
+            ? req.query.isActive === "true"
+            : undefined;
+
+        const page = req.pagination?.page || 1;
+        const limit = req.pagination?.limit || 12;
+
+        const response = await this.colorService.getAllColorsByAdminService(
+          req.__.bind(req),
+          page,
+          limit,
+          isActive
+        );
+
+        res.status(response.status_code).json(response);
+      },
+      res,
+      req,
+      "getAllColorsByAdminController"
+    );
+  };
+
   getAllColorNameController = async (
     req: Request,
     res: Response

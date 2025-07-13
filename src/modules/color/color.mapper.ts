@@ -31,6 +31,19 @@ export const colorWithLangMapper = (
   };
 };
 
+export const colorByAdminMapper = (color: IColor): IColorResponseDto => {
+  return {
+    id: color._id.toString(),
+    name: {
+      vi: color.name.vi,
+      en: color.name.en,
+    },
+    isActive: color.isActive,
+    createdAt: color.createdAt.toISOString(),
+    updatedAt: color.updatedAt.toISOString(),
+  };
+};
+
 export const colorNameResponseMapper = (
   color: IColor,
   lang: string | "vi"

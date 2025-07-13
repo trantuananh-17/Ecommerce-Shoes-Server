@@ -10,6 +10,11 @@ closureRouter.get(
   paginationMiddleware(),
   closureController.getAllClosureController
 );
+closureRouter.get(
+  "/admin",
+  paginationMiddleware(),
+  closureController.getAllClosureByAdminController
+);
 closureRouter.post("/", closureController.createClosureController);
 closureRouter.put("/:id", closureController.updateClosureController);
 

@@ -65,6 +65,28 @@ export class MaterialController {
     );
   };
 
+  getAllMaterialByAdminController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const page = req.pagination?.page || 1;
+        const limit = req.pagination?.limit || 12;
+
+        const result = await this.materialService.getAllMaterialByAdminService(
+          req.__.bind(req),
+          page,
+          limit
+        );
+        return res.status(result.status_code).json(result);
+      },
+      res,
+      req,
+      "getAllMaterialByAdminController"
+    );
+  };
+
   updateMaterialController = async (
     req: Request,
     res: Response

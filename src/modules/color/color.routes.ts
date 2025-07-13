@@ -12,6 +12,11 @@ colorRouter.get(
   paginationMiddleware(),
   colorController.getAllColorsController
 );
+colorRouter.get(
+  "/admin",
+  paginationMiddleware(),
+  colorController.getAllColorsByAdminController
+);
 colorRouter.get("/:id", colorController.getColorController);
 colorRouter.get("/all/color-name", colorController.getAllColorNameController);
 colorRouter.delete("/", colorController.deleteManyColorController);
