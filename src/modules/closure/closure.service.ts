@@ -41,6 +41,20 @@ export interface ClosureService {
       limit: number;
     }>
   >;
+
+  getAllClosureByAdminService(
+    __: TranslateFunction,
+    page: number,
+    limit: number
+  ): Promise<
+    APIResponse<{
+      data: IClosureResponseDTO[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  >;
 }
 
 export class ClosureServiceImpl implements ClosureService {
@@ -176,6 +190,70 @@ export class ClosureServiceImpl implements ClosureService {
       },
       "INTERNAL_SERVER_ERROR",
       "getAllClosureService",
+      __
+    );
+  }
+
+  async getAllClosureByAdminService(
+    __: TranslateFunction,
+    page: number,
+    limit: number
+  ): Promise<
+    APIResponse<{
+      data: IClosureResponseDTO[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  > {
+    return tryCatchService(
+      async () => {
+        const skip = (page - 1) * limit;
+        const result = await ClosureModel.aggregate([
+          {
+            $facet: {
+              data: [
+                { $sort: { name: 1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                  $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                  },
+                },
+              ],
+              totalCount: [{ $count: "count" }],
+            },
+          },
+        ]);
+
+        const aggregationResult = result[0] as {
+          data: IClosure[];
+          totalCount: { count: number }[];
+        };
+
+        const response: IClosureResponseDTO[] = aggregationResult.data.map(
+          (closure: IClosure) => closureResponseMapper(closure)
+        );
+
+        const totalDocs = aggregationResult.totalCount[0]?.count || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
+
+        return apiResponse(HttpStatus.OK, __("GET_ALL_CLOSURES_SUCCESSFULLY"), {
+          data: response,
+          totalDocs,
+          totalPages,
+          currentPage: page,
+          limit,
+        });
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllClosureByAdminService",
       __
     );
   }

@@ -65,6 +65,28 @@ export class ClosureController {
     );
   };
 
+  getAllClosureByAdminController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const page = req.pagination?.page || 1;
+        const limit = req.pagination?.limit || 12;
+
+        const result = await this.closureService.getAllClosureByAdminService(
+          req.__.bind(req),
+          page,
+          limit
+        );
+        return res.status(result.status_code).json(result);
+      },
+      res,
+      req,
+      "getAllClosureByAdminController"
+    );
+  };
+
   updateClosureController = async (
     req: Request,
     res: Response

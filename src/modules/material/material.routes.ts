@@ -10,6 +10,12 @@ materialRouter.get(
   paginationMiddleware(),
   materialController.getAllMaterialController
 );
+
+materialRouter.get(
+  "/admin",
+  paginationMiddleware(),
+  materialController.getAllMaterialByAdminController
+);
 materialRouter.post("/", materialController.createMaterialController);
 materialRouter.put("/:id", materialController.updateMaterialController);
 export default materialRouter;

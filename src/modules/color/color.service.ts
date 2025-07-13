@@ -8,6 +8,7 @@ import {
 } from "./color.dto";
 import ColorModel, { IColor } from "./color.model";
 import {
+  colorByAdminMapper,
   colorNameResponseMapper,
   colorResponseMapper,
   colorWithLangMapper,
@@ -37,6 +38,21 @@ export interface ColorService {
   ): Promise<
     APIResponse<{
       data: IColorWithLangResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  >;
+
+  getAllColorsByAdminService(
+    __: TranslateFunction,
+    page: number,
+    limit: number,
+    isActive?: boolean
+  ): Promise<
+    APIResponse<{
+      data: IColorResponseDto[];
       totalDocs: number;
       totalPages: number;
       currentPage: number;
@@ -212,6 +228,79 @@ export class ColorServiceImpl implements ColorService {
       },
       "INTERNAL_SERVER_ERROR",
       "getAllColorsService",
+      __
+    );
+  }
+
+  async getAllColorsByAdminService(
+    __: TranslateFunction,
+    page: number,
+    limit: number,
+    isActive?: boolean
+  ): Promise<
+    APIResponse<{
+      data: IColorResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  > {
+    return tryCatchService(
+      async () => {
+        const filter: any = {};
+
+        if (typeof isActive === "boolean") {
+          filter.isActive = isActive;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const result = await ColorModel.aggregate([
+          { $match: filter },
+          {
+            $facet: {
+              data: [
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                  $project: {
+                    _id: 1,
+                    isActive: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    name: 1,
+                  },
+                },
+              ],
+              totalCount: [{ $count: "count" }],
+            },
+          },
+        ]);
+
+        const aggregationResult = result[0] as {
+          data: IColor[];
+          totalCount: { count: number }[];
+        };
+
+        const totalDocs = aggregationResult.totalCount[0]?.count || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
+
+        const response = aggregationResult.data.map((color) =>
+          colorByAdminMapper(color)
+        );
+
+        return apiResponse(HttpStatus.OK, __("GET_ALL_COLOR_SUCCESSFULLY"), {
+          data: response,
+          totalDocs,
+          totalPages,
+          currentPage: page,
+          limit,
+        });
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllColorsByAdminService",
       __
     );
   }
