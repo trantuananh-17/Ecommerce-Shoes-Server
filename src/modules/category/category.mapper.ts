@@ -1,4 +1,5 @@
 import {
+  ICategoryByAdminResponseDto,
   ICategoryResponseDto,
   ICreateCategoryResponseDto,
 } from "./category.dto";
@@ -30,6 +31,25 @@ export const categoryResponseMapper = (
     id: category._id.toString(),
     name: category.name[lang as keyof typeof category.name],
     slug: category.slug[lang as keyof typeof category.slug],
+    isActive: category.isActive,
+    createdAt: category.createdAt.toISOString(),
+    updatedAt: category.updatedAt.toISOString(),
+  };
+};
+
+export const categoryByAdminResponseMapper = (
+  category: ICategory
+): ICategoryByAdminResponseDto => {
+  return {
+    id: category._id.toString(),
+    name: {
+      vi: category.name.vi,
+      en: category.name.en,
+    },
+    slug: {
+      vi: category.slug.vi,
+      en: category.slug.en,
+    },
     isActive: category.isActive,
     createdAt: category.createdAt.toISOString(),
     updatedAt: category.updatedAt.toISOString(),

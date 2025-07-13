@@ -11,6 +11,11 @@ categoryRouter.get(
   paginationMiddleware(),
   categoryController.getAllCategoryController
 );
+categoryRouter.get(
+  "/admin",
+  paginationMiddleware(),
+  categoryController.getAllCategoryByAdminController
+);
 categoryRouter.patch("/:id", categoryController.updateCategoryActiveController);
 categoryRouter.put("/:id", categoryController.updateCategoryController);
 

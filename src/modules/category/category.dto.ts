@@ -28,6 +28,21 @@ export interface ICategoryResponseDto {
   updatedAt: string;
 }
 
+export interface ICategoryByAdminResponseDto {
+  id: string;
+  name: {
+    vi: string;
+    en: string;
+  };
+  slug: {
+    vi: string;
+    en: string;
+  };
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IUpdateActiveCategoryDto {
   isActive: boolean;
 }

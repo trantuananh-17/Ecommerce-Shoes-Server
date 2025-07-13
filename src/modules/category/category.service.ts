@@ -9,6 +9,7 @@ import {
   APIResponse,
 } from "../../utils/helpers/api-response.helper";
 import {
+  ICategoryByAdminResponseDto,
   ICategoryResponseDto,
   ICreateCategoryDto,
   ICreateCategoryResponseDto,
@@ -16,6 +17,7 @@ import {
   IUpdateCategoryDto,
 } from "./category.dto";
 import {
+  categoryByAdminResponseMapper,
   categoryResponseMapper,
   createCategoryResponseMapper,
 } from "./category.mapper";
@@ -35,6 +37,21 @@ export interface CategoryService {
   ): Promise<
     APIResponse<{
       data: ICategoryResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  >;
+
+  getAllCategoryByAdminService(
+    __: TranslateFunction,
+    page: number,
+    limit: number,
+    isActive?: boolean
+  ): Promise<
+    APIResponse<{
+      data: ICategoryByAdminResponseDto[];
       totalDocs: number;
       totalPages: number;
       currentPage: number;
@@ -166,6 +183,80 @@ export class CategoryServiceImpl implements CategoryService {
         const response: ICategoryResponseDto[] = aggregationResult.data.map(
           (category) => categoryResponseMapper(category, lang)
         );
+
+        return apiResponse(HttpStatus.OK, __("GET_CATEGORIES_SUCCESSFULLY"), {
+          data: response,
+          totalDocs,
+          totalPages,
+          currentPage: page,
+          limit,
+        });
+      },
+      "INTERNAL_SERVER_ERROR",
+      "getAllCategoryService",
+      __
+    );
+  }
+
+  async getAllCategoryByAdminService(
+    __: TranslateFunction,
+    page: number,
+    limit: number,
+    isActive?: boolean
+  ): Promise<
+    APIResponse<{
+      data: ICategoryByAdminResponseDto[];
+      totalDocs: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    }>
+  > {
+    return tryCatchService(
+      async () => {
+        const filter: any = {};
+        if (typeof isActive === "boolean") {
+          filter.isActive = isActive;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const result = await CategoryModel.aggregate([
+          { $match: filter },
+          {
+            $facet: {
+              data: [
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                  $project: {
+                    _id: 1,
+                    isActive: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    name: 1,
+                    slug: 1,
+                  },
+                },
+              ],
+              totalCount: [{ $count: "count" }],
+            },
+          },
+        ]);
+
+        const aggregationResult = result[0] as {
+          data: ICategory[];
+          totalCount: { count: number }[];
+        };
+
+        const totalDocs = aggregationResult.totalCount[0]?.count || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
+
+        const response: ICategoryByAdminResponseDto[] =
+          aggregationResult.data.map((category) =>
+            categoryByAdminResponseMapper(category)
+          );
 
         return apiResponse(HttpStatus.OK, __("GET_CATEGORIES_SUCCESSFULLY"), {
           data: response,

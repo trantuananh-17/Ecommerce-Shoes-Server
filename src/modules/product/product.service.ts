@@ -643,7 +643,6 @@ export class ProductServiceImpl implements ProductService {
             },
           },
 
-          // Final projected fields (optional - include only needed fields)
           {
             $project: {
               _id: 1,
@@ -718,8 +717,6 @@ export class ProductServiceImpl implements ProductService {
         if (!product) {
           return apiResponse(HttpStatus.NOT_FOUND, __("PRODUCT_NOT_FOUND"));
         }
-
-        console.log(product);
 
         const productDetail = productDetailResponseMapper(product);
 

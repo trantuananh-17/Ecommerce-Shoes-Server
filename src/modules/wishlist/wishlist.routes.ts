@@ -11,4 +11,22 @@ wishlistRouter.post(
   wishlistController.createWishlistController
 );
 
+wishlistRouter.delete(
+  "/:id",
+  AuthRole("*", true),
+  wishlistController.deleteWishlistItemController
+);
+
+wishlistRouter.get(
+  "/sumary",
+  AuthRole("*", true),
+  wishlistController.getWishlistSumaryController
+);
+
+wishlistRouter.get(
+  "/",
+  AuthRole("*", true),
+  wishlistController.getWishlistController
+);
+
 export default wishlistRouter;
