@@ -52,6 +52,8 @@ export class CartController {
         const userId = req.userId;
         const itemId = req.params.id;
 
+        console.log(itemId);
+
         const response = await this.cartService.deleteCartItemService(
           userId,
           itemId,

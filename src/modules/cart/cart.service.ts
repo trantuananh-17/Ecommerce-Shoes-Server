@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { TranslateFunction } from "../../types/express";
 import {
   apiError,
@@ -9,6 +8,10 @@ import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import SizeQuantityModel from "../product/models/sizeQuantity.model";
 import {
+  discountFieldsForCart,
+  eventDiscountLookupStageForCart,
+} from "../product/product.pipeline";
+import {
   ICartItemsDto,
   ICartItemSumaryDto,
   ICreateCartItemDto,
@@ -16,11 +19,6 @@ import {
 } from "./cart.dto";
 import { cartResponseMapper } from "./cart.mapper";
 import CartModel from "./cart.model";
-import {
-  discountFieldsForCart,
-  eventDiscountLookupStage,
-  eventDiscountLookupStageForCart,
-} from "../product/product.pipeline";
 
 export interface CartService {
   createCartItemService(
@@ -87,7 +85,9 @@ export class CartServiceImpl implements CartService {
       async () => {
         const now = new Date();
 
-        // Lấy cart
+        const nameField = lang.startsWith("vi") ? "name.vi" : "name.en";
+        const slugField = lang.startsWith("vi") ? "slug.vi" : "slug.en";
+
         const cart = await CartModel.findOne({ user: userId });
 
         if (!cart || cart.products.length === 0) {
@@ -102,7 +102,6 @@ export class CartServiceImpl implements CartService {
               _id: { $in: sizeQuantityIds },
             },
           },
-          // Join product
           {
             $lookup: {
               from: "products",
@@ -137,7 +136,12 @@ export class CartServiceImpl implements CartService {
                   "$product.name.en",
                 ],
               },
-              slug: "$product.slug",
+              slug: {
+                $ifNull: [
+                  { $getField: { field: lang, input: "$product.slug" } },
+                  "$product.slug.en",
+                ],
+              },
               thumbnail: "$product.thumbnail",
               price: "$product.price",
               discountedPrice: 1,
@@ -148,12 +152,8 @@ export class CartServiceImpl implements CartService {
           },
         ];
 
-        // Chạy aggregate
         const aggregatedItems = await SizeQuantityModel.aggregate(pipeline);
 
-        console.log(aggregatedItems);
-
-        // Map kết quả
         const result = aggregatedItems.map((item) => {
           const cartProduct = cart.products.find(
             (p) => p.sizeQuantity.toString() === item._id.toString()
@@ -162,7 +162,14 @@ export class CartServiceImpl implements CartService {
           return cartResponseMapper(item, cartProduct?.quantity || 0);
         });
 
-        return apiResponse(HttpStatus.OK, __("SUCCESS"), result);
+        const totalCartPrice = result.reduce((acc, item) => {
+          return acc + item.discountedPrice * item.quantity;
+        }, 0);
+
+        return apiResponse(HttpStatus.OK, __("SUCCESS"), {
+          result,
+          totalPrices: totalCartPrice,
+        });
       },
       "INTERNAL_SERVER_ERROR",
       "getCartItemsService",

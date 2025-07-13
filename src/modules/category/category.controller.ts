@@ -156,4 +156,35 @@ export class CategoryController {
       "getAllCategoryController"
     );
   };
+
+  getAllCategoryByAdminController = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    return tryCatchController(
+      async () => {
+        const lang = req.lang || "vi";
+
+        const page = req.pagination?.page || 1;
+        const limit = req.pagination?.limit || 12;
+
+        const isActive =
+          req.query.isActive !== undefined
+            ? req.query.isActive === "true"
+            : undefined;
+
+        const result = await this.categoryService.getAllCategoryByAdminService(
+          req.__.bind(req),
+          page,
+          limit,
+          isActive
+        );
+
+        return res.status(result.status_code).json(result);
+      },
+      res,
+      req,
+      "getAllCategoryController"
+    );
+  };
 }

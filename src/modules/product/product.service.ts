@@ -508,8 +508,19 @@ export class ProductServiceImpl implements ProductService {
                 {
                   $lookup: {
                     from: "wishlists",
-                    localField: "_id",
-                    foreignField: "productId",
+                    let: { productId: "$_id" },
+                    pipeline: [
+                      {
+                        $match: {
+                          $expr: {
+                            $and: [
+                              { $eq: ["$user", new Types.ObjectId(userId)] },
+                              { $in: ["$$productId", "$products"] },
+                            ],
+                          },
+                        },
+                      },
+                    ],
                     as: "wishlistInfo",
                   },
                 },
@@ -632,7 +643,6 @@ export class ProductServiceImpl implements ProductService {
             },
           },
 
-          // Final projected fields (optional - include only needed fields)
           {
             $project: {
               _id: 1,
@@ -707,8 +717,6 @@ export class ProductServiceImpl implements ProductService {
         if (!product) {
           return apiResponse(HttpStatus.NOT_FOUND, __("PRODUCT_NOT_FOUND"));
         }
-
-        console.log(product);
 
         const productDetail = productDetailResponseMapper(product);
 
@@ -856,8 +864,19 @@ export class ProductServiceImpl implements ProductService {
           pipeline.push({
             $lookup: {
               from: "wishlists",
-              localField: "_id",
-              foreignField: "productId",
+              let: { productId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ["$user", new Types.ObjectId(userId)] },
+                        { $in: ["$$productId", "$products"] },
+                      ],
+                    },
+                  },
+                },
+              ],
               as: "wishlistInfo",
             },
           });
