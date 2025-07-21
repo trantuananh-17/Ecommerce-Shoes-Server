@@ -178,7 +178,7 @@ export class ProductController {
       async () => {
         const lang = req.lang || "vi";
 
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         const isActive =
           req.query.isActive !== undefined
@@ -283,7 +283,7 @@ export class ProductController {
 
         const slug = req.params.slug;
 
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         const response = await this.productService.getDetailProductBySlugServie(
           lang,

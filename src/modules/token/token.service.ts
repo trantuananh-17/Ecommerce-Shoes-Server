@@ -53,14 +53,14 @@ export class JwtServiceImpl implements JwtService {
           );
         }
 
-        const user = await UserModel.findById(userInfo.id);
+        const user = await UserModel.findById(userInfo.userId);
 
         if (!user || !user.refreshTokens.includes(refresh_token)) {
           return apiError(HttpStatus.UNAUTHORIZED, __("INVALID_REFRESH_TOKEN"));
         }
 
         const tokenPayload = {
-          id: user._id.toString(),
+          userId: user._id.toString(),
           email: user.email,
           role: user.role,
           loginType: user.loginType,

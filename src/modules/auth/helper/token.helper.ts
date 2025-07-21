@@ -2,7 +2,7 @@ import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import ms from "ms";
 
 export interface TokenPayload {
-  id: string;
+  userId: string;
   email: string;
   role: "user" | "admin";
   loginType: "local" | "facebook" | "google";

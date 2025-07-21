@@ -36,10 +36,7 @@ export class SizeController {
     );
   };
 
-  createSizeController = async (
-    req: Request<ICreateSizeDto>,
-    res: Response
-  ): Promise<any> => {
+  createSizeController = async (req: Request, res: Response): Promise<any> => {
     try {
       const { error, value } = sizeValidate.validate(req.body ?? {});
 

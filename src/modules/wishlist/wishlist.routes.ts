@@ -1,31 +1,36 @@
 import { Router } from "express";
+import authMiddleware from "../../middleware/auth.middleware";
+import roleMiddleware from "../../middleware/role.middleware";
 import { WishlistController } from "./wishlist.controller";
-import AuthRole from "../../middleware/auth.middleware";
 
 const wishlistRouter = Router();
 const wishlistController = new WishlistController();
 
 wishlistRouter.post(
   "/",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   wishlistController.createWishlistController
 );
 
 wishlistRouter.delete(
   "/:id",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   wishlistController.deleteWishlistItemController
 );
 
 wishlistRouter.get(
   "/sumary",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   wishlistController.getWishlistSumaryController
 );
 
 wishlistRouter.get(
   "/",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   wishlistController.getWishlistController
 );
 

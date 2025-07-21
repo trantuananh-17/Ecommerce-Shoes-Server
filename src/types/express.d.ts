@@ -18,7 +18,15 @@ declare global {
     }
 
     interface Request {
+      user?: IUserPayload;
+    }
+
+    interface Request {
       files: { [key: string]: File | File[] };
     }
   }
+}
+
+export interface RequestCustom extends Request {
+  user?: UserPayload;
 }

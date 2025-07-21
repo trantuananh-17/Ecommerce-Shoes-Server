@@ -12,7 +12,7 @@ export class CartController {
   createCartItemController = (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const response = await this.cartService.createCartItemService(
           userId,
           req.body,
@@ -30,7 +30,7 @@ export class CartController {
   updateCartItemController = (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         const response = await this.cartService.updateCartItemService(
           userId,
@@ -49,7 +49,7 @@ export class CartController {
   deleteCartItemController = (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const itemId = req.params.id;
 
         console.log(itemId);
@@ -71,7 +71,7 @@ export class CartController {
   getCartItemSumaryController = (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         const response = await this.cartService.getCartItemSumaryService(
           userId,
@@ -89,7 +89,7 @@ export class CartController {
   getCartItemsController = (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const lang = req.lang || "vi";
         const response = await this.cartService.getCartItemsService(
           userId,

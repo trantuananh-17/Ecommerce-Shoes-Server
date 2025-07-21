@@ -1,85 +1,38 @@
-import jwt from "jsonwebtoken";
-import { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
+import { NextFunction, Response } from "express";
+import jwt from "jsonwebtoken";
+import { RequestCustom } from "../types/express";
+import { IUserPayload } from "../types/user.type";
 import HttpStatus from "../utils/http-status.utils";
-import { TranslateFunction } from "../types/express";
-import { TokenPayload } from "../modules/auth/helper/token.helper";
-import { Role } from "../modules/user/models/user.model";
+
 dotenv.config();
 
-const handleUnauthorizedError = (res: Response, __: TranslateFunction) => {
-  return res.status(HttpStatus.UNAUTHORIZED).json({
-    status: HttpStatus.UNAUTHORIZED,
-    message: __("UNAUTHORIZED"),
-    data: null,
-  });
+const authMiddleware = (
+  req: RequestCustom,
+  res: Response,
+  next: NextFunction
+): any => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+
+  if (!token) {
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ message: "Bạn chưa đăng nhập" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY!);
+
+    req.user = decoded as IUserPayload;
+    console.log(req.user);
+
+    next();
+  } catch (error) {
+    console.log("error: ", error);
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ message: "Token không hợp lệ" });
+  }
 };
 
-const AuthRole = (
-  role: string,
-  isAuthMe: boolean = false,
-  isPublic: boolean = false
-) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    try {
-      const authHeader = req.headers.authorization;
-      const token = authHeader?.split("Bearer ")[1];
-
-      if (isPublic) {
-        if (token) {
-          const secretKey = process.env.SECRET_KEY;
-
-          if (secretKey) {
-            jwt.verify(token, secretKey, (error: unknown, data) => {
-              if (error || !data) {
-                return handleUnauthorizedError(res, req.__.bind(req));
-              }
-
-              const user = data as TokenPayload;
-              req.userId = user.id;
-
-              next();
-            });
-          }
-        } else {
-          next();
-        }
-      } else {
-        if (!token) {
-          res.status(401).json({ message: "Ban chua dang nhap" });
-          return;
-        }
-
-        const secretKey = process.env.SECRET_KEY;
-
-        if (secretKey) {
-          jwt.verify(token, secretKey, (error: unknown, data) => {
-            if (error || !data) {
-              return handleUnauthorizedError(res, req.__.bind(req));
-            }
-
-            const user = data as TokenPayload;
-
-            const hasRole =
-              role === "*" || // Cả user và admin
-              user.role.includes(role) || // Người dùng có role yêu cầu
-              user.role.includes(Role.ADMIN) || // Hoặc là admin
-              (isAuthMe && req.params?.id === user.id); // Hoặc là chính người dùng
-
-            if (hasRole) {
-              req.userId = user.id;
-              next();
-            } else {
-              return handleUnauthorizedError(res, req.__.bind(req));
-            }
-          });
-        }
-      }
-    } catch (error) {
-      console.error("AuthRole middleware error:", error);
-      handleUnauthorizedError(res, req.__.bind(req));
-    }
-  };
-};
-
-export default AuthRole;
+export default authMiddleware;

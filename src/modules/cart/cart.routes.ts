@@ -1,29 +1,39 @@
 import { Router } from "express";
+import authMiddleware from "../../middleware/auth.middleware";
+import roleMiddleware from "../../middleware/role.middleware";
 import { CartController } from "./cart.controller";
-import AuthRole from "../../middleware/auth.middleware";
 
 const cartRouter = Router();
 const cartController = new CartController();
 
 cartRouter.get(
   "/sumary",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   cartController.getCartItemSumaryController
 );
-cartRouter.get("/", AuthRole("*", true), cartController.getCartItemsController);
+cartRouter.get(
+  "/",
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
+  cartController.getCartItemsController
+);
 cartRouter.post(
   "/",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   cartController.createCartItemController
 );
 cartRouter.put(
   "/",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   cartController.updateCartItemController
 );
 cartRouter.delete(
   "/:id",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   cartController.deleteCartItemController
 );
 

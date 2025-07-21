@@ -12,7 +12,7 @@ export const createOrderController = async (
 ): Promise<any> => {
   tryCatchController(
     async () => {
-      const userId = req.userId;
+      const userId = req.user.userId;
       const response = await createOrderService(
         userId,
         req.body,

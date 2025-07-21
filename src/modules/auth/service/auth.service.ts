@@ -196,7 +196,7 @@ export class AuthServiceImpl implements AuthService {
         }
 
         const tokenPayload = {
-          id: checkUser._id.toString(),
+          userId: checkUser._id.toString(),
           email: checkUser.email,
           role: checkUser.role,
           loginType: checkUser.loginType,
@@ -392,7 +392,7 @@ export class AuthServiceImpl implements AuthService {
           return apiError(HttpStatus.UNAUTHORIZED, __("INVALID_REFRESH_TOKEN"));
         }
 
-        const user = await UserModel.findById(userInfo.id);
+        const user = await UserModel.findById(userInfo.userId);
         if (!user) {
           return apiError(HttpStatus.BAD_REQUEST, __("USER_NOT_EXIST"));
         }

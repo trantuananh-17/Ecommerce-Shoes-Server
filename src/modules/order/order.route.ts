@@ -5,16 +5,32 @@ import {
   createOrderController,
   updateOrderController,
 } from "./order.controller";
+import authMiddleware from "../../middleware/auth.middleware";
+import roleMiddleware from "../../middleware/role.middleware";
 
 const orderRouter = Router();
 
-orderRouter.post("/", AuthRole("*", true), createOrderController); // Thêm
-orderRouter.patch("/:id", AuthRole("admin", true), updateOrderController); //Cập nhật đơn hàng
+orderRouter.post(
+  "/",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  createOrderController
+); // Thêm
+
+orderRouter.patch(
+  "/:id",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  updateOrderController
+); //Cập nhật đơn hàng
+
 orderRouter.patch(
   "/cancel/:id",
-  AuthRole("admin", true),
+  authMiddleware,
+  roleMiddleware(["admin"]),
   cancelOrderController
 ); //Hủy đơn hàng(admin)
+
 // orderRouter.delete("/:id"); //Xóa đơn hàng(admin)
 // orderRouter.get("/"); // Get all (admin)
 // orderRouter.get("/:id"); //Get by id(admin)

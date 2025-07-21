@@ -3,6 +3,8 @@ import { ProductController } from "./product.controller";
 import upload from "../../middleware/upload.middleware";
 import AuthRole from "../../middleware/auth.middleware";
 import { paginationMiddleware } from "../../middleware/pipe/paginationMiddleware";
+import authMiddleware from "../../middleware/auth.middleware";
+import roleMiddleware from "../../middleware/role.middleware";
 
 const productRouter = Router();
 
@@ -10,43 +12,53 @@ const productController = new ProductController();
 
 productRouter.post(
   "/",
-  // AuthRole("admin", true),
+  authMiddleware,
+  roleMiddleware(["admin"]),
   upload.array("images", 5),
   productController.createProductController
 );
 
 productRouter.put(
   "/:id",
-  // AuthRole("admin", true),
+  authMiddleware,
+  roleMiddleware(["admin"]),
   upload.array("images", 5),
   productController.updateProductController
 );
 
-productRouter.patch("/:id", productController.updateProductActiveController);
+productRouter.patch(
+  "/:id",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  productController.updateProductActiveController
+);
 
 productRouter.get(
   "/",
-  AuthRole("*", false, true),
+  authMiddleware,
+  roleMiddleware(["admin"]),
   paginationMiddleware(),
   productController.getAllProductController
 );
 
 productRouter.get(
   "/admin",
-  AuthRole("admin", false),
+  authMiddleware,
+  roleMiddleware(["admin"]),
   paginationMiddleware(),
   productController.getAllProductAdminController
 );
 
 productRouter.get(
   "/slug/:slug",
-  AuthRole("*", false, true),
+  authMiddleware,
   productController.getDetailProductBySlugController
 );
 
 productRouter.get(
   "/productId/:id",
-  AuthRole("admin", false),
+  authMiddleware,
+  roleMiddleware(["admin"]),
   productController.getDetailProductByIdController
 );
 

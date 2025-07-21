@@ -1,6 +1,7 @@
 import { Router } from "express";
+import authMiddleware from "../../middleware/auth.middleware";
+import roleMiddleware from "../../middleware/role.middleware";
 import { AuthController } from "./auth.controller";
-import AuthRole from "../../middleware/auth.middleware";
 
 const authRouter = Router();
 const authController = new AuthController();
@@ -11,23 +12,26 @@ authRouter.post("/refresh", authController.refreshTokenController);
 authRouter.post("/logout", authController.logoutController);
 authRouter.get(
   "/me",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   authController.getUserInfoController
 );
 authRouter.get("/verify", authController.verifyEmailController);
 authRouter.patch(
   "/change-password/",
-  AuthRole("*", true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   authController.changePasswordMeController
 );
 authRouter.post(
   "/forgot",
-  AuthRole("*", true, true),
+  authMiddleware,
+  roleMiddleware(["admin", "user"]),
   authController.forgotPasswordController
 );
 authRouter.post(
   "/reset-password",
-  AuthRole("*", true, true),
+
   authController.resetPasswordController
 );
 

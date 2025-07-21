@@ -1,23 +1,19 @@
-import { Request, Response } from "express";
-import { handleValidationError } from "../../utils/helpers/validation.helper";
-import {
-  RegisterValidator,
-  verifyEmailValidator,
-} from "./validators/register.validator";
-import { AuthService, AuthServiceImpl } from "./service/auth.service";
-import { tryCatchController } from "../../utils/helpers/trycatch.helper";
 import dotenv from "dotenv";
+import { Request, Response } from "express";
+import { tryCatchController } from "../../utils/helpers/trycatch.helper";
+import { handleValidationError } from "../../utils/helpers/validation.helper";
+import { JwtService, JwtServiceImpl } from "../token/token.service";
+import { AuthService, AuthServiceImpl } from "./service/auth.service";
+import { LoginValidator } from "./validators/login.validate";
 import {
   changePasswordValidate,
   forgotPasswordValidate,
   resetPasswordValidate,
 } from "./validators/password.validate";
-import { isValidObjectId } from "mongoose";
-import { errorRes } from "../../utils/helpers/error-response.helper";
-import HttpStatus from "../../utils/http-status.utils";
-import { LoginValidator } from "./validators/login.validate";
-import { tokenSchema } from "../token/token.validate";
-import { JwtService, JwtServiceImpl } from "../token/token.service";
+import {
+  RegisterValidator,
+  verifyEmailValidator,
+} from "./validators/register.validator";
 
 dotenv.config();
 
@@ -134,7 +130,7 @@ export class AuthController {
   ): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const { error, value } = changePasswordValidate.validate(
           req.body ?? {}
         );
@@ -265,7 +261,7 @@ export class AuthController {
   getUserInfoController = async (req: Request, res: Response): Promise<any> => {
     return tryCatchController(
       async () => {
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         const response = await this.authService.getUserInfoService(
           userId,
