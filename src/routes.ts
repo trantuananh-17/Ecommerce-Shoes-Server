@@ -13,6 +13,7 @@ import productRouter from "./modules/product/product.routes";
 import eventRouter from "./modules/event/event.routes";
 import cartRouter from "./modules/cart/cart.routes";
 import wishlistRouter from "./modules/wishlist/wishlist.routes";
+import orderRouter from "./modules/order/order.route";
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use("/products", productRouter);
 router.use("/events", eventRouter);
 router.use("/carts", cartRouter);
 router.use("/wishlists", wishlistRouter);
+router.use("/orders", orderRouter);
 
 export default router;

@@ -280,7 +280,9 @@ export class ProductController {
     tryCatchController(
       async () => {
         const lang = req.lang || "vi";
+
         const slug = req.params.slug;
+
         const userId = req.userId;
 
         const response = await this.productService.getDetailProductBySlugServie(

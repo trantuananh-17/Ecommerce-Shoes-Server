@@ -2,11 +2,13 @@ import routes from "./routes";
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import http from "http";
 import { connectDB } from "./config/mongodb.config";
 import { getLangFromHeader } from "./middleware/pipe/language.middleware";
 import logRequestTime from "./middleware/pipe/winston.middleware";
 import i18n from "./config/i18n.config";
 import cookieParser from "cookie-parser";
+import { initSocket } from "./config/socket.config";
 
 dotenv.config();
 const app = express();
@@ -17,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
   cors({
-    origin: "http://localhost:5173", // FE origin
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -29,7 +31,11 @@ app.use(logRequestTime);
 
 app.use("/api", routes);
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+
+initSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server đang chạy trên cổng ${PORT}`);
   connectDB();
 });

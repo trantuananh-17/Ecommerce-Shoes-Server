@@ -1,29 +1,27 @@
 import { Document, model, Schema } from "mongoose";
 
-enum PaymentStatus {
+export enum PaymentStatus {
   Unpaid = "Chưa thanh toán",
   Paid = "Đã thanh toán",
-  Pending = "Đang chờ xử lý",
 }
 
-enum OrderStatus {
+export enum OrderStatus {
   Pending = "Đang chờ xử lý",
   Shipped = "Đã vận chuyển",
   Delivered = "Đã giao",
   Canceled = "Đã hủy",
+  Returned = "Đã hoàn hàng",
 }
 
-export interface Order extends Document {
-  user: Schema.Types.ObjectId;
+export interface IOrder extends Document {
+  userId: Schema.Types.ObjectId;
   paymentType: boolean;
   paymentStatus: PaymentStatus;
-  discounts: Schema.Types.ObjectId; // Có thể dùng nhiều mã
-  orderNote: string;
-  orderStatus: OrderStatus;
+  discounts?: Schema.Types.ObjectId;
+  orderNote?: string;
+  orderStatus?: OrderStatus;
   orderItemsPrices: number;
   orderTotalPrices: number;
-  orderShipCost: number; // Có thể có bảng phí cost riêng cho tỉnh thành
-  orderNoteCancelled: string;
   toName: string;
   toPhone: string;
   toEmail: string;
@@ -32,18 +30,17 @@ export interface Order extends Document {
   toWard: string;
   toAddress: string;
   datePayment?: Date;
-  dateReceive?: Date; // Thời gian nhận
-  dateExpected?: Date; // Thời gian dự kiến
+  dateReceive?: Date;
 }
 
-const orderSchema: Schema = new Schema<Order>(
+const orderSchema: Schema = new Schema<IOrder>(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    paymentType: { type: Boolean, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    paymentType: { type: Boolean, default: false },
     paymentStatus: {
       type: String,
       enum: Object.values(PaymentStatus),
-      required: true,
+      default: PaymentStatus.Unpaid,
     },
     discounts: {
       type: Schema.Types.ObjectId,
@@ -55,11 +52,9 @@ const orderSchema: Schema = new Schema<Order>(
       enum: Object.values(OrderStatus),
       default: OrderStatus.Pending,
     },
-    orderNote: { type: String, required: true },
-    orderShipCost: { type: Number, default: 0 },
+    orderNote: { type: String },
     orderItemsPrices: { type: Number, required: true },
     orderTotalPrices: { type: Number, required: true },
-    orderNoteCancelled: { type: String, required: true },
     toName: { type: String, required: true },
     toPhone: { type: String, required: true },
     toEmail: { type: String, required: true },
@@ -69,10 +64,9 @@ const orderSchema: Schema = new Schema<Order>(
     toProvince: { type: String, required: true },
     datePayment: { type: Date, required: false },
     dateReceive: { type: Date, required: false },
-    dateExpected: { type: Date, required: false },
   },
   { timestamps: true }
 );
 
-const OrderModel = model("Order", orderSchema);
+const OrderModel = model<IOrder>("Order", orderSchema);
 export default OrderModel;

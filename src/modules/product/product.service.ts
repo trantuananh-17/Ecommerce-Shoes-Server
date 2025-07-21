@@ -960,9 +960,6 @@ export class ProductServiceImpl implements ProductService {
 
         const [product] = await ProductModel.aggregate(pipeline);
 
-        console.log("Category Info:", product.categoryInfo);
-        console.log("Brand Info:", product.brandInfo);
-
         const products = (product?.paginatedResults ?? []).map(
           productResponseMapper
         );
