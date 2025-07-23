@@ -35,8 +35,6 @@ productRouter.patch(
 
 productRouter.get(
   "/",
-  authMiddleware,
-  roleMiddleware(["admin"]),
   paginationMiddleware(),
   productController.getAllProductController
 );

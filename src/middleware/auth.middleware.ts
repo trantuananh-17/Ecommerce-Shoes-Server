@@ -24,6 +24,7 @@ const authMiddleware = (
     const decoded = jwt.verify(token, process.env.SECRET_KEY!);
 
     req.user = decoded as IUserPayload;
+
     console.log(req.user);
 
     next();

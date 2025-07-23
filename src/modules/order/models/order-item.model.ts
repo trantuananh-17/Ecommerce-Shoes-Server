@@ -1,6 +1,7 @@
 import mongoose, { Document, model, Schema } from "mongoose";
 
 export interface IOrderItem extends Document {
+  _id: mongoose.Schema.Types.ObjectId;
   orderId: mongoose.Schema.Types.ObjectId;
   productId: mongoose.Schema.Types.ObjectId;
   productName: { vi: string; en: string };
@@ -11,6 +12,7 @@ export interface IOrderItem extends Document {
   discount?: number;
   totalPrice: number;
   size: string;
+  sizeId: mongoose.Schema.Types.ObjectId;
   thumbnail: string;
 }
 
@@ -39,6 +41,10 @@ const orderItemSchema: Schema = new Schema<IOrderItem>({
   discount: { type: Number, default: 0 },
   totalPrice: { type: Number, required: true },
   size: { type: String, ref: "Size", required: true },
+  sizeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Size",
+  },
   thumbnail: { type: String, required: true },
 });
 

@@ -27,3 +27,41 @@ export interface ICreateAndUpdateOrder {
   toWard: string;
   toAddress: string;
 }
+
+export interface IOrderResponse {
+  id: string;
+  name: string;
+  phone: string;
+  province: string;
+  orderStatus: string;
+  paymentType: string;
+}
+
+export interface IOrderDetailResponse {
+  id: string;
+  orderStatus: string;
+  paymentStatus: string;
+  paymentType: string;
+  discount?: number;
+  name: string;
+  phone: string;
+  email: string;
+  province: string;
+  district: string;
+  ward: string;
+  address: string;
+  note?: string;
+  orderItemsPrices: number;
+  orderTotalPrices: number;
+  createdAt: string;
+  datePayment: string;
+  dateReceive?: string;
+}
+
+export interface IOrderItemResponse {
+  id: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  totalPrice: number;
+}

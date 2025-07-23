@@ -25,7 +25,7 @@ export interface DiscountService {
   createdDiscountService(
     DTODiscount: IDiscountDto,
     __: TranslateFunction
-  ): Promise<APIResponse<IDiscountCreateResponseDto | null>>;
+  ): Promise<APIResponse<null>>;
 
   updateDiscountService(
     id: string,
@@ -65,7 +65,7 @@ export class DiscountServiceImpl implements DiscountService {
   createdDiscountService(
     DTODiscount: IDiscountDto,
     __: TranslateFunction
-  ): Promise<APIResponse<IDiscountCreateResponseDto | null>> {
+  ): Promise<APIResponse<null>> {
     return tryCatchService(
       async () => {
         const {
@@ -116,14 +116,11 @@ export class DiscountServiceImpl implements DiscountService {
           minItemsPerBrand,
         });
 
-        const created = await newDiscount.save();
-        const response: IDiscountCreateResponseDto =
-          discountCreateResponseMapper(created);
+        await newDiscount.save();
 
         return apiResponse(
           HttpStatus.CREATED,
-          __("DISCOUNT_CREATED_SUCCESSFULLY"),
-          response
+          __("DISCOUNT_CREATED_SUCCESSFULLY")
         );
       },
       "INTERNAL_SERVER_ERROR",

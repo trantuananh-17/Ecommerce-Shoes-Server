@@ -1,25 +1,31 @@
-import { Document, model, Schema } from "mongoose";
+import mongoose, { Document, model, Schema } from "mongoose";
 
 export enum PaymentStatus {
-  Unpaid = "Chưa thanh toán",
-  Paid = "Đã thanh toán",
+  Unpaid = "Unpaid",
+  Paid = "Paid",
 }
 
 export enum OrderStatus {
-  Pending = "Đang chờ xử lý",
-  Shipped = "Đã vận chuyển",
-  Delivered = "Đã giao",
-  Canceled = "Đã hủy",
-  Returned = "Đã hoàn hàng",
+  Pending = "Pending",
+  Shipped = "Shipping",
+  Delivered = "Delivered",
+  Canceled = "Canceled",
+  Returned = "Returned",
+}
+
+export enum PaymentType {
+  COD = "COD",
+  VNPAY = "VNPAY",
 }
 
 export interface IOrder extends Document {
-  userId: Schema.Types.ObjectId;
-  paymentType: boolean;
+  _id: mongoose.Schema.Types.ObjectId;
+  userId: mongoose.Schema.Types.ObjectId;
+  paymentType: PaymentType;
   paymentStatus: PaymentStatus;
-  discounts?: Schema.Types.ObjectId;
+  discounts: mongoose.Schema.Types.ObjectId;
   orderNote?: string;
-  orderStatus?: OrderStatus;
+  orderStatus: OrderStatus;
   orderItemsPrices: number;
   orderTotalPrices: number;
   toName: string;
@@ -29,21 +35,30 @@ export interface IOrder extends Document {
   toDistrict: string;
   toWard: string;
   toAddress: string;
-  datePayment?: Date;
-  dateReceive?: Date;
+  datePayment: Date;
+  dateReceive: Date;
+  createdAt: Date;
 }
 
 const orderSchema: Schema = new Schema<IOrder>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    paymentType: { type: Boolean, default: false },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    paymentType: {
+      type: String,
+      enum: Object.values(PaymentType),
+      default: PaymentType.COD,
+    },
     paymentStatus: {
       type: String,
       enum: Object.values(PaymentStatus),
       default: PaymentStatus.Unpaid,
     },
     discounts: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Discount",
       required: false,
     },

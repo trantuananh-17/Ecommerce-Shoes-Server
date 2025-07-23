@@ -178,7 +178,7 @@ export class ProductController {
       async () => {
         const lang = req.lang || "vi";
 
-        const userId = req.user.userId;
+        const userId = req.user?.userId;
 
         const isActive =
           req.query.isActive !== undefined

@@ -9,10 +9,25 @@ import { tryCatchService } from "../../utils/helpers/trycatch.helper";
 import HttpStatus from "../../utils/http-status.utils";
 import CartModel from "../cart/cart.model";
 import OrderItemModel from "./models/order-item.model";
-import OrderModel, { OrderStatus, PaymentStatus } from "./models/order.model";
-import { ICreateAndUpdateOrder } from "./order.dto";
+import OrderModel, {
+  IOrder,
+  OrderStatus,
+  PaymentStatus,
+} from "./models/order.model";
+import {
+  ICreateAndUpdateOrder,
+  IOrderDetailResponse,
+  IOrderItemResponse,
+  IOrderResponse,
+} from "./order.dto";
 import ProductModel from "../product/models/product.model";
 import SizeQuantityModel from "../product/models/sizeQuantity.model";
+import {
+  orderDetailResponseMapper,
+  orderItemResponseMapper,
+  orderResponseMapper,
+} from "./order.mapper";
+import DiscountModel from "../discount/discount.model";
 
 export const createOrderService = async (
   userId: string,
@@ -49,12 +64,9 @@ export const createOrderService = async (
           size: item.sizeId,
         });
 
-        console.log(sizeQuantity);
-
         if (!sizeQuantity) {
           return apiError(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm.");
         }
-        console.log(sizeQuantity.quantity, item.quantity);
 
         if (sizeQuantity.quantity < item.quantity) {
           return apiError(
@@ -106,6 +118,7 @@ export const createOrderService = async (
           discountedPrice: item.discountedPrice,
           discount,
           size: item.size,
+          sizeId: item.sizeId,
           thumbnail: product?.thumbnail,
           totalPrice,
         };
@@ -209,6 +222,21 @@ export const cancelOrderService = async (
       order.orderNote = orderNote;
 
       await order.save();
+
+      const orderItem = await OrderItemModel.find({ orderId });
+
+      await Promise.all(
+        orderItem.map(async (item) => {
+          await SizeQuantityModel.updateOne(
+            {
+              productId: item.productId,
+              size: item.sizeId,
+            },
+            { $inc: { quantity: +item.quantity } }
+          );
+        })
+      );
+
       return apiResponse(HttpStatus.OK, "Hủy đơn hàng thành công.");
     },
     "INTERNAL_SERVER_ERROR",
@@ -217,11 +245,33 @@ export const cancelOrderService = async (
   );
 };
 
-export const deleteOrderrService = async (
+export const deleteOrderService = async (
+  userId: string,
+  orderId: string,
   __: TranslateFunction
 ): Promise<any> => {
   return tryCatchService(
-    async () => {},
+    async () => {
+      const deletedOrderItems = await OrderItemModel.deleteMany({ orderId });
+
+      if (deletedOrderItems.deletedCount === 0) {
+        return apiError(
+          HttpStatus.NOT_FOUND,
+          "Không tìm thấy mục đơn hàng để xóa."
+        );
+      }
+
+      const deletedOrder = await OrderModel.findByIdAndDelete({
+        _id: orderId,
+        userId,
+      });
+
+      if (!deletedOrder) {
+        return apiError(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng.");
+      }
+
+      return apiResponse(HttpStatus.OK, "Xóa đơn hàng thành công.");
+    },
     "INTERNAL_SERVER_ERROR",
     "deleteOrderrService",
     __
@@ -229,10 +279,73 @@ export const deleteOrderrService = async (
 };
 
 export const getAllOrderService = async (
-  __: TranslateFunction
-): Promise<any> => {
+  lang: "vi" | "en",
+  page: number,
+  limit: number,
+  __: TranslateFunction,
+  status?: string
+): Promise<
+  APIResponse<{
+    data: IOrderResponse[];
+    totalDocs: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+  }>
+> => {
   return tryCatchService(
-    async () => {},
+    async () => {
+      const skip = (page - 1) * limit;
+
+      const filter: any = {};
+
+      if (status?.trim()) {
+        const searchRegex = new RegExp(status.trim(), "i");
+        filter.$or = [{ orderStatus: searchRegex }];
+      }
+
+      const aggr = await OrderModel.aggregate([
+        { $match: filter },
+        {
+          $facet: {
+            data: [
+              { $sort: { createdAt: -1 } },
+              { $skip: skip },
+              { $limit: limit },
+              {
+                $project: {
+                  _id: 1,
+                  toName: 1,
+                  toPhone: 1,
+                  toProvince: 1,
+                  orderStatus: 1,
+                  paymentType: 1,
+                },
+              },
+            ],
+            totalCount: [{ $count: "count" }],
+          },
+        },
+      ]);
+
+      const result = aggr[0] as {
+        data: IOrder[];
+        totalCount: { count: number }[];
+      };
+
+      const totalDocs = result.totalCount[0]?.count || 0;
+      const totalPages = Math.ceil(totalDocs / limit);
+
+      const order = result.data.map((item) => orderResponseMapper(item, lang));
+
+      return apiResponse(HttpStatus.OK, "Lấy danh sách đơn hàng thành công.", {
+        data: order,
+        totalDocs,
+        totalPages,
+        currentPage: page,
+        limit,
+      });
+    },
     "INTERNAL_SERVER_ERROR",
     "getAllOrderService",
     __
@@ -240,10 +353,52 @@ export const getAllOrderService = async (
 };
 
 export const getDetailsOrderService = async (
+  orderId: string,
+  lang: "vi" | "en",
   __: TranslateFunction
-): Promise<any> => {
+): Promise<
+  APIResponse<{
+    orderInfo: IOrderDetailResponse;
+    orderItemsInfo: IOrderItemResponse[];
+  }>
+> => {
   return tryCatchService(
-    async () => {},
+    async () => {
+      const order = await OrderModel.findById(orderId);
+
+      if (!order) {
+        return apiError(HttpStatus.NOT_FOUND, "Order not found");
+      }
+
+      const orderItems = await OrderItemModel.find({ orderId });
+
+      if (!orderItems) {
+        return apiError(HttpStatus.NOT_FOUND, "Order not found");
+      }
+
+      let discountValue = 0;
+
+      if (order.discounts) {
+        const discount = await DiscountModel.findById(order.discounts);
+        if (discount) {
+          if (discount.discountCost != null) {
+            discountValue = discount.discountCost;
+          } else if (discount.discountPercentage != null) {
+            discountValue =
+              (order.orderTotalPrices * discount.discountPercentage) / 100;
+          }
+        }
+      }
+
+      const orderInfo = orderDetailResponseMapper(order, lang, discountValue);
+      const orderItemsInfo = orderItems.map((item) =>
+        orderItemResponseMapper(item, lang)
+      );
+      return apiResponse(HttpStatus.OK, "Lấy thong tin đơn hàng thành công.", {
+        orderInfo,
+        orderItemsInfo,
+      });
+    },
     "INTERNAL_SERVER_ERROR",
     "getDetailsOrderService",
     __
