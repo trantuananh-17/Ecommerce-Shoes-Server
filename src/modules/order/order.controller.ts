@@ -109,7 +109,9 @@ export const getAllOrderController = async (
 
       const status =
         typeof req.query.status === "string"
-          ? req.query.status.trim()
+          ? req.query.status.trim() === "all"
+            ? undefined
+            : req.query.status.trim()
           : undefined;
 
       const response = await getAllOrderService(

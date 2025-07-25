@@ -24,7 +24,7 @@ export interface IOrder extends Document {
   paymentType: PaymentType;
   paymentStatus: PaymentStatus;
   discounts: mongoose.Schema.Types.ObjectId;
-  orderNote?: string;
+  orderNote?: { vi: string; en: string };
   orderStatus: OrderStatus;
   orderItemsPrices: number;
   orderTotalPrices: number;
@@ -67,7 +67,7 @@ const orderSchema: Schema = new Schema<IOrder>(
       enum: Object.values(OrderStatus),
       default: OrderStatus.Pending,
     },
-    orderNote: { type: String },
+    orderNote: { vi: { type: String }, en: { type: String } },
     orderItemsPrices: { type: Number, required: true },
     orderTotalPrices: { type: Number, required: true },
     toName: { type: String, required: true },

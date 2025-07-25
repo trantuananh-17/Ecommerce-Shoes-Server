@@ -25,8 +25,6 @@ const authMiddleware = (
 
     req.user = decoded as IUserPayload;
 
-    console.log(req.user);
-
     next();
   } catch (error) {
     console.log("error: ", error);

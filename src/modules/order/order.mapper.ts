@@ -39,7 +39,7 @@ export const orderDetailResponseMapper = (
     district: order.toDistrict,
     ward: order.toWard,
     address: order.toAddress,
-    note: order.orderNote,
+    note: order.orderNote![lang],
     orderItemsPrices: order.orderItemsPrices,
     orderTotalPrices: order.orderTotalPrices,
     datePayment: order.datePayment?.toISOString() ?? null,

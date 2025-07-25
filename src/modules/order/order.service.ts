@@ -178,7 +178,7 @@ export const updateOrderService = async (
         );
       }
 
-      if (orderStatus === "Đã giao") {
+      if (orderStatus === "delivered") {
         order.orderStatus = OrderStatus.Delivered;
         order.paymentStatus = PaymentStatus.Paid;
         order.datePayment = new Date();
@@ -198,7 +198,7 @@ export const updateOrderService = async (
 
 export const cancelOrderService = async (
   orderId: string,
-  orderNote: string,
+  orderNote: { vi: string; en: string },
   __: TranslateFunction
 ): Promise<any> => {
   return tryCatchService(
@@ -209,17 +209,18 @@ export const cancelOrderService = async (
         return apiError(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng.");
       }
 
-      if (
-        order.orderStatus === OrderStatus.Shipped ||
-        order.orderStatus === OrderStatus.Delivered
-      ) {
-        return apiError(
-          HttpStatus.BAD_REQUEST,
-          "Bạn không thể hủy đơn hàng đang vận chuyển."
-        );
-      }
+      // if (
+      //   order.orderStatus === OrderStatus.Shipped ||
+      //   order.orderStatus === OrderStatus.Delivered
+      // ) {
+      //   return apiError(
+      //     HttpStatus.BAD_REQUEST,
+      //     "Bạn không thể hủy đơn hàng đang vận chuyển."
+      //   );
+      // }
       order.orderStatus = OrderStatus.Canceled;
-      order.orderNote = orderNote;
+      order.orderNote!.vi = orderNote.vi;
+      order.orderNote!.en = orderNote.en;
 
       await order.save();
 
