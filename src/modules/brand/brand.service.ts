@@ -72,12 +72,12 @@ export class BrandServiceImpl implements BrandService {
           name: 1,
         });
 
-        const response: IBrandNameResponseDto[] = result.map((brand) =>
+        const data: IBrandNameResponseDto[] = result.map((brand) =>
           brandNameResponseMapper(brand)
         );
 
         return apiResponse(HttpStatus.OK, __("GET_BRANDS_SUCCESSFULLY"), {
-          response,
+          data,
         });
       },
       "INTERNAL_SERVER_ERROR",
@@ -150,12 +150,12 @@ export class BrandServiceImpl implements BrandService {
         const totalDocs = aggregationResult.totalCount[0]?.count || 0;
         const totalPages = Math.ceil(totalDocs / limit);
 
-        const response: IBrandResponseDto[] = aggregationResult.data.map(
+        const data: IBrandResponseDto[] = aggregationResult.data.map(
           (brand: IBrand) => brandResponseMapper(brand)
         );
 
         return apiResponse(HttpStatus.OK, __("GET_BRANDS_SUCCESSFULLY"), {
-          data: response,
+          data: data,
           totalDocs,
           totalPages,
           currentPage: page,

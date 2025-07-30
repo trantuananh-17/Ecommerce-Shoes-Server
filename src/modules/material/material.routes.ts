@@ -9,8 +9,6 @@ const materialController = new MaterialController();
 
 materialRouter.get(
   "/",
-  authMiddleware,
-  roleMiddleware(["admin"]),
   paginationMiddleware(),
   materialController.getAllMaterialController
 );

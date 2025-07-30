@@ -7,11 +7,14 @@ import roleMiddleware from "../../middleware/role.middleware";
 const categoryRouter = Router();
 const categoryController = new CategoryController();
 
-categoryRouter.post("/", categoryController.createCategoryController);
-categoryRouter.get(
+categoryRouter.post(
   "/",
   authMiddleware,
   roleMiddleware(["admin"]),
+  categoryController.createCategoryController
+);
+categoryRouter.get(
+  "/",
   paginationMiddleware(),
   categoryController.getAllCategoryController
 );

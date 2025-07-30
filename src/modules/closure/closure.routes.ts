@@ -9,8 +9,6 @@ const closureController = new ClosureController();
 
 closureRouter.get(
   "/",
-  authMiddleware,
-  roleMiddleware(["admin"]),
   paginationMiddleware(),
   closureController.getAllClosureController
 );

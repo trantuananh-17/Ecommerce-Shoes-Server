@@ -807,7 +807,7 @@ export class ProductServiceImpl implements ProductService {
         if (filters?.brand) {
           pipeline.push({
             $match: {
-              [`brandInfo.name.${lang}`]: filters.brand,
+              [`brandInfo.name`]: filters.brand,
             },
           });
         }
