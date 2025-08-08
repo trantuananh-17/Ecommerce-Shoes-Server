@@ -15,6 +15,7 @@ export const cartResponseMapper = (
     sizeId: cartItem.sizeId.toString(),
     size: cartItem.size,
     quantity: quantity,
+    brand: cartItem.brand,
     stockQuantity: cartItem.stockQuantity,
   };
 };

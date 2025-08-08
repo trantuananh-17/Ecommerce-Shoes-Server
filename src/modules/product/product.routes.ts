@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { ProductController } from "./product.controller";
 import upload from "../../middleware/upload.middleware";
-import AuthRole from "../../middleware/auth.middleware";
 import { paginationMiddleware } from "../../middleware/pipe/paginationMiddleware";
 import authMiddleware from "../../middleware/auth.middleware";
 import roleMiddleware from "../../middleware/role.middleware";
+import optionalAuth from "../../middleware/optionAuth.middleware";
 
 const productRouter = Router();
 
@@ -49,7 +49,7 @@ productRouter.get(
 
 productRouter.get(
   "/slug/:slug",
-  authMiddleware,
+  optionalAuth,
   productController.getDetailProductBySlugController
 );
 

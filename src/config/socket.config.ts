@@ -1,14 +1,21 @@
 import { Server } from "socket.io";
-import { Socket } from "socket.io";
 
-// Hàm khởi tạo socket
+let io: Server;
+
 export const initSocket = (httpServer: any) => {
-  const io = new Server(httpServer, {
+  io = new Server(httpServer, {
     cors: {
       origin: "http://localhost:5173",
       methods: ["GET", "POST"],
     },
   });
 
+  io.on("connection", (socket) => {});
+};
+
+export const getIO = (): Server => {
+  if (!io) {
+    throw new Error("Socket.IO chưa được khởi tạo!");
+  }
   return io;
 };

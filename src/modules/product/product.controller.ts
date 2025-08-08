@@ -283,7 +283,7 @@ export class ProductController {
 
         const slug = req.params.slug;
 
-        const userId = req.user.userId;
+        const userId = req.user ? req.user.userId : null;
 
         const response = await this.productService.getDetailProductBySlugServie(
           lang,

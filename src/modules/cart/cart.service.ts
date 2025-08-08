@@ -85,9 +85,6 @@ export class CartServiceImpl implements CartService {
       async () => {
         const now = new Date();
 
-        const nameField = lang.startsWith("vi") ? "name.vi" : "name.en";
-        const slugField = lang.startsWith("vi") ? "slug.vi" : "slug.en";
-
         const cart = await CartModel.findOne({ user: userId });
 
         if (!cart || cart.products.length === 0) {
@@ -148,11 +145,14 @@ export class CartServiceImpl implements CartService {
               sizeId: "$sizeInfo._id",
               size: "$sizeInfo.name",
               stockQuantity: "$quantity",
+              brand: "$product.brand",
             },
           },
         ];
 
         const aggregatedItems = await SizeQuantityModel.aggregate(pipeline);
+
+        console.log(aggregatedItems);
 
         const result = aggregatedItems.map((item) => {
           const cartProduct = cart.products.find(

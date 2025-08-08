@@ -28,6 +28,7 @@ import {
   orderResponseMapper,
 } from "./order.mapper";
 import DiscountModel from "../discount/discount.model";
+import { getIO } from "../../config/socket.config";
 
 export const createOrderService = async (
   userId: string,
@@ -132,6 +133,18 @@ export const createOrderService = async (
           },
           { $inc: { quantity: -item.quantity } }
         );
+
+        const updatedSizeQuantity = await SizeQuantityModel.findOne({
+          productId: item.productId,
+          size: item.sizeId,
+        });
+
+        getIO().emit("stockUpdated", {
+          productId: item.productId,
+          size: item.size,
+          sizeId: item.sizeId,
+          quantity: updatedSizeQuantity?.quantity ?? 0,
+        });
 
         return await orderItemResult.save();
       });

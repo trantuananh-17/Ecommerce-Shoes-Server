@@ -19,6 +19,7 @@ export interface ICartItemsDto {
   thumbnail: string;
   productName: string;
   slug: string;
+  brand: string;
   price: number;
   discountedPrice: number;
   sizeId: string;
