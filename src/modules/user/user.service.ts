@@ -17,6 +17,11 @@ import { userInfoResponseMapper } from "./user.mapper";
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from "uuid";
 import s3 from "../../config/s3.config";
+import {
+  DeleteObjectCommand,
+  ObjectCannedACL,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 dotenv.config();
 
 export interface IUserService {
@@ -171,12 +176,12 @@ export class UserServiceImpl implements IUserService {
         if (user) {
           if (user.avatar && user.avatar.id) {
             const key = user.avatar.id;
-            await s3
-              .deleteObject({
-                Bucket: bucketName!,
-                Key: key,
-              })
-              .promise();
+            const command = new DeleteObjectCommand({
+              Bucket: bucketName,
+              Key: key,
+            });
+
+            await s3.send(command);
           }
 
           const resizedImageBuffer = await sharp(avatar.buffer)
@@ -192,20 +197,23 @@ export class UserServiceImpl implements IUserService {
               Key: key,
               Body: resizedImageBuffer,
               ContentType: avatar.mimetype,
-              ACL: "public-read",
+              ACL: ObjectCannedACL.public_read, // Cho public access
             };
 
-            const uploadResult = await s3.upload(params).promise();
+            const command = new PutObjectCommand(params);
+            await s3.send(command);
+
+            const url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 
             user.avatar = {
-              url: uploadResult.Location,
+              url,
               id: key,
             };
             await user.save();
             return apiResponse(
               HttpStatus.OK,
               __("USER_AVATAR_UPDATED_SUCCESSFULLY"),
-              uploadResult.Location
+              url
             );
           }
         }
@@ -228,12 +236,11 @@ export class UserServiceImpl implements IUserService {
         if (user) {
           if (user.avatar && user.avatar.id) {
             const key = user?.avatar?.id;
-            await s3
-              .deleteObject({
-                Bucket: bucketName!,
-                Key: key,
-              })
-              .promise();
+            const command = new DeleteObjectCommand({
+              Bucket: bucketName,
+              Key: key,
+            });
+            await s3.send(command);
           }
 
           user.avatar = undefined;
