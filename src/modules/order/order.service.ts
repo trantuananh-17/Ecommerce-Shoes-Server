@@ -29,12 +29,17 @@ import {
 } from "./order.mapper";
 import DiscountModel from "../discount/discount.model";
 import { getIO } from "../../config/socket.config";
+import { VnPayService } from "../payment/services/payment.service";
+import { getClientIp } from "../payment/utils/vnpay.util";
 
 export const createOrderService = async (
   userId: string,
   newOrder: ICreateAndUpdateOrder,
+  clientIp: string,
   __: TranslateFunction
-): Promise<APIResponse<null>> => {
+): Promise<
+  APIResponse<{ orderId: string; paymentUrl?: string; txnRef?: string }>
+> => {
   return tryCatchService(
     async () => {
       const {
@@ -53,22 +58,21 @@ export const createOrderService = async (
         toDistrict,
         toWard,
         toAddress,
+        bankCode,
+        language,
       } = newOrder;
 
+      // validate & check tồn kho (giữ nguyên)
       if (!Array.isArray(orderItem) || orderItem.length === 0) {
         return apiError(HttpStatus.BAD_REQUEST, "Vui lòng chọn sản phẩm.");
       }
-
       for (const item of orderItem) {
         const sizeQuantity = await SizeQuantityModel.findOne({
           productId: item.productId,
           size: item.sizeId,
         });
-
-        if (!sizeQuantity) {
+        if (!sizeQuantity)
           return apiError(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm.");
-        }
-
         if (sizeQuantity.quantity < item.quantity) {
           return apiError(
             HttpStatus.BAD_REQUEST,
@@ -77,6 +81,7 @@ export const createOrderService = async (
         }
       }
 
+      // tạo order
       const order = new OrderModel({
         userId,
         paymentType,
@@ -95,13 +100,11 @@ export const createOrderService = async (
         toWard,
         toAddress,
       });
-
       const result = await order.save();
-
-      if (!result) {
+      if (!result)
         return apiError(HttpStatus.BAD_REQUEST, "Tạo đơn hàng thất bại.");
-      }
 
+      // tạo order items + trừ kho + emit (giữ nguyên)
       const orderItemPromises = orderItem.map(async (item) => {
         const discount =
           item.price !== item.discountedPrice
@@ -123,34 +126,24 @@ export const createOrderService = async (
           thumbnail: product?.thumbnail,
           totalPrice,
         };
-
         const orderItemResult = new OrderItemModel(orderItemData);
-
         await SizeQuantityModel.updateOne(
-          {
-            productId: item.productId,
-            size: item.sizeId,
-          },
+          { productId: item.productId, size: item.sizeId },
           { $inc: { quantity: -item.quantity } }
         );
-
         const updatedSizeQuantity = await SizeQuantityModel.findOne({
           productId: item.productId,
           size: item.sizeId,
         });
-
         getIO().emit("stockUpdated", {
           productId: item.productId,
           size: item.size,
           sizeId: item.sizeId,
           quantity: updatedSizeQuantity?.quantity ?? 0,
         });
-
-        return await orderItemResult.save();
+        return orderItemResult.save();
       });
-
       const savedItems = await Promise.all(orderItemPromises);
-
       if (!savedItems || savedItems.length === 0) {
         return apiError(
           HttpStatus.BAD_REQUEST,
@@ -163,7 +156,38 @@ export const createOrderService = async (
         { $set: { products: [] } }
       );
 
-      return apiResponse(HttpStatus.OK, "Tạo đơn hàng thành công");
+      if (paymentType === "VNPAY") {
+        const lang: "vn" | "en" = language === "en" ? "en" : "vn";
+
+        const { url, orderId: txnRef } = VnPayService.createPaymentUrl({
+          orderId: String(result._id),
+          amount: orderTotalPrices,
+          bankCode,
+          language: lang,
+          ipAddr: clientIp,
+        });
+
+        await OrderModel.updateOne(
+          { _id: result._id },
+          {
+            $set: {
+              txnRef,
+              paymentGateway: "VNPAY",
+              paymentStatus: PaymentStatus.Unpaid,
+            },
+          }
+        );
+
+        return apiResponse(HttpStatus.OK, "Tạo đơn hàng thành công", {
+          orderId: String(result._id),
+          paymentUrl: url,
+          txnRef,
+        });
+      }
+
+      return apiResponse(HttpStatus.OK, "Tạo đơn hàng thành công", {
+        orderId: String(result._id),
+      });
     },
     "INTERNAL_SERVER_ERROR",
     "createOrderService",

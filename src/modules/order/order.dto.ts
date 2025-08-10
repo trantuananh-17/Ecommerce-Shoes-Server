@@ -11,7 +11,7 @@ export type orderItem = {
 };
 
 export interface ICreateAndUpdateOrder {
-  paymentType?: boolean;
+  paymentType?: string;
   paymentStatus?: PaymentStatus;
   discounts?: Schema.Types.ObjectId;
   orderNote?: string;
@@ -26,6 +26,8 @@ export interface ICreateAndUpdateOrder {
   toDistrict: string;
   toWard: string;
   toAddress: string;
+  bankCode?: string;
+  language: "en" | "vi";
 }
 
 export interface IOrderResponse {

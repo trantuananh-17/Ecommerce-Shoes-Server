@@ -8,6 +8,7 @@ import {
   getDetailsOrderService,
   updateOrderService,
 } from "./order.service";
+import { getClientIp } from "../payment/utils/vnpay.util";
 
 export const createOrderController = async (
   req: Request,
@@ -16,9 +17,11 @@ export const createOrderController = async (
   tryCatchController(
     async () => {
       const userId = req.user.userId;
+      const ip = getClientIp(req);
       const response = await createOrderService(
         userId,
         req.body,
+        ip,
         req.__.bind(req)
       );
       res.status(response.status_code).json(response);
