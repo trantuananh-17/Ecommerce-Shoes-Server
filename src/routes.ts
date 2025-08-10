@@ -14,6 +14,7 @@ import eventRouter from "./modules/event/event.routes";
 import cartRouter from "./modules/cart/cart.routes";
 import wishlistRouter from "./modules/wishlist/wishlist.routes";
 import orderRouter from "./modules/order/order.route";
+import paymentRouter from "./modules/payment/routes/payment.route";
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use("/events", eventRouter);
 router.use("/carts", cartRouter);
 router.use("/wishlists", wishlistRouter);
 router.use("/orders", orderRouter);
+router.use("/payments", paymentRouter);
 
 export default router;
