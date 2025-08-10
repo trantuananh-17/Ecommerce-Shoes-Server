@@ -33,6 +33,11 @@ import { Gender } from "aws-sdk/clients/polly";
 import { slugify } from "../../utils/helpers/slugify.helper";
 import UserModel from "../user/models/user.model";
 import { discountFields, eventDiscountLookupStage } from "./product.pipeline";
+import {
+  DeleteObjectCommand,
+  ObjectCannedACL,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 
 dotenv.config();
 
@@ -1008,13 +1013,17 @@ export class ProductServiceImpl implements ProductService {
             Key: key,
             Body: resizedBuffer,
             ContentType: file.mimetype,
-            ACL: "public-read",
+            ACL: ObjectCannedACL.public_read,
           };
 
-          const uploadResult = await s3.upload(params).promise();
+          const command = new PutObjectCommand(params);
+          await s3.send(command);
+
+          const url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+
           return {
             key: key,
-            url: uploadResult.Location,
+            url,
           };
         });
 
@@ -1139,11 +1148,17 @@ export class ProductServiceImpl implements ProductService {
 
         await Promise.all(
           toDelete.map((img) => {
-            const params: DeleteObjectRequest = {
+            const command = new DeleteObjectCommand({
               Bucket: bucketName,
               Key: img.key,
-            };
-            return s3.deleteObject(params).promise();
+            });
+
+            return s3.send(command);
+            // const params: DeleteObjectRequest = {
+            //   Bucket: bucketName,
+            //   Key: img.key,
+            // };
+            // return s3.deleteObject(params).promise();
           })
         );
 
@@ -1160,11 +1175,14 @@ export class ProductServiceImpl implements ProductService {
               Key: newKey,
               Body: resized,
               ContentType: file.mimetype,
-              ACL: "public-read",
+              ACL: ObjectCannedACL.public_read,
             };
-            const res = await s3.upload(params).promise();
+            const command = new PutObjectCommand(params);
+            await s3.send(command);
+
+            const url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${newKey}`;
             return {
-              url: res.Location,
+              url,
               key: newKey,
             };
           })
