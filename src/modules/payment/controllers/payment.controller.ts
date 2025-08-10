@@ -64,8 +64,6 @@ export const createPaymentUrl: RequestHandler = (
     // res.json({ url });
     res.redirect(url);
     return;
-    // Hoặc:
-    // return res.json({ url });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
@@ -93,7 +91,6 @@ export const vnpayReturn: RequestHandler = async (req, res): Promise<void> => {
     return;
   }
 
-  // so khớp số tiền (parsed.amount đã /100)
   if (Number(order.orderTotalPrices) !== Number(parsed.amount)) {
     res.redirect(`${FRONTEND_URL}/order/vnpay_return?code=02`);
     return;

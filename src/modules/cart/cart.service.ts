@@ -152,8 +152,6 @@ export class CartServiceImpl implements CartService {
 
         const aggregatedItems = await SizeQuantityModel.aggregate(pipeline);
 
-        console.log(aggregatedItems);
-
         const result = aggregatedItems.map((item) => {
           const cartProduct = cart.products.find(
             (p) => p.sizeQuantity.toString() === item._id.toString()
